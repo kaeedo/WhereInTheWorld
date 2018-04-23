@@ -4,9 +4,7 @@
   </PropertyGroup>
   <ItemGroup>
     <None Include="paket.references" />
-    <None Include="..\..\world.db">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
+    <None Include="..\..\world.db" CopyToOutputDirectory="PreserveNewest" />
     <Compile Include="Library.fs" />
   </ItemGroup>
   <Import Project="..\..\.paket\Paket.Restore.targets" />
