@@ -3,30 +3,18 @@ namespace WhereInTheWorld.Update
 open System
 open System.Data.SQLite
 open Dapper
-
-[<CLIMutable>]
-type Country =
-    { Id: int
-      Code: string
-      Name: string
-      LocalizedName: string }
-
+open Models
 
 module Update =
-    let private databaseFilename = "./world.db"
+    let private databaseFilename = "C:/Users/kait/dev/WhereInTheWorld/world.db"
     let private connectionString = sprintf "Data Source=%s;Version=3" databaseFilename
     let private connection = new SQLiteConnection(connectionString)
 
     connection.Open()
 
-    let supportedCountries =
-        [ "CA", "Canada", "Canada"
-          "DE", "Germany", "Deutschland"
-          "US", "United States of America", "United States of America" ]
-
     let getAllCountries () =
         let sql =
-            supportedCountries
+            DataImport.supportedCountries
             |> Seq.map (fun (code, _, _) ->
                 sprintf "'%s'" code
             )
@@ -37,7 +25,7 @@ module Update =
     let addCountries () =
         let allCountries = getAllCountries ()
         let sql =
-            supportedCountries
+            DataImport.supportedCountries
             |> Seq.filter (fun (code, _, _) ->
                 allCountries
                 |> Seq.exists (fun ac ->

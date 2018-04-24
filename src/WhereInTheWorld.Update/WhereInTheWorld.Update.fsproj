@@ -4,10 +4,20 @@
   </PropertyGroup>
   <ItemGroup>
     <None Include="paket.references" />
-    <None Include="../../world.db">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
+    <Compile Include="Models.fs" />
+    <Compile Include="DataImport.fs" />
     <Compile Include="Update.fs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="rawInput\CA.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="rawInput\DE.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="rawInput\US.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>

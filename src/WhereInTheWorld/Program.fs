@@ -3,6 +3,20 @@ open WhereInTheWorld.Update
 
 [<EntryPoint>]
 let main argv =
-    printfn "Hello World from F#!"
-    printfn "%A" <| Update.getAllCountries()
-    0 // return an integer exit code
+    let allImports = DataImport.supportedCountries
+    allImports
+    |> List.map (fun ai ->
+        let code, _, _ = ai
+        DataImport.fileImport code
+    )
+    |> List.collect id
+    |> List.mapi (fun idx line ->
+        if idx % 100 = 0
+        then 
+            printfn "%A" line
+            1
+        else 1
+    )
+    |> ignore
+    System.Console.ReadLine() |> ignore
+    0
