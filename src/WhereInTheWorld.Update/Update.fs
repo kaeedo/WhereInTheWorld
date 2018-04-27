@@ -5,7 +5,7 @@ open System.Data.SQLite
 open Dapper
 open Models
 
-module Update =
+module DataAccess =
     let private databaseFilename = "C:/Users/kait/dev/WhereInTheWorld/world.db"
     let private connectionString = sprintf "Data Source=%s;Version=3" databaseFilename
     let private connection = new SQLiteConnection(connectionString)
@@ -22,24 +22,20 @@ module Update =
 
         connection.Query<Country>(sprintf "SELECT * FROM Country WHERE Code IN (%s)" sql)
 
-    let addCountries () =
-        let allCountries = getAllCountries ()
-        let sql =
-            DataImport.supportedCountries
-            |> Seq.filter (fun (code, _, _) ->
-                allCountries
-                |> Seq.exists (fun ac ->
-                    ac.Code = code
-                )
-                |> not
-            )
-            |> Seq.map (fun countryData ->
-                let code, name, localizedName = countryData
-                sprintf "('%s', '%s', '%s')" code name localizedName
-                )
-            |> String.concat ","
+    let insertCountry (country: Country) =
+        let sql = sprintf "
+            INSERT INTO Country(%s, %s, %s)
+            SELECT %s
+            WHERE NOT EXISTS(SELECT 1 FROM Country WHERE Code = %s)"
+                    country.Code country.Name country.LocalizedName country.Code country.Code
 
-        if String.IsNullOrWhiteSpace(sql)
-        then ()
-        else
-            connection.Execute("INSERT INTO 'Country' ('Code', 'Name', 'LocalizedName') VALUES " + sql) |> ignore
+        connection.Execute(sql)
+
+    let insertSubdivision (subdivision: Subdivision) =
+        let sql = sprintf "
+            INSERT INTO Subdivision(%s, %s)
+            SELECT %s
+            WHERE NOT EXISTS(SELECT 1 FROM Country WHERE Code = %s)"
+                    subdivision.Code subdivision.Name subdivision.Code subdivision.Code
+
+        connection.Execute(sql)

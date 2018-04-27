@@ -1,5 +1,7 @@
 namespace WhereInTheWorld.Update
 
+open System
+
 module Models =
     [<CLIMutable>]
     type Country =
@@ -48,3 +50,6 @@ module Models =
           Latitude: float option
           Longitude: float option
           Accuracy: int option }
+
+    type Errors =
+        | UnableToReadInput of Exception

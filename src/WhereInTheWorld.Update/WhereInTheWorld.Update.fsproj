@@ -4,18 +4,17 @@
   </PropertyGroup>
   <ItemGroup>
     <None Include="paket.references" />
+    <Compile Include="Utilities.fs" />
     <Compile Include="Models.fs" />
     <Compile Include="DataImport.fs" />
     <Compile Include="Update.fs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="rawInput\CA.txt">
+    <Content Include="rawInput/CA.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="rawInput\DE.txt">
+    <Content Include="rawInput/DE.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="rawInput\US.txt">
+    <Content Include="rawInput/US.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
