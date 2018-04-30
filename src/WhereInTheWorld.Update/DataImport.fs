@@ -20,10 +20,10 @@ module DataImport =
           "DE", "Germany", "Deutschland"
           "US", "United States of America", "United States of America" ]
 
-    let fileImport countryCode =
+    let fileImport countryCode : Result<seq<FileImport>, exn> =
         let readFile countryCode =
             try
-                Result.Ok <| File.ReadAllLines(sprintf "./rawInput/%s.txt" countryCode)
+                Result.Ok <| File.ReadAllLines(sprintf "./src/WhereInTheWorld.Update/rawInput/%s.txt" countryCode)
             with
             | e -> Result.Error e
 

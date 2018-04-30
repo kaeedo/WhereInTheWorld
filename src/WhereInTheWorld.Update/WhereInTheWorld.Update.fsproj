@@ -7,7 +7,7 @@
     <Compile Include="Utilities.fs" />
     <Compile Include="Models.fs" />
     <Compile Include="DataImport.fs" />
-    <Compile Include="Update.fs" />
+    <Compile Include="DataAccess.fs" />
     <Content Include="rawInput/CA.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

@@ -24,18 +24,19 @@ module DataAccess =
 
     let insertCountry (country: Country) =
         let sql = sprintf "
-            INSERT INTO Country(%s, %s, %s)
-            SELECT %s
-            WHERE NOT EXISTS(SELECT 1 FROM Country WHERE Code = %s)"
-                    country.Code country.Name country.LocalizedName country.Code country.Code
+            INSERT OR IGNORE INTO Country(Code, Name, LocalizedName)
+            VALUES('%s', '%s', '%s');
+            SELECT last_insert_rowid()"
+                    country.Code country.Name country.LocalizedName
 
-        connection.Execute(sql)
+        connection.Query<int>(sql)
+        |> Seq.head
 
     let insertSubdivision (subdivision: Subdivision) =
         let sql = sprintf "
-            INSERT INTO Subdivision(%s, %s)
-            SELECT %s
-            WHERE NOT EXISTS(SELECT 1 FROM Country WHERE Code = %s)"
-                    subdivision.Code subdivision.Name subdivision.Code subdivision.Code
+            INSERT INTO Subdivision(Name, Code)
+            SELECT '%s', '%s'
+            WHERE NOT EXISTS(SELECT 1 FROM Country WHERE Code = '%s')"
+                    subdivision.Name subdivision.Code subdivision.Code
 
-        connection.Execute(sql)
+        connection.Execute(sql) |> ignore
