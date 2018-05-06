@@ -29,24 +29,36 @@ let main argv =
                 code = "DE"
             )
 
+        let uniqueSubdivisions =
+            import
+            |> Seq.map (fun i ->
+                { Id = 1; CountryId = 1; Code = i.SubdivisionCode; Name = i.SubdivisionName; }
+            )
+            |> Seq.distinctBy (fun sd -> sd.Code)
+
         let countryId =
-            DataAccess.insertCountry { Id = 1; Code = countryCode; Name = countryName; LocalizedName = countryLocalizedName }
+            DataAccess.insertCountryGetId { Id = 1; Code = countryCode; Name = countryName; LocalizedName = countryLocalizedName }
 
-        printfn "%i" countryId
+        DataAccess.insertSubdivisions countryId uniqueSubdivisions
 
-        import
-        |> Seq.map (fun i ->
-            { Id = 1; Code = i.SubdivisionCode; Name = i.SubdivisionName; }
-        )
-        |> Seq.iter DataAccess.insertSubdivision
+        let subdivisions =
+            uniqueSubdivisions
+            |> DataAccess.getSubdivisions
+
+        let getSubdivisionId fileImport subdivisions =
+            let subdivision =
+                subdivisions
+                |> Seq.find (fun sd -> sd.Code = fileImport.SubdivisionCode)
+
+            subdivision.Id
+
 
         import
         |> Seq.map (fun i ->
             { Id = 1
               PostalCode = i.PostalCode
               PlaceName = i.PlaceName
-              CountryId = 1
-              SubdivisionId = 1
+              SubdivisionId = subdivisions |> getSubdivisionId i
               CountyName = i.CountyName
               CountyCode = i.CountyCode
               CommunityName = i.CommunityName
@@ -55,9 +67,6 @@ let main argv =
               Longitude = i.Longitude
               Accuracy = i.Accuracy }
         )
-        |> ignore
-        // |> Seq.iter DataAccess
+        |> DataAccess.insertPostalCodes
 
-
-    System.Console.ReadLine() |> ignore
     0

@@ -13,6 +13,7 @@ module Models =
     [<CLIMutable>]
     type Subdivision =
         { Id: int
+          CountryId: int
           Code: string
           Name: string }
 
@@ -21,7 +22,6 @@ module Models =
         { Id: int
           PostalCode: string
           PlaceName: string
-          CountryId: int
           SubdivisionId: int
           CountyName: string option
           CountyCode: string option

@@ -1,9 +1,17 @@
-CREATE TABLE "Country" ( `Id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE, `Code` TEXT NOT NULL UNIQUE, `Name` TEXT NOT NULL, `LocalizedName` TEXT NOT NULL );
-CREATE TABLE `Subdivision` ( `Id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE, `Code` TEXT NOT NULL UNIQUE, `Name` TEXT NOT NULL );
+CREATE TABLE "Country" ( `Id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE, 
+    `Code` TEXT NOT NULL UNIQUE, 
+    `Name` TEXT NOT NULL, 
+    `LocalizedName` TEXT NOT NULL );
+
+CREATE TABLE `Subdivision` ( `Id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE, 
+    `CountryId` INTEGER NOT NULL,
+    `Code` TEXT NOT NULL UNIQUE, 
+    `Name` TEXT NOT NULL,
+     FOREIGN KEY(`CountryId`) REFERENCES `Country`(`Id`));
+
 CREATE TABLE `PostalCode` ( `Id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
      `PostalCode` TEXT NOT NULL,
      `PlaceName` TEXT NOT NULL,
-     `CountryId` INTEGER NOT NULL,
      `SubdivisionId` INTEGER NOT NULL,
      `CountyName` TEXT,
      `CountyCode` TEXT,
@@ -12,5 +20,4 @@ CREATE TABLE `PostalCode` ( `Id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQ
      `Latitude` REAL,
      `Longitude` REAL,
      `Accuracy` INTEGER,
-     FOREIGN KEY(`SubdivisionId`) REFERENCES `Subdivision`(`Id`),
-     FOREIGN KEY(`CountryId`) REFERENCES `Country`(`Id`) );
+     FOREIGN KEY(`SubdivisionId`) REFERENCES `Subdivision`(`Id`));
