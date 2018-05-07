@@ -1,6 +1,5 @@
 namespace WhereInTheWorld.Update
 
-open System.Data.SQLite
 open Dapper
 open Models
 
@@ -15,7 +14,7 @@ module DataAccess =
 
     let getAllCountries () =
         let codes =
-            DataImport.supportedCountries
+            DataDownload.supportedCountries
             |> Seq.map (fun (code, _, _) ->
                 code
             )

@@ -6,17 +6,9 @@
     <None Include="paket.references" />
     <Compile Include="Utilities.fs" />
     <Compile Include="Models.fs" />
+    <Compile Include="DataDownload.fs" />
     <Compile Include="DataImport.fs" />
     <Compile Include="DataAccess.fs" />
-    <Content Include="rawInput/CA.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="rawInput/DE.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="rawInput/US.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
   </ItemGroup>
   <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>

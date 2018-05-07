@@ -5,7 +5,7 @@ open WhereInTheWorld.Update.Models
 let mapCountries =
     Seq.map (fun i ->
         let countryCode, countryName, countryLocalizedName =
-            DataImport.supportedCountries
+            DataDownload.supportedCountries
             |> Seq.find (fun sc ->
                 let code, _, _ = sc
                 code = i.CountryCode
@@ -23,7 +23,7 @@ let main argv =
         let countries = mapCountries import
 
         let countryCode, countryName, countryLocalizedName =
-            DataImport.supportedCountries
+            DataDownload.supportedCountries
             |> Seq.find (fun sc ->
                 let code, _, _ = sc
                 code = "DE"

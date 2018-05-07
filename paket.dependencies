@@ -3,3 +3,4 @@ source https://nuget.org/api/v2
 nuget FSharp.Core
 nuget System.Data.SQLite.Core
 nuget Dapper
+nuget Http.fs

@@ -15,11 +15,6 @@ module DataImport =
             with
             | _ -> None
 
-    let supportedCountries =
-        [ "CA", "Canada", "Canada"
-          "DE", "Germany", "Deutschland"
-          "US", "United States of America", "United States of America" ]
-
     let fileImport countryCode : Result<seq<FileImport>, exn> =
         let readFile countryCode =
             try
