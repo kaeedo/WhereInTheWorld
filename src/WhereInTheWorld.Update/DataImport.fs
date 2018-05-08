@@ -4,8 +4,10 @@ open System
 open System.IO
 open Models
 open Utilities
+open Hopac
 
 module DataImport =
+    let private baseSaveDirectory = "./temp"
     let private parse ctor str =
         if String.IsNullOrWhiteSpace(str)
         then None
@@ -15,10 +17,10 @@ module DataImport =
             with
             | _ -> None
 
-    let fileImport countryCode : Result<seq<FileImport>, exn> =
+    let fileImport countryCode =
         let readFile countryCode =
             try
-                Result.Ok <| File.ReadAllLines(sprintf "./src/WhereInTheWorld.Update/rawInput/%s.txt" countryCode)
+                Result.Ok <| File.ReadAllLines(sprintf "./%s/%s.txt" baseSaveDirectory countryCode)
             with
             | e -> Result.Error e
 
@@ -50,6 +52,8 @@ module DataImport =
             with
             | e -> Result.Error e
 
-        (readFile
-        >> splitLines) countryCode
-        >=> mapFileImport
+        job {
+            return (readFile
+            >> splitLines) countryCode
+            >=> mapFileImport
+        }
