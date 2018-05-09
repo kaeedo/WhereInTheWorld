@@ -4,20 +4,48 @@ open System.IO
 open System.IO.Compression
 open Hopac
 open HttpFs.Client
+open Utilities
 
 module DataDownload =
     let private baseUrl = "http://download.geonames.org/export/zip/"
     let private baseSaveDirectory = "./temp"
 
     let private downloadZip countryCode =
-        Request.createUrl Get <| sprintf "%s%s.zip" baseUrl countryCode
-        |> Request.responseAsBytes
-
-    let private saveZip countryCode (response: Job<byte[]>) =
         job {
-            let! contents = response
+            try
+                let fileBytes =
+                    Request.createUrl Get <| sprintf "%s%s.zip" baseUrl countryCode
+                    |> Request.responseAsBytes
+                    |> run
+                    |> Result.Ok
+                return fileBytes
+            with
+            | e -> return Result.Error e
+        }
 
-            File.WriteAllBytes(sprintf "./%s/%s.zip" baseSaveDirectory countryCode, contents)
+    let private saveZip countryCode file =
+        job {
+            try
+                let filePath = sprintf "./%s/%s.zip" baseSaveDirectory countryCode
+
+                File.WriteAllBytes(filePath, file)
+                return filePath |> Result.Ok
+            with
+            | e -> return Result.Error e
+        }
+
+    let private saveCountryFile filePath =
+        job {
+            try
+                if Directory.Exists(baseSaveDirectory)
+                then Directory.Delete(baseSaveDirectory, true)
+
+                Directory.CreateDirectory(baseSaveDirectory) |> ignore
+                ZipFile.ExtractToDirectory(filePath, baseSaveDirectory)
+
+                return Result.Ok filePath
+            with
+            | e -> return Result.Error e
         }
 
     let supportedCountries =
@@ -25,11 +53,6 @@ module DataDownload =
           "DE", "Germany", "Deutschland"
           "US", "United States of America", "United States of America" ]
 
-    let saveCountryFile countryCode =
-        Directory.CreateDirectory(baseSaveDirectory) |> ignore
-
-        job {
-            let zipJob = downloadZip countryCode
-            do! saveZip countryCode zipJob
-            ZipFile.ExtractToDirectory(sprintf "./%s/%s.zip" baseSaveDirectory countryCode, baseSaveDirectory)
-        }
+    let downloadPostalCodesForCountry countryCode =
+        let workflow = downloadZip >=> (saveZip countryCode) >=> saveCountryFile
+        workflow countryCode

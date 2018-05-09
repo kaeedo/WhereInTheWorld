@@ -3,6 +3,7 @@ namespace WhereInTheWorld.Update
 open System
 open System.Data.SQLite
 open Dapper
+open Hopac
 
 type OptionHandler<'T>() =
     inherit SqlMapper.TypeHandler<option<'T>>()
@@ -21,21 +22,21 @@ type OptionHandler<'T>() =
         else Some (value :?> 'T)
 
 module Utilities =
-    let (>>=) twoTrackInput switchFunction =
-        Result.bind switchFunction twoTrackInput
+    let bind (fn: 'a -> Job<Result<'b, 'c>>) (jobValue: Job<Result<'a, 'c>>) =
+        job {
+            let! r = jobValue
+            match r with
+            | Ok value ->
+                let next = fn value
+                return! next
+            | Error err -> return (Error err)
+        }
 
-    let (>=>) firstSwitch secondSwitch =
-        match firstSwitch with
-        | Result.Ok output -> secondSwitch output
-        | Result.Error error -> Result.Error error
+    let compose oneTrack twoTrack value =
+        bind twoTrack (oneTrack value)
 
-    let switch fn value =
-        fn value |> Result.Ok
-
-    let map oneTrack twoTrack =
-        match twoTrack with
-        | Ok x -> Ok (oneTrack x)
-        | Error e -> Error e
+    let (>>=) twoTrackInput switchFunction = bind switchFunction twoTrackInput
+    let (>=>) firstSwitch secondSwitch = compose firstSwitch secondSwitch
 
     let safeSqlConnection (connectionString: string) =
         SqlMapper.AddTypeHandler (OptionHandler<float>())
