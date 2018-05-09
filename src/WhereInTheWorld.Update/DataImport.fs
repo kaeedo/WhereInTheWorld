@@ -7,7 +7,6 @@ open Utilities
 open Hopac
 
 module DataImport =
-    let private baseSaveDirectory = "./temp"
     let private parse ctor str =
         if String.IsNullOrWhiteSpace(str)
         then None
@@ -17,10 +16,10 @@ module DataImport =
             with
             | _ -> None
 
-    let private readFile countryCode =
+    let private readFile filePath =
         job {
             try
-                return Result.Ok <| File.ReadAllLines(sprintf "./%s/%s.txt" baseSaveDirectory countryCode)
+                return Result.Ok <| File.ReadAllLines(sprintf "%s.txt" filePath)
             with
             | e -> return Result.Error e
         }
@@ -60,6 +59,6 @@ module DataImport =
             | e -> return Result.Error e
         }
 
-    let fileImport countryCode =
+    let fileImport filePath =
         let workflow = readFile >=> splitLines >=> mapFileImport
-        workflow countryCode
+        workflow filePath

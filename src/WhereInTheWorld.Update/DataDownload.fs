@@ -26,9 +26,8 @@ module DataDownload =
     let private saveZip countryCode file =
         job {
             try
-                let filePath = sprintf "./%s/%s.zip" baseSaveDirectory countryCode
-
-                File.WriteAllBytes(filePath, file)
+                let filePath = sprintf "./%s/%s" baseSaveDirectory countryCode
+                File.WriteAllBytes(sprintf "%s.zip" filePath, file)
                 return filePath |> Result.Ok
             with
             | e -> return Result.Error e
@@ -37,11 +36,8 @@ module DataDownload =
     let private saveCountryFile filePath =
         job {
             try
-                if Directory.Exists(baseSaveDirectory)
-                then Directory.Delete(baseSaveDirectory, true)
-
                 Directory.CreateDirectory(baseSaveDirectory) |> ignore
-                ZipFile.ExtractToDirectory(filePath, baseSaveDirectory)
+                ZipFile.ExtractToDirectory(sprintf "%s.zip" filePath, baseSaveDirectory)
 
                 return Result.Ok filePath
             with
