@@ -2,13 +2,18 @@
 open WhereInTheWorld.Update
 open WhereInTheWorld.Update.Models
 open Hopac
+open System.IO
 
 [<EntryPoint>]
 let main argv =
     job {
-        let! filePath = DataDownload.downloadPostalCodesForCountry "CA"
+        if Directory.Exists("./temp")
+        then Directory.Delete("./temp", true)
+        Directory.CreateDirectory("./temp") |> ignore
+
+        let! filePath = DataDownload.downloadPostalCodesForCountry "DE"
         match filePath with
-        | Error e -> printfn "Something went wrong when downloading for country code %s: %A" "CA" e
+        | Error e -> printfn "Something went wrong when downloading for country code %s: %A" "DE" e
         | Ok fp ->
             let! import = DataImport.fileImport fp
 

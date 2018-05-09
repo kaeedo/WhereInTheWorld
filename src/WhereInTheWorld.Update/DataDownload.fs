@@ -13,12 +13,12 @@ module DataDownload =
     let private downloadZip countryCode =
         job {
             try
-                let fileBytes =
+                let file =
                     Request.createUrl Get <| sprintf "%s%s.zip" baseUrl countryCode
                     |> Request.responseAsBytes
                     |> run
                     |> Result.Ok
-                return fileBytes
+                return file
             with
             | e -> return Result.Error e
         }
