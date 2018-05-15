@@ -37,6 +37,7 @@ module DataDownload =
         job {
             try
                 Directory.CreateDirectory(baseSaveDirectory) |> ignore
+                File.Delete(sprintf "%s/readme.txt" baseSaveDirectory)
                 ZipFile.ExtractToDirectory(sprintf "%s.zip" filePath, baseSaveDirectory)
 
                 return Result.Ok filePath

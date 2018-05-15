@@ -59,6 +59,6 @@ module DataImport =
             | e -> return Result.Error e
         }
 
-    let fileImport filePath =
+    let readPostalCodesFile filePath =
         let workflow = readFile >=> splitLines >=> mapFileImport
         workflow filePath
