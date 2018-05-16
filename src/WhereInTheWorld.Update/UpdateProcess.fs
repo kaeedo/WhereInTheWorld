@@ -6,13 +6,6 @@ open Hopac
 open System.IO
 
 module UpdateProcess =
-    let private ensureDirectory () =
-        job {
-            if Directory.Exists("./temp")
-            then Directory.Delete("./temp", true)
-            Directory.CreateDirectory("./temp") |> ignore
-        }
-
     let private createSubdivions fileImport =
         fileImport
         |> Seq.map (fun i ->
@@ -36,11 +29,9 @@ module UpdateProcess =
 
     let updateCountry countryCode =
         job {
-            do! ensureDirectory()
-
             let! importedPostalCodes =
                 (DataDownload.downloadPostalCodesForCountry
-                >=> DataImport.readPostalCodesFile) countryCode
+                 >=> DataImport.readPostalCodesFile) countryCode
 
             match importedPostalCodes with
             | Error e -> return Result.Error (countryCode, e)
