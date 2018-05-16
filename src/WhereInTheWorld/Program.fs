@@ -1,12 +1,9 @@
 ﻿open System
 open WhereInTheWorld.Update
-open WhereInTheWorld.Update.Models
 open Hopac
-open System.IO
 
 [<EntryPoint>]
 let main argv =
-    // POSTAL CODES ARE DUPLICATING
     DataDownload.supportedCountries
     |> Seq.map (fun sc ->
         let code, _, _ = sc
