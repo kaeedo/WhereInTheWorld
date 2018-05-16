@@ -3,15 +3,34 @@ namespace WhereInTheWorld.Update
 open Dapper
 open Models
 open Hopac
+open System
+open System.IO
+open System.Data.SQLite
 
 module DataAccess =
     type Codes = { Codes: seq<string> }
 
-    let private databaseFilename = "./world.db"
+    let private baseDirectory = 
+        match Environment.OSVersion.Platform with
+        | PlatformID.Unix -> Path.Combine(Environment.GetEnvironmentVariable("HOME"), "WhereInTheWorld")
+        | PlatformID.MacOSX -> Path.Combine(Environment.GetEnvironmentVariable("HOME"), "WhereInTheWorld")
+        | _ -> Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "WhereInTheWorld")
+
+    let private databaseFilename = sprintf "%s/world.db" baseDirectory
     let private connectionString = sprintf "Data Source=%s;Version=3" databaseFilename
     let private connection = Utilities.safeSqlConnection connectionString
 
-    connection.Open()
+    let openConnection () = connection.Open()
+    let closeConnection () = connection.Close()
+
+    let ensureDatabase () =
+        if not (Directory.Exists(baseDirectory))
+        then Directory.CreateDirectory(baseDirectory) |> ignore
+        if not (File.Exists(databaseFilename))
+        then 
+            SQLiteConnection.CreateFile(databaseFilename)
+            let sql = File.ReadAllText("./sqlScripts/create.sql")
+            connection.Execute(sql) |> ignore
 
     let getAllCountries =
         Job.fromTask <|

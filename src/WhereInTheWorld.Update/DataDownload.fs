@@ -47,9 +47,6 @@ module DataDownload =
                 |> fun entry -> entry.ExtractToFile(sprintf "%s/%s.txt" baseSaveDirectory countryCode)
                 archive.Dispose()
 
-                //File.Delete(sprintf "%s/readme.txt" baseSaveDirectory)
-                //ZipFile.ExtractToDirectory(sprintf "%s.zip" filePath, baseSaveDirectory)
-
                 return Result.Ok filePath
             with
             | e -> return Result.Error e
