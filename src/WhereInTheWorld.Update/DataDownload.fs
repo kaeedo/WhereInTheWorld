@@ -4,11 +4,12 @@ open System.IO
 open System.IO.Compression
 open Hopac
 open HttpFs.Client
+open Models
 open Utilities
+open System
 
 module DataDownload =
     let private baseUrl = "http://download.geonames.org/export/zip/"
-    let baseSaveDirectory = "./temp"
 
     let private downloadZip countryCode =
         job {
@@ -25,7 +26,7 @@ module DataDownload =
     let private saveZip countryCode file =
         job {
             try
-                let filePath = sprintf "./%s/%s" baseSaveDirectory countryCode
+                let filePath = baseDirectory @@ countryCode
                 File.WriteAllBytes(sprintf "%s.zip" filePath, file)
                 return filePath |> Result.Ok
             with
@@ -35,17 +36,18 @@ module DataDownload =
     let private saveCountryFile filePath =
         job {
             try
-                let archive = ZipFile.OpenRead(sprintf "%s.zip" filePath)
-                let countryCode = filePath.Split('/') |> Seq.last
+                let zipFileName = sprintf "%s.zip" filePath
+                let archive = ZipFile.OpenRead(zipFileName)
+                let countryCode = filePath.Split(Path.DirectorySeparatorChar) |> Seq.last
 
                 archive.Entries
-                |> Seq.filter (fun zae ->
-
-                    zae.Name = sprintf "%s.txt" countryCode
+                |> Seq.find (fun zae ->
+                    zae.Name <> "readme.txt"
                 )
-                |> Seq.head
-                |> fun entry -> entry.ExtractToFile(sprintf "%s/%s.txt" baseSaveDirectory countryCode)
+                |> fun entry -> entry.ExtractToFile(sprintf "%s.txt" (baseDirectory @@ countryCode))
                 archive.Dispose()
+
+                File.Delete(zipFileName)
 
                 return Result.Ok filePath
             with
@@ -144,9 +146,14 @@ module DataDownload =
         //   "ZA", "South Africa", "" ]
 
     let downloadPostalCodesForCountry countryCode =
-        let stopWatch = System.Diagnostics.Stopwatch.StartNew()
         let workflow = downloadZip >=> (saveZip countryCode) >=> saveCountryFile
-        let workUnit = workflow countryCode
-        stopWatch.Stop()
-        printfn "%s took %fms     " countryCode stopWatch.Elapsed.TotalMilliseconds
+        let workUnit =
+            job {
+                let stopWatch = System.Diagnostics.Stopwatch.StartNew()
+                let! wu = workflow countryCode
+                stopWatch.Stop()
+                printfn "Download for Country: %s took %fms" countryCode stopWatch.Elapsed.TotalMilliseconds
+
+                return wu
+            }
         workUnit

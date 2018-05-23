@@ -1,8 +1,15 @@
 namespace WhereInTheWorld.Update
 
 open System
+open Utilities
 
 module Models =
+    let baseDirectory =
+        match Environment.OSVersion.Platform with
+        | PlatformID.Unix -> Environment.GetEnvironmentVariable("HOME") @@ ".WhereInTheWorld"
+        | PlatformID.MacOSX -> Environment.GetEnvironmentVariable("HOME") @@ ".WhereInTheWorld"
+        | _ -> Environment.GetFolderPath(Environment.SpecialFolder.Personal) @@ ".WhereInTheWorld"
+
     [<CLIMutable>]
     type Country =
         { Id: int

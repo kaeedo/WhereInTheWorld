@@ -5,9 +5,9 @@ open Hopac
 open System.Net
 
 let ensureDirectory () =
-    if Directory.Exists(DataDownload.baseSaveDirectory)
-    then Directory.Delete(DataDownload.baseSaveDirectory, true)
-    Directory.CreateDirectory(DataDownload.baseSaveDirectory) |> ignore
+    if Directory.Exists(Models.baseDirectory)
+    then Directory.Delete(Models.baseDirectory, true)
+    Directory.CreateDirectory(Models.baseDirectory) |> ignore
 
 let batchesOf n =
     Seq.mapi (fun i v -> i / n, v) >>
@@ -22,7 +22,18 @@ let main argv =
 
     let stopWatch = System.Diagnostics.Stopwatch.StartNew()
 
-    let a =
+    DataDownload.supportedCountries
+    |> Seq.rev
+    |> Seq.iter (fun sc ->
+        let code, _, _ = sc
+        let result = DataDownload.downloadPostalCodesForCountry code |> run
+        match result with
+        | Error (error: Exception) ->
+            printfn "Country download for %s failed with message: %A" code error
+        | Ok countryCode -> printfn "Country download for %s succeeded" countryCode
+    )
+
+    (*let a =
         DataDownload.supportedCountries
         |> batchesOf 5
         |> Seq.toList
@@ -42,7 +53,7 @@ let main argv =
         | Ok countryCode -> printfn "Country download for %s succeeded" countryCode
     )
 
-    (*a.[0..2]
+    a.[0..2]
     |> Seq.iter(fun sequence ->
         sequence
         |> Seq.map (fun sc ->
@@ -78,5 +89,4 @@ let main argv =
     stopWatch.Stop()
     printfn "Total time took %fms" stopWatch.Elapsed.TotalMilliseconds
     DataAccess.closeConnection()
-    Console.ReadLine() |> ignore
     0

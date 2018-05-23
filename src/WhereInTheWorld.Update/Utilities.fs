@@ -4,6 +4,7 @@ open System
 open System.Data.SQLite
 open Dapper
 open Hopac
+open System.IO
 
 type OptionHandler<'T>() =
     inherit SqlMapper.TypeHandler<option<'T>>()
@@ -37,6 +38,8 @@ module Utilities =
 
     let (>>=) twoTrackInput switchFunction = bind switchFunction twoTrackInput
     let (>=>) firstSwitch secondSwitch = compose firstSwitch secondSwitch
+
+    let (@@) a b = Path.Combine(a, b)
 
     let safeSqlConnection (connectionString: string) =
         SqlMapper.AddTypeHandler (OptionHandler<float>())
