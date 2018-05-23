@@ -55,17 +55,17 @@ module DataDownload =
         }
 
     let supportedCountries =
-        [ "AT", "Austria", "Österreich"
-          "BR", "Brazil", "Brasil"
-          "IM", "Isle of Man", "Isle of Man"
-          "LK", "Sri Lanka", "ශ්‍රී ලංකාව" ]
-        // [ "AD", "Andorra", "Andorra"
-        //   "AR", "Argentina", ""
-        //   "AS", "American Samoa", ""
-        //   "AT", "Austria", ""
-        //   "AU", "Australia", ""
-        //   "AX", "Åland Islands", ""
-        //   "BD", "Bangladesh", ""
+        // [ "AT", "Austria", "Österreich"
+        //   "BR", "Brazil", "Brasil"
+        //   "IM", "Isle of Man", "Isle of Man"
+        //   "LK", "Sri Lanka", "ශ්‍රී ලංකාව" ]
+        [ "AD", "Andorra", "Andorra"
+          "AR", "Argentina", ""
+          "AS", "American Samoa", ""
+          "AT", "Austria", ""
+          "AU", "Australia", ""
+          "AX", "Åland Islands", ""
+          "BD", "Bangladesh", "" ]
         //   "BE", "Belgium", ""
         //   "BG", "Bulgaria", ""
         //   "BM", "Bermuda", ""
@@ -152,7 +152,7 @@ module DataDownload =
                 let stopWatch = System.Diagnostics.Stopwatch.StartNew()
                 let! wu = workflow countryCode
                 stopWatch.Stop()
-                printfn "Download for Country: %s took %fms" countryCode stopWatch.Elapsed.TotalMilliseconds
+                printfn "%s: Download took %fms" countryCode stopWatch.Elapsed.TotalMilliseconds
 
                 return wu
             }

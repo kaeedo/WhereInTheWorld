@@ -3,7 +3,6 @@ namespace WhereInTheWorld.Update
 open Utilities
 open Models
 open Hopac
-open System.IO
 
 module UpdateProcess =
     let private createSubdivions fileImport =
@@ -37,6 +36,7 @@ module UpdateProcess =
             | Error e -> return Result.Error (countryCode, e)
             | Ok import ->
                 try
+                    let stopWatch = System.Diagnostics.Stopwatch.StartNew()
                     let countryCode, countryName, countryLocalizedName = getCountryInformation countryCode
 
                     let uniqueSubdivisions = getUniqueSubdivisions import
@@ -70,6 +70,9 @@ module UpdateProcess =
                               Accuracy = i.Accuracy }
                         )
                         |> DataAccess.insertPostalCodes
+
+                    stopWatch.Stop()
+                    printfn "%s: Inserting postal codes took %fms" countryCode stopWatch.Elapsed.TotalMilliseconds
 
                     return Result.Ok countryCode
                 with
