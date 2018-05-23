@@ -33,10 +33,9 @@ let main argv =
     |> Seq.map (fun sc ->
         let code, _, _ = sc
         UpdateProcess.updateCountry code
-        |> run
     )
     |> Seq.iter (fun cd ->
-        match cd with
+        match cd |> run with
         | Error (error: string * Exception) ->
             let countryCode, e = error
             printfn "Country download for %s failed with message: %A" countryCode e
@@ -78,5 +77,6 @@ let main argv =
 
     stopWatch.Stop()
     printfn "Total time took %fms" stopWatch.Elapsed.TotalMilliseconds
+    DataAccess.closeConnection()
     Console.ReadLine() |> ignore
     0

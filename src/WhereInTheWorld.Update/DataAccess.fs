@@ -6,11 +6,13 @@ open Hopac
 open System
 open System.IO
 open System.Data.SQLite
+open System.Reflection
+open System.Text
 
 module DataAccess =
     type Codes = { Codes: seq<string> }
 
-    let private baseDirectory = 
+    let private baseDirectory =
         match Environment.OSVersion.Platform with
         | PlatformID.Unix -> Path.Combine(Environment.GetEnvironmentVariable("HOME"), "WhereInTheWorld")
         | PlatformID.MacOSX -> Path.Combine(Environment.GetEnvironmentVariable("HOME"), "WhereInTheWorld")
@@ -27,9 +29,18 @@ module DataAccess =
         if not (Directory.Exists(baseDirectory))
         then Directory.CreateDirectory(baseDirectory) |> ignore
         if not (File.Exists(databaseFilename))
-        then 
+        // also check if DB exists, but not tables
+        then
             SQLiteConnection.CreateFile(databaseFilename)
-            let sql = File.ReadAllText("./sqlScripts/create.sql")
+
+            let assembly = Assembly.GetExecutingAssembly()
+
+            let resourceStream = assembly.GetManifestResourceStream("WhereInTheWorld.Update.sqlScripts.create.sql")
+
+            use reader = new StreamReader(resourceStream, Encoding.UTF8)
+
+            let sql = reader.ReadToEnd()
+
             connection.Execute(sql) |> ignore
 
     let getAllCountries =
@@ -79,8 +90,8 @@ module DataAccess =
                     @longitude,
                     @accuracy)"
 
-            Job.awaitUnitTask <| connection.ExecuteAsync(sql, postalCodes, transaction)
-            |> run
+            do! Job.awaitUnitTask <| connection.ExecuteAsync(sql, postalCodes, transaction)
+
             transaction.Commit()
         }
 
@@ -98,8 +109,7 @@ module DataAccess =
                 INSERT OR IGNORE INTO Subdivision(CountryId, Name, Code)
                 VALUES (@countryId, @name, @code)"
 
-            Job.awaitUnitTask <| connection.ExecuteAsync(sql, values, transaction)
-            |> run
+            do! Job.awaitUnitTask <| connection.ExecuteAsync(sql, values, transaction)
 
             transaction.Commit()
         }
