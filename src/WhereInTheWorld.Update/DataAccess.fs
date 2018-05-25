@@ -55,37 +55,35 @@ module DataAccess =
         Job.fromTask <| fun () -> connection.QueryFirstAsync<int>(sql, country)
 
     let insertPostalCodes (postalCodes: seq<PostalCode>) =
-        job {
-            let transaction = connection.BeginTransaction()
+        let transaction = connection.BeginTransaction()
 
-            let sql = "
-                INSERT OR IGNORE INTO PostalCode(
-                    PostalCode,
-                    PlaceName,
-                    SubdivisionId,
-                    CountyName,
-                    CountyCode,
-                    CommunityName,
-                    CommunityCode,
-                    Latitude,
-                    Longitude,
-                    Accuracy)
-                VALUES (
-                    @postalCode,
-                    @placeName,
-                    @subdivisionId,
-                    @countyName,
-                    @countyCode,
-                    @communityName,
-                    @communityCode,
-                    @latitude,
-                    @longitude,
-                    @accuracy)"
+        let sql = "
+            INSERT OR IGNORE INTO PostalCode(
+                PostalCode,
+                PlaceName,
+                SubdivisionId,
+                CountyName,
+                CountyCode,
+                CommunityName,
+                CommunityCode,
+                Latitude,
+                Longitude,
+                Accuracy)
+            VALUES (
+                @postalCode,
+                @placeName,
+                @subdivisionId,
+                @countyName,
+                @countyCode,
+                @communityName,
+                @communityCode,
+                @latitude,
+                @longitude,
+                @accuracy)"
 
-            do! Job.awaitUnitTask <| connection.ExecuteAsync(sql, postalCodes, transaction)
+        connection.Execute(sql, postalCodes, transaction) |> ignore
 
-            transaction.Commit()
-        }
+        transaction.Commit()
 
     let insertSubdivisions (countryId: int) (subdivisions: seq<Subdivision>) =
         job {

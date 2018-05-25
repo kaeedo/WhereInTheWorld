@@ -16,27 +16,22 @@ module DataImport =
             with
             | _ -> None
 
-    let private readFile filePath =
-        job {
-            try
-                return Result.Ok <| File.ReadAllLines(sprintf "%s.txt" filePath)
-            with
-            | e -> return Result.Error e
-        }
+    let private readFile countryCode =
+        try
+            Result.Ok <| File.ReadAllLines(baseDirectory @@ sprintf "%s.txt" countryCode)
+        with
+        | e -> Result.Error e
 
     let private splitLines (input: string[]) =
-        job {
-            let splitLines =
-                input
-                |> Seq.map (fun (line: string) ->
-                    line.Split('\t')
-                )
+        let splitLines =
+            input
+            |> Seq.map (fun (line: string) ->
+                line.Split('\t')
+            )
 
-            return splitLines |> Result.Ok
-        }
+        splitLines |> Result.Ok
 
     let private mapFileImport (lines: seq<string []>) =
-        job {
             try
                 let fileImport =
                     lines
@@ -54,11 +49,15 @@ module DataImport =
                           Longitude = parse float line.[10]
                           Accuracy = parse int line.[11] }
                     )
-                return fileImport |> Result.Ok
+                fileImport |> Result.Ok
             with
-            | e -> return Result.Error e
-        }
+            | e -> Result.Error e
 
-    let readPostalCodesFile filePath =
-        let workflow = readFile >=> splitLines >=> mapFileImport
-        workflow filePath
+    let readPostalCodesFile countryCode =
+        let bind fn value =
+            match value with
+            | Ok v -> fn v
+            | Error err -> Error err
+
+        let workflow = readFile >> bind splitLines >> bind mapFileImport
+        workflow countryCode

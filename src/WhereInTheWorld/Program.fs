@@ -25,16 +25,23 @@ let main argv =
     DataDownload.supportedCountries
     |> Seq.map (fun sc ->
         let code, _, _ = sc
-        UpdateProcess.updateCountry code
+        DataDownload.downloadPostalCodesForCountry code
     )
     |> Job.conCollect
     |> run
     |> Seq.iter (fun cd ->
         match cd with
-        | Error (error: string * Exception) ->
-            let countryCode, e = error
-            printfn "Country download for %s failed with message: %A" countryCode e
+        | Error error ->
+            printfn "Country download for %s failed with message: %A" "" error
         | Ok countryCode -> printfn "Country download for %s succeeded" countryCode
+    )
+
+    DataDownload.supportedCountries
+    |> Seq.iter (fun sc ->
+        let code, _, _ = sc
+        UpdateProcess.updateCountry code
+        |> run
+        |> ignore
     )
 
     stopWatch.Stop()

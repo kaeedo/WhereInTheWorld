@@ -28,9 +28,7 @@ module UpdateProcess =
 
     let updateCountry countryCode =
         job {
-            let! importedPostalCodes =
-                (DataDownload.downloadPostalCodesForCountry
-                 >=> DataImport.readPostalCodesFile) countryCode
+            let importedPostalCodes = DataImport.readPostalCodesFile countryCode
 
             match importedPostalCodes with
             | Error e -> return Result.Error (countryCode, e)
@@ -55,7 +53,7 @@ module UpdateProcess =
 
                         subdivision.Id
 
-                    do! import
+                    do import
                         |> Seq.map (fun i ->
                             { Id = 1
                               PostalCode = i.PostalCode
