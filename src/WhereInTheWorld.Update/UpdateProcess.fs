@@ -5,13 +5,6 @@ open Models
 open Hopac
 
 module UpdateProcess =
-    let private createSubdivions fileImport =
-        fileImport
-        |> Seq.map (fun i ->
-            { Id = 1; CountryId = 1; Code = i.SubdivisionCode; Name = i.SubdivisionName; }
-        )
-        |> Seq.distinctBy (fun sd -> sd.Code)
-
     let private getCountryInformation countryCode =
         DataDownload.supportedCountries
         |> Seq.find (fun sc ->
@@ -19,16 +12,45 @@ module UpdateProcess =
             code = countryCode
         )
 
-    let private getUniqueSubdivisions import =
-        import
-        |> Seq.map (fun i ->
-            { Id = 1; CountryId = 1; Code = i.SubdivisionCode; Name = i.SubdivisionName; }
-        )
-        |> Seq.distinctBy (fun sd -> sd.Code)
+    let updateAll postalCodes =
+        try
+            //let stopWatch = System.Diagnostics.Stopwatch.StartNew()
+            printfn "%i" (postalCodes |> Seq.length)
+            //let countryCode, countryName, countryLocalizedName = getCountryInformation countryCode
 
-    let updateCountry countryCode =
+            do postalCodes
+                |> Seq.map (fun i ->
+                    { Id = Unchecked.defaultof<int>
+                      CountryCode = (getCountryInformation i.CountryCode).Item1
+                      CountryName = (getCountryInformation i.CountryCode).Item2
+                      CountryLocalizedName = (getCountryInformation i.CountryCode).Item3
+                      PostalCode = i.PostalCode
+                      PlaceName = i.PlaceName
+                      SubdivisionCode = i.SubdivisionCode
+                      SubdivisionName = i.SubdivisionName
+                      CountyName = i.CountyName
+                      CountyCode = i.CountyCode
+                      CommunityName = i.CommunityName
+                      CommunityCode = i.CommunityCode
+                      Latitude = i.Latitude
+                      Longitude = i.Longitude
+                      Accuracy = i.Accuracy }
+                )
+                |> DataAccess.insertPostalCodes
+                |> run
+
+            //stopWatch.Stop()
+
+            Result.Ok "Done"
+        with
+        | e -> Result.Error ("", e)
+
+
+    (* let updateCountry countryCode =
         job {
-            let importedPostalCodes = DataImport.readPostalCodesFile countryCode
+            let! importedPostalCodes =
+                (DataDownload.downloadPostalCodesForCountry
+                >=> DataImport.readPostalCodesFile) countryCode
 
             match importedPostalCodes with
             | Error e -> return Result.Error (countryCode, e)
@@ -37,28 +59,16 @@ module UpdateProcess =
                     let stopWatch = System.Diagnostics.Stopwatch.StartNew()
                     let countryCode, countryName, countryLocalizedName = getCountryInformation countryCode
 
-                    let uniqueSubdivisions = getUniqueSubdivisions import
-
-                    let! countryId =
-                        DataAccess.insertCountryGetId { Id = 1; Code = countryCode; Name = countryName; LocalizedName = countryLocalizedName }
-
-                    do! DataAccess.insertSubdivisions countryId uniqueSubdivisions
-
-                    let! subdivisions = DataAccess.getSubdivisions uniqueSubdivisions
-
-                    let getSubdivisionId fileImport subdivisions =
-                        let subdivision =
-                            subdivisions
-                            |> Seq.find (fun sd -> sd.Code = fileImport.SubdivisionCode)
-
-                        subdivision.Id
-
-                    do import
+                    do! import
                         |> Seq.map (fun i ->
-                            { Id = 1
+                            { Id = Unchecked.defaultof<int>
+                              CountryCode = countryCode
+                              CountryName = countryName
+                              CountryLocalizedName = countryLocalizedName
                               PostalCode = i.PostalCode
                               PlaceName = i.PlaceName
-                              SubdivisionId = subdivisions |> getSubdivisionId i
+                              SubdivisionCode = i.SubdivisionCode
+                              SubdivisionName = i.SubdivisionName
                               CountyName = i.CountyName
                               CountyCode = i.CountyCode
                               CommunityName = i.CommunityName
@@ -75,4 +85,4 @@ module UpdateProcess =
                     return Result.Ok countryCode
                 with
                 | e -> return Result.Error (countryCode, e)
-        }
+        } *)

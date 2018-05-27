@@ -16,7 +16,7 @@ CREATE TABLE `PostalCode` ( `Id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQ
      `CountyName` TEXT,
      `CountyCode` TEXT,
      `CommunityName` TEXT,
-     `CommunityCode` INTEGER,
+     `CommunityCode` TEXT,
      `Latitude` REAL,
      `Longitude` REAL,
      `Accuracy` INTEGER,

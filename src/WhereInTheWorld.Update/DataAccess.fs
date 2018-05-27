@@ -35,7 +35,45 @@ module DataAccess =
 
             connection.Execute(sql) |> ignore
 
-    let getAllCountries =
+    let insertPostalCodes (postalCodes: seq<PostalCodeInformation>) =
+        job {
+            let transaction = connection.BeginTransaction()
+            let sql = "
+                INSERT OR IGNORE INTO Country(Code, Name, LocalizedName)
+                VALUES(@countryCode, @countryName, @countryLocalizedName);
+
+                INSERT OR IGNORE INTO Subdivision(CountryId, Name, Code)
+                VALUES ((SELECT Id FROM Country WHERE Code = @countryCode), @subdivisionName, @subdivisionCode);
+
+                INSERT OR IGNORE INTO PostalCode(
+                    PostalCode,
+                    PlaceName,
+                    SubdivisionId,
+                    CountyName,
+                    CountyCode,
+                    CommunityName,
+                    CommunityCode,
+                    Latitude,
+                    Longitude,
+                    Accuracy)
+                VALUES (
+                    @postalCode,
+                    @placeName,
+                    (SELECT Id FROM Subdivision WHERE Code = @subdivisionCode),
+                    @countyName,
+                    @countyCode,
+                    @communityName,
+                    @communityCode,
+                    @latitude,
+                    @longitude,
+                    @accuracy)"
+
+            Job.awaitUnitTask <| connection.ExecuteAsync(sql, postalCodes, transaction) |> ignore
+
+            transaction.Commit()
+        }
+
+    (* let getAllCountries =
         Job.fromTask <|
             fun () ->
                 let codes =
@@ -118,4 +156,4 @@ module DataAccess =
                     FROM Subdivision
                     WHERE Code IN @codes"
 
-                connection.QueryAsync<Subdivision>(sql, { Codes = subdivisionCodes })
+                connection.QueryAsync<Subdivision>(sql, { Codes = subdivisionCodes }) *)

@@ -17,21 +17,26 @@ module DataImport =
             | _ -> None
 
     let private readFile countryCode =
-        try
-            Result.Ok <| File.ReadAllLines(baseDirectory @@ sprintf "%s.txt" countryCode)
-        with
-        | e -> Result.Error e
+        job {
+            try
+                return Result.Ok <| File.ReadAllLines(baseDirectory @@ sprintf "%s.txt" countryCode)
+            with
+            | e -> return Result.Error e
+        }
 
     let private splitLines (input: string[]) =
-        let splitLines =
-            input
-            |> Seq.map (fun (line: string) ->
-                line.Split('\t')
-            )
+        job {
+            let splitLines =
+                input
+                |> Seq.map (fun (line: string) ->
+                    line.Split('\t')
+                )
 
-        splitLines |> Result.Ok
+            return splitLines |> Result.Ok
+        }
 
     let private mapFileImport (lines: seq<string []>) =
+        job {
             try
                 let fileImport =
                     lines
@@ -44,20 +49,15 @@ module DataImport =
                           CountyName = parse string line.[5]
                           CountyCode = parse string line.[6]
                           CommunityName = parse string line.[7]
-                          CommunityCode = parse int line.[8]
+                          CommunityCode = parse string line.[8]
                           Latitude = parse float line.[9]
                           Longitude = parse float line.[10]
                           Accuracy = parse int line.[11] }
                     )
-                fileImport |> Result.Ok
+                return fileImport |> Result.Ok
             with
-            | e -> Result.Error e
-
-    let readPostalCodesFile countryCode =
-        let bind fn value =
-            match value with
-            | Ok v -> fn v
-            | Error err -> Error err
-
-        let workflow = readFile >> bind splitLines >> bind mapFileImport
-        workflow countryCode
+            | e -> return Result.Error e
+        }
+    let readPostalCodesFile filePath =
+        let workflow = readFile >=> splitLines >=> mapFileImport
+        workflow filePath

@@ -25,15 +25,19 @@ module Models =
           Name: string }
 
     [<CLIMutable>]
-    type PostalCode =
+    type PostalCodeInformation =
         { Id: int
+          CountryCode: string
+          CountryName: string
+          CountryLocalizedName: string
           PostalCode: string
           PlaceName: string
-          SubdivisionId: int
+          SubdivisionCode: string
+          SubdivisionName: string
           CountyName: string option
           CountyCode: string option
           CommunityName: string option
-          CommunityCode: int option
+          CommunityCode: string option
           Latitude: float option
           Longitude: float option
           Accuracy: int option }
@@ -41,7 +45,7 @@ module Models =
     type Information =
         { Country: Country
           Subdivision: Subdivision
-          PostalCode: PostalCode }
+          PostalCode: PostalCodeInformation }
 
 
     type FileImport =
@@ -53,7 +57,7 @@ module Models =
           CountyName: string option
           CountyCode: string option
           CommunityName: string option
-          CommunityCode: int option
+          CommunityCode: string option
           Latitude: float option
           Longitude: float option
           Accuracy: int option }
