@@ -23,6 +23,17 @@ type OptionHandler<'T>() =
         else Some (value :?> 'T)
 
 module Utilities =
+    type Result<'a, 'b> with
+        member result.IsOk =
+            match result with
+            | Ok _ -> true
+            | Error _ -> false
+
+        member result.IsError =
+            match result with
+            | Ok _ -> false
+            | Error _ -> true
+
     let bind (fn: 'a -> Job<Result<'b, 'c>>) (jobValue: Job<Result<'a, 'c>>) =
         job {
             let! r = jobValue
@@ -40,6 +51,10 @@ module Utilities =
     let (>=>) firstSwitch secondSwitch = compose firstSwitch secondSwitch
 
     let (@@) a b = Path.Combine(a, b)
+
+    let isOkResult (result: Result<_,_>) = result.IsOk
+
+    let isErrorResult (result: Result<_,_>) = result.IsError
 
     let safeSqlConnection (connectionString: string) =
         SqlMapper.AddTypeHandler (OptionHandler<float>())
