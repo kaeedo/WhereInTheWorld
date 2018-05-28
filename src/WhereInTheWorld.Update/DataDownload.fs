@@ -119,8 +119,8 @@ module DataDownload =
           "PH", "Philippines", "Pilipinas"
           "PK", "Pakistan", "پاکِستان‬‎"
           "PL", "Poland", "Polska"
-          "PM", "Saint Pierre and Miquelon", ""
-          "PR", "Puerto Rico", "Saint-Pierre-et-Miquelon"
+          "PM", "Saint Pierre and Miquelon", "Saint-Pierre-et-Miquelon"
+          "PR", "Puerto Rico", "Puerto Rico"
           "PT", "Portugal", "Portugal"
           "PW", "Palau", "Palau"
           "RE", "Réunion", "Réunion"
@@ -144,13 +144,4 @@ module DataDownload =
 
     let downloadPostalCodesForCountry countryCode =
         let workflow = downloadZip >=> (saveZip countryCode) >=> saveCountryFile
-        let workUnit =
-            job {
-                let stopWatch = System.Diagnostics.Stopwatch.StartNew()
-                let! wu = workflow countryCode
-                stopWatch.Stop()
-                printfn "%s: Download took %fms" countryCode stopWatch.Elapsed.TotalMilliseconds
-
-                return wu
-            }
-        workUnit
+        workflow countryCode
