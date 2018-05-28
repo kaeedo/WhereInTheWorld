@@ -1,6 +1,5 @@
 namespace WhereInTheWorld.Update
 
-open Utilities
 open Models
 open Hopac
 
