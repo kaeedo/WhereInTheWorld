@@ -20,20 +20,15 @@ module DataAccess =
     let ensureDatabase () =
         if not (Directory.Exists(baseDirectory))
         then Directory.CreateDirectory(baseDirectory) |> ignore
+
         if not (File.Exists(databaseFilename))
-        // TODO: also check if DB exists, but not tables
-        then
-            SQLiteConnection.CreateFile(databaseFilename)
+        then SQLiteConnection.CreateFile(databaseFilename)
 
-            let assembly = Assembly.GetExecutingAssembly()
-
-            let resourceStream = assembly.GetManifestResourceStream("WhereInTheWorld.Update.sqlScripts.create.sql")
-
-            use reader = new StreamReader(resourceStream, Encoding.UTF8)
-
-            let sql = reader.ReadToEnd()
-
-            connection.Execute(sql) |> ignore
+        let assembly = Assembly.GetExecutingAssembly()
+        let resourceStream = assembly.GetManifestResourceStream("WhereInTheWorld.Update.sqlScripts.create.sql")
+        use reader = new StreamReader(resourceStream, Encoding.UTF8)
+        let sql = reader.ReadToEnd()
+        connection.Execute(sql) |> ignore
 
     let insertPostalCodes (postalCodes: seq<PostalCodeInformation>) =
         job {
