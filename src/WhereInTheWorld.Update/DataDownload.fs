@@ -142,6 +142,12 @@ module DataDownload =
           "YT", "Mayotte", "Mayotte"
           "ZA", "South Africa", "Suid-Afrika" ]
 
-    let downloadPostalCodesForCountry countryCode =
+    let downloadPostalCodesForCountry jobStatusChannel countryCode =
         let workflow = downloadZip >=> (saveZip countryCode) >=> saveCountryFile
-        workflow countryCode
+        job {
+            let! result = workflow countryCode
+
+            do! Ch.give jobStatusChannel (Completed countryCode)
+
+            return result
+        }

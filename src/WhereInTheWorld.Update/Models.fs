@@ -10,21 +10,6 @@ module Models =
         | PlatformID.MacOSX -> Environment.GetEnvironmentVariable("HOME") @@ ".WhereInTheWorld"
         | _ -> Environment.GetFolderPath(Environment.SpecialFolder.Personal) @@ ".WhereInTheWorld"
 
-    [<CLIMutable>]
-    type Country =
-        { Id: int
-          Code: string
-          Name: string
-          LocalizedName: string }
-
-    [<CLIMutable>]
-    type Subdivision =
-        { Id: int
-          CountryId: int
-          Code: string
-          Name: string }
-
-    [<CLIMutable>]
     type PostalCodeInformation =
         { Id: int
           CountryCode: string
@@ -42,12 +27,6 @@ module Models =
           Longitude: float option
           Accuracy: int option }
 
-    type Information =
-        { Country: Country
-          Subdivision: Subdivision
-          PostalCode: PostalCodeInformation }
-
-
     type FileImport =
         { CountryCode: string
           PostalCode: string
@@ -62,5 +41,5 @@ module Models =
           Longitude: float option
           Accuracy: int option }
 
-    type Errors =
-        | UnableToReadInput of Exception
+    type DownloadStatus =
+    | Completed of countryCode: string

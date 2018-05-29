@@ -12,9 +12,8 @@
             "program": "${workspaceFolder}/src/WhereInTheWorld/bin/Debug/netcoreapp2.0/WhereInTheWorld.dll",
             "args": [],
             "cwd": "${workspaceFolder}",
-            "console": "internalConsole",
-            "stopAtEntry": false,
-            "internalConsoleOptions": "openOnSessionStart"
+            "console": "integratedTerminal",
+            "stopAtEntry": false
         },
         {
             "name": ".NET Core Attach",
