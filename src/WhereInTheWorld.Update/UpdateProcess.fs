@@ -76,23 +76,27 @@ module UpdateProcess =
             countryDownloads
             |> Seq.filter isErrorResult
 
-        successfulDownloads
-        |> Seq.iter (function
-            | Ok filePath ->
-                let code = filePath.Split(Path.DirectorySeparatorChar) |> Seq.last
-                job {
-                    let insertStatusPrinterChannel = insertStatusPrinter insertStatusChannel
-                    do! Job.foreverServer insertStatusPrinterChannel
+        let countryInsertions =
+            successfulDownloads
+            |> Seq.map (function
+                | Error (_, e) -> raise e
+                | Ok filePath ->
+                    let code = filePath.Split(Path.DirectorySeparatorChar) |> Seq.last
+                    job {
+                        let insertStatusPrinterChannel = insertStatusPrinter insertStatusChannel
+                        do! Job.foreverServer insertStatusPrinterChannel
 
-                    return! updateCountry insertStatusChannel code
-                }
-                |> run
-                |> ignore
-            | _ -> ()
-        )
+                        return! updateCountry insertStatusChannel code
+                    }
+                    |> run
+            )
 
-        // TODO: Properly report failed country downloads or inserts
-        failedDownloads
-        |> Seq.iter (fun error ->
-            printfn "Downloading failed with message %A" error
-        )
+        let successfulInsertions =
+            countryInsertions
+            |> Seq.filter isOkResult
+
+        let failedInsertions =
+            countryInsertions
+            |> Seq.filter isErrorResult
+
+        successfulInsertions, failedDownloads |> Seq.append failedInsertions

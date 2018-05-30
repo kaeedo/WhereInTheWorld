@@ -21,7 +21,7 @@ module DataDownload =
 
                 return file |> Result.Ok
             with
-            | e -> return Result.Error e
+            | e -> return Result.Error (countryCode, e)
         }
 
     let private saveZip countryCode file =
@@ -31,15 +31,16 @@ module DataDownload =
                 File.WriteAllBytes(sprintf "%s.zip" filePath, file)
                 return filePath |> Result.Ok
             with
-            | e -> return Result.Error e
+            | e -> return Result.Error (countryCode, e)
         }
 
     let private saveCountryFile filePath =
+        let zipFileName = sprintf "%s.zip" filePath
+        let countryCode = filePath.Split(Path.DirectorySeparatorChar) |> Seq.last
+
         job {
             try
-                let zipFileName = sprintf "%s.zip" filePath
                 let archive = ZipFile.OpenRead(zipFileName)
-                let countryCode = filePath.Split(Path.DirectorySeparatorChar) |> Seq.last
 
                 archive.Entries
                 |> Seq.find (fun zae ->
@@ -52,7 +53,7 @@ module DataDownload =
 
                 return Result.Ok filePath
             with
-            | e -> return Result.Error e
+            | e -> return Result.Error (countryCode, e)
         }
 
     let supportedCountries =

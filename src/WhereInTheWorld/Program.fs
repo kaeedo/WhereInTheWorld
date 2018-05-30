@@ -13,7 +13,20 @@ let main argv =
     DataAccess.ensureDatabase()
     DataAccess.openConnection()
 
-    UpdateProcess.updateAll StatusPrinter.downloadStatusPrinter StatusPrinter.insertStatusPrinter
+    let successfulUpdates, failedUpdates =
+        UpdateProcess.updateAll StatusPrinter.downloadStatusPrinter StatusPrinter.insertStatusPrinter
+
+    printfn "Succesfully updated %i countries" (successfulUpdates |> Seq.length)
+
+    if failedUpdates |> Seq.isEmpty
+    then ()
+    else
+        printfn "Problem updating the following"
+        failedUpdates
+        |> Seq.iter (function
+            | Ok _ -> ()
+            | Error (countryCode, e) -> printfn "%s failed with message %A" countryCode e
+        )
 
     DataAccess.closeConnection()
     0
