@@ -1,8 +1,8 @@
 ﻿open System.IO
 open WhereInTheWorld.Update
 open WhereInTheWorld.Update.Models
-open ShellProgressBar
 open Hopac
+open System
 
 let ensureDirectory () =
     if Directory.Exists(Models.baseDirectory)
@@ -17,20 +17,13 @@ let main argv =
 
     let countryLength = DataDownload.supportedCountries |> Seq.length
 
-    let options = new ProgressBarOptions(
-                    ProgressCharacter = '-',
-                    ProgressBarOnBottom = true
-                )
-    use progressBar =
-        new ProgressBar(countryLength, "Downloading", options)
-
     let jobStatusPrinterJob jobStatusChannel =
         job {
             let! jobStatus = Ch.take jobStatusChannel
 
             match jobStatus with
-            | Completed _ ->
-                progressBar.Tick(sprintf "%i of %i" (progressBar.CurrentTick + 1) countryLength)
+            | Completed cc ->
+                printfn "%s downloaded" cc
         }
 
     let jobStatusChannel = Ch<DownloadStatus>()

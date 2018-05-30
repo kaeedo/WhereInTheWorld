@@ -12,7 +12,7 @@
             "program": "${workspaceFolder}/src/WhereInTheWorld/bin/Debug/netcoreapp2.0/WhereInTheWorld.dll",
             "args": [],
             "cwd": "${workspaceFolder}",
-            "console": "integratedTerminal",
+            "console": "internalConsole",
             "stopAtEntry": false
         },
         {

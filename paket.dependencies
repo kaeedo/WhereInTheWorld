@@ -4,4 +4,3 @@ nuget FSharp.Core
 nuget System.Data.SQLite.Core
 nuget Dapper
 nuget Http.fs
-nuget ShellProgressBar

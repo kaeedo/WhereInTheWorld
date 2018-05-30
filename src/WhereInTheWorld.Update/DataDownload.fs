@@ -9,8 +9,8 @@ open Utilities
 open System
 
 module DataDownload =
-    //let private baseUrl = "http://download.geonames.org/export/zip/"
-    let private baseUrl = @"http://localhost:8080/"
+    let private baseUrl = "http://download.geonames.org/export/zip/"
+    // let private baseUrl = @"http://localhost:8080/"
 
     let private downloadZip countryCode =
         job {
