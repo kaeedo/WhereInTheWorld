@@ -4,7 +4,6 @@ open Models
 open Hopac
 open Utilities
 open System.IO
-open System.Globalization
 
 module UpdateProcess =
     let private getCountryInformation countryCode =
@@ -14,7 +13,7 @@ module UpdateProcess =
             code = countryCode
         )
 
-    let updateCountry countryCode =
+    let updateCountry statusChannel countryCode =
         job {
             let! importedPostalCodes = DataImport.readPostalCodesFile countryCode
 
@@ -44,60 +43,56 @@ module UpdateProcess =
                         )
                         |> DataAccess.insertPostalCodes
 
+                    do! Ch.give statusChannel (Inserted countryCode)
+
                     return Result.Ok countryCode
                 with
                 | e -> return Result.Error (countryCode, e)
         }
 
-    let updateAll () =
-        let stopWatch = System.Diagnostics.Stopwatch.StartNew()
+    let updateAll downloadStatusPrinter insertStatusPrinter =
+        let downloadStatusChannel = Ch<DownloadStatus>()
+        let insertStatusChannel = Ch<InsertStatus>()
 
-        printfn "Downloading all country postal codes"
-        // let countryDownloads =
-        //     DataDownload.supportedCountries
-        //     |> Seq.map (fun sc ->
-        //         let code, _, _ = sc
-        //         DataDownload.downloadPostalCodesForCountry code
-        //     )
-        //     |> Job.conCollect
-        //     |> run
+        let countryDownloads =
+            DataDownload.supportedCountries
+            |> Seq.map (fun sc ->
+                let code, _, _ = sc
+                job {
+                    let downloadStatusPrinterChannel = downloadStatusPrinter downloadStatusChannel
+                    do! Job.foreverServer downloadStatusPrinterChannel
 
-        // let successfulDownloads =
-        //     countryDownloads
-        //     |> Seq.filter isOkResult
+                    return! DataDownload.downloadPostalCodesForCountry downloadStatusChannel code
+                }
+            )
+            |> Job.conCollect
+            |> run
 
-        // let failedDownloads =
-        //     countryDownloads
-        //     |> Seq.filter isErrorResult
+        let successfulDownloads =
+            countryDownloads
+            |> Seq.filter isOkResult
 
-        // printfn "Finished downloading all country postal codes. Took %sms" (stopWatch.ElapsedMilliseconds.ToString("n2"))
-        // printfn "%i/%i succeeded" (successfulDownloads |> Seq.length) (DataDownload.supportedCountries |> Seq.length)
+        let failedDownloads =
+            countryDownloads
+            |> Seq.filter isErrorResult
 
-        // stopWatch.Restart()
-        // printfn "Inserting postal codes into database"
+        successfulDownloads
+        |> Seq.iter (function
+            | Ok filePath ->
+                let code = filePath.Split(Path.DirectorySeparatorChar) |> Seq.last
+                job {
+                    let insertStatusPrinterChannel = insertStatusPrinter insertStatusChannel
+                    do! Job.foreverServer insertStatusPrinterChannel
 
-        // successfulDownloads
-        // |> Seq.map (function
-        //     | Ok filePath ->
-        //         let code = filePath.Split(Path.DirectorySeparatorChar) |> Seq.last
-        //         updateCountry code
-        //         |> run
-        //     | Error e ->
-        //          Error ("Downloading failed with message", e)
-        // )
-        // |> Seq.iter (fun cd ->
-        //     match cd with
-        //     | Error e ->
-        //         let countryCode, error = e
-        //         printfn "%s: Inserting into database failed with message: %A" countryCode error
-        //     | Ok countryCode -> printfn "%s: Inserting succeeded" countryCode
-        // )
+                    return! updateCountry insertStatusChannel code
+                }
+                |> run
+                |> ignore
+            | _ -> ()
+        )
 
-        // // TODO: Properly report failed country downloads or inserts
-        // failedDownloads
-        // |> Seq.iter (fun error ->
-        //     printfn "Downloading failed with message %A" error
-        // )
-
-        stopWatch.Stop()
-        printfn "Total time inserting took %sms" (stopWatch.ElapsedMilliseconds.ToString("n2", CultureInfo.InvariantCulture))
+        // TODO: Properly report failed country downloads or inserts
+        failedDownloads
+        |> Seq.iter (fun error ->
+            printfn "Downloading failed with message %A" error
+        )

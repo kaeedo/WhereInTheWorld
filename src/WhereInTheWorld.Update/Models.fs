@@ -43,3 +43,6 @@ module Models =
 
     type DownloadStatus =
     | Completed of countryCode: string
+
+    type InsertStatus =
+    | Inserted of countryCode: string

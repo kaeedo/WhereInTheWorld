@@ -10,6 +10,7 @@
   <ItemGroup>
     <None Include="app.config" />
     <None Include="paket.references" />
+    <Compile Include="StatusPrinter.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
   <Import Project="..\..\.paket\Paket.Restore.targets" />
