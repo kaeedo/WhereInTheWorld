@@ -50,14 +50,38 @@ module UpdateProcess =
                 | e -> return Result.Error (countryCode, e)
         }
 
+    let updateCountryProcess countryCode downloadStatusPrinter insertStatusPrinter =
+        let downloadStatusChannel = Ch<DownloadStatus>()
+        let insertStatusChannel = Ch<InsertStatus>()
+
+        let countryDownload =
+            job {
+                let downloadStatusPrinterChannel = downloadStatusPrinter downloadStatusChannel
+                do! Job.foreverServer downloadStatusPrinterChannel
+
+                return! DataDownload.downloadPostalCodesForCountry downloadStatusChannel countryCode
+            }
+            |> run
+
+        match countryDownload with
+        | Error (countryCode, e) -> Result.Error (countryCode, e)
+        | Ok filePath ->
+            let code = filePath.Split(Path.DirectorySeparatorChar) |> Seq.last
+            job {
+                let insertStatusPrinterChannel = insertStatusPrinter insertStatusChannel
+                do! Job.foreverServer insertStatusPrinterChannel
+
+                return! updateCountry insertStatusChannel code
+            }
+            |> run
+            |> Result.Ok
     let updateAll downloadStatusPrinter insertStatusPrinter =
         let downloadStatusChannel = Ch<DownloadStatus>()
         let insertStatusChannel = Ch<InsertStatus>()
 
         let countryDownloads =
             DataDownload.supportedCountries
-            |> Seq.map (fun sc ->
-                let code, _, _ = sc
+            |> Seq.map (fun (code, _, _) ->
                 job {
                     let downloadStatusPrinterChannel = downloadStatusPrinter downloadStatusChannel
                     do! Job.foreverServer downloadStatusPrinterChannel
