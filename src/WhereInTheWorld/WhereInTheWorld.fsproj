@@ -4,11 +4,13 @@
     <TargetFramework>netcoreapp2.0</TargetFramework>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
+  <PropertyGroup>
+    <ServerGarbageCollection>true</ServerGarbageCollection>
+  </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\WhereInTheWorld.Update\WhereInTheWorld.Update.fsproj" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="app.config" />
     <None Include="paket.references" />
     <Compile Include="StatusPrinter.fs" />
     <Compile Include="ArgumentParser.fs" />
