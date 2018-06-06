@@ -34,8 +34,8 @@ module DataAccess =
         job {
             let transaction = connection.BeginTransaction()
 
-            let sql = getSqlScript "WhereInTheWorld.Update.sqlScripts.insertPortalCode.sql"
-
+            let sql = getSqlScript "WhereInTheWorld.Update.sqlScripts.insertPostalCode.sql"
+            // TODO: Properly handle error. Currently doesn't throw anything
             Job.awaitUnitTask <| connection.ExecuteAsync(sql, postalCodes, transaction) |> ignore
 
             transaction.Commit()

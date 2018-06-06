@@ -42,7 +42,6 @@ let updateCountry (countryCode: string) =
     then
         printSupportedCountries()
     else
-
         let isValidCountryCode =
             DataDownload.supportedCountries
             |> Seq.exists (fun (code, _, _) ->
@@ -75,14 +74,11 @@ let updateAll () =
 
 let parser = ArgumentParser.Create<Arguments>(programName = "witw")
 
-
 [<EntryPoint>]
 let main argv =
     ensureDirectory()
-    DataAccess.ensureDatabase()
-    DataAccess.openConnection()
 
-    let args = [|"--update"; "us"|]
+    let args = [|"--update"; "ad"|]
 
     let arguments = parser.Parse args
 
@@ -102,5 +98,4 @@ let main argv =
             | None -> updateAll()
             | Some countryCode -> updateCountry countryCode
 
-    DataAccess.closeConnection()
     0

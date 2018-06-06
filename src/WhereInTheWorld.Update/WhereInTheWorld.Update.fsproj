@@ -3,7 +3,8 @@
     <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
-    <EmbeddedResource Include="sqlScripts/create.sql" />
+    <EmbeddedResource Include="sqlScripts/createTables.sql" />
+    <EmbeddedResource Include="sqlScripts/insertPostalCode.sql" />
   </ItemGroup>
   <ItemGroup>
     <None Include="paket.references" />

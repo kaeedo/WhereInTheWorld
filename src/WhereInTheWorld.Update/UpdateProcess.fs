@@ -51,6 +51,9 @@ module UpdateProcess =
         }
 
     let updateCountryProcess countryCode downloadStatusPrinter insertStatusPrinter =
+        DataAccess.ensureDatabase()
+        DataAccess.openConnection()
+
         let downloadStatusChannel = Ch<DownloadStatus>()
         let insertStatusChannel = Ch<InsertStatus>()
 
@@ -63,19 +66,27 @@ module UpdateProcess =
             }
             |> run
 
-        match countryDownload with
-        | Error (countryCode, e) -> Result.Error (countryCode, e)
-        | Ok filePath ->
-            let code = filePath.Split(Path.DirectorySeparatorChar) |> Seq.last
-            job {
-                let insertStatusPrinterChannel = insertStatusPrinter insertStatusChannel
-                do! Job.foreverServer insertStatusPrinterChannel
+        let updateResult =
+            match countryDownload with
+            | Error (countryCode, e) -> Result.Error (countryCode, e)
+            | Ok filePath ->
+                let code = filePath.Split(Path.DirectorySeparatorChar) |> Seq.last
+                job {
+                    let insertStatusPrinterChannel = insertStatusPrinter insertStatusChannel
+                    do! Job.foreverServer insertStatusPrinterChannel
 
-                return! updateCountry insertStatusChannel code
-            }
-            |> run
-            |> Result.Ok
+                    return! updateCountry insertStatusChannel code
+                }
+                |> run
+                |> Result.Ok
+
+        DataAccess.closeConnection()
+        updateResult
+
     let updateAll downloadStatusPrinter insertStatusPrinter =
+        DataAccess.ensureDatabase()
+        DataAccess.openConnection()
+
         let downloadStatusChannel = Ch<DownloadStatus>()
         let insertStatusChannel = Ch<InsertStatus>()
 
@@ -123,4 +134,5 @@ module UpdateProcess =
             countryInsertions
             |> Seq.filter isErrorResult
 
+        DataAccess.closeConnection()
         successfulInsertions, failedDownloads |> Seq.append failedInsertions
