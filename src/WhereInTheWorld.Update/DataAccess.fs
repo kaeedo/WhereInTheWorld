@@ -14,141 +14,29 @@ module DataAccess =
     let private connectionString = sprintf "Data Source=%s;Version=3" databaseFilename
     let private connection = Utilities.safeSqlConnection connectionString
 
+    let private getSqlScript scriptName =
+        let assembly = Assembly.GetExecutingAssembly()
+        let resourceStream = assembly.GetManifestResourceStream(scriptName)
+        use reader = new StreamReader(resourceStream, Encoding.UTF8)
+        reader.ReadToEnd()
+
     let openConnection () = connection.Open()
     let closeConnection () = connection.Close()
 
     let ensureDatabase () =
-        if not (Directory.Exists(baseDirectory))
-        then Directory.CreateDirectory(baseDirectory) |> ignore
-
         if not (File.Exists(databaseFilename))
         then SQLiteConnection.CreateFile(databaseFilename)
 
-        let assembly = Assembly.GetExecutingAssembly()
-        let resourceStream = assembly.GetManifestResourceStream("WhereInTheWorld.Update.sqlScripts.create.sql")
-        use reader = new StreamReader(resourceStream, Encoding.UTF8)
-        let sql = reader.ReadToEnd()
+        let sql = getSqlScript "WhereInTheWorld.Update.sqlScripts.createTables.sql"
         connection.Execute(sql) |> ignore
 
     let insertPostalCodes (postalCodes: seq<PostalCodeInformation>) =
         job {
             let transaction = connection.BeginTransaction()
-            let sql = "
-                INSERT OR IGNORE INTO Country(Code, Name, LocalizedName)
-                VALUES(@countryCode, @countryName, @countryLocalizedName);
 
-                INSERT OR IGNORE INTO Subdivision(CountryId, Name, Code)
-                VALUES ((SELECT Id FROM Country WHERE Code = @countryCode), @subdivisionName, @subdivisionCode);
-
-                INSERT OR IGNORE INTO PostalCode(
-                    PostalCode,
-                    PlaceName,
-                    SubdivisionId,
-                    CountyName,
-                    CountyCode,
-                    CommunityName,
-                    CommunityCode,
-                    Latitude,
-                    Longitude,
-                    Accuracy)
-                VALUES (
-                    @postalCode,
-                    @placeName,
-                    (SELECT Id FROM Subdivision WHERE Code = @subdivisionCode),
-                    @countyName,
-                    @countyCode,
-                    @communityName,
-                    @communityCode,
-                    @latitude,
-                    @longitude,
-                    @accuracy)"
+            let sql = getSqlScript "WhereInTheWorld.Update.sqlScripts.insertPortalCode.sql"
 
             Job.awaitUnitTask <| connection.ExecuteAsync(sql, postalCodes, transaction) |> ignore
 
             transaction.Commit()
         }
-
-    (* let getAllCountries =
-        Job.fromTask <|
-            fun () ->
-                let codes =
-                    DataDownload.supportedCountries
-                    |> Seq.map (fun (code, _, _) ->
-                        code
-                    )
-
-                connection.QueryAsync<Country>("SELECT * FROM Country WHERE Code IN @codes", { Codes = codes })
-
-    let insertCountryGetId (country: Country) =
-        let sql = "
-            INSERT OR IGNORE INTO Country(Code, Name, LocalizedName)
-            VALUES(@code, @name, @localizedName);
-            SELECT Id FROM Country WHERE Code = @code;"
-
-        Job.fromTask <| fun () -> connection.QueryFirstAsync<int>(sql, country)
-
-    let insertPostalCodes (postalCodes: seq<PostalCode>) =
-        let transaction = connection.BeginTransaction()
-
-        let sql = "
-            INSERT OR IGNORE INTO PostalCode(
-                PostalCode,
-                PlaceName,
-                SubdivisionId,
-                CountyName,
-                CountyCode,
-                CommunityName,
-                CommunityCode,
-                Latitude,
-                Longitude,
-                Accuracy)
-            VALUES (
-                @postalCode,
-                @placeName,
-                @subdivisionId,
-                @countyName,
-                @countyCode,
-                @communityName,
-                @communityCode,
-                @latitude,
-                @longitude,
-                @accuracy)"
-
-        connection.Execute(sql, postalCodes, transaction) |> ignore
-
-        transaction.Commit()
-
-    let insertSubdivisions (countryId: int) (subdivisions: seq<Subdivision>) =
-        job {
-            let transaction = connection.BeginTransaction()
-
-            let values =
-                subdivisions
-                |> Seq.map (fun sd ->
-                    { Id = 1; CountryId = countryId; Name = sd.Name; Code = sd.Code }
-                )
-
-            let sql = "
-                INSERT OR IGNORE INTO Subdivision(CountryId, Name, Code)
-                VALUES (@countryId, @name, @code)"
-
-            do! Job.awaitUnitTask <| connection.ExecuteAsync(sql, values, transaction)
-
-            transaction.Commit()
-        }
-
-    let getSubdivisions (subdivisions: seq<Subdivision>) =
-        Job.fromTask <|
-            fun () ->
-                let subdivisionCodes =
-                    subdivisions
-                    |> Seq.map (fun sd ->
-                        sd.Code
-                    )
-
-                let sql = "
-                    SELECT Id, CountryId, Code, Name
-                    FROM Subdivision
-                    WHERE Code IN @codes"
-
-                connection.QueryAsync<Subdivision>(sql, { Codes = subdivisionCodes }) *)

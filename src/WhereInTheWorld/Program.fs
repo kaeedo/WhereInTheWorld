@@ -5,9 +5,8 @@ open WhereInTheWorld.ArgumentParser
 open WhereInTheWorld.Update
 
 let ensureDirectory () =
-    if Directory.Exists(Models.baseDirectory)
-    then Directory.Delete(Models.baseDirectory, true)
-    Directory.CreateDirectory(Models.baseDirectory) |> ignore
+    if not (Directory.Exists(Models.baseDirectory))
+    then Directory.CreateDirectory(Models.baseDirectory) |> ignore
 
 let printSupportedCountries () =
     let longestCountryLength =
@@ -74,7 +73,6 @@ let updateAll () =
             | Error (countryCode, e) -> printfn "%s failed with message %A" countryCode e
         )
 
-
 let parser = ArgumentParser.Create<Arguments>(programName = "witw")
 
 
@@ -84,7 +82,7 @@ let main argv =
     DataAccess.ensureDatabase()
     DataAccess.openConnection()
 
-    let args = [|"--update"; "de"|]
+    let args = [|"--update"; "us"|]
 
     let arguments = parser.Parse args
 

@@ -19,7 +19,12 @@ module DataImport =
     let private readFile countryCode =
         job {
             try
-                return Result.Ok <| File.ReadAllLines(baseDirectory @@ sprintf "%s.txt" countryCode)
+                let file = baseDirectory @@ sprintf "%s.txt" countryCode
+                let fileContents = File.ReadAllLines(file)
+
+                File.Delete(file)
+
+                return Result.Ok fileContents
             with
             | e -> return Result.Error e
         }
