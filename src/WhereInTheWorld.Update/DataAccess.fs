@@ -35,8 +35,10 @@ module DataAccess =
             let transaction = connection.BeginTransaction()
 
             let sql = getSqlScript "WhereInTheWorld.Update.sqlScripts.insertPostalCode.sql"
-            // TODO: Properly handle error. Currently doesn't throw anything
-            Job.awaitUnitTask <| connection.ExecuteAsync(sql, postalCodes, transaction) |> ignore
 
-            transaction.Commit()
+            try
+                let! _ = connection.ExecuteAsync(sql, postalCodes, transaction)
+                transaction.Commit()
+            with
+            | Failure (message) -> failwith message
         }

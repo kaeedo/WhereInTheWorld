@@ -3,15 +3,15 @@ DELETE FROM PostalCode WHERE SubdivisionId IN
 
 DELETE FROM Subdivision WHERE CountryId = (SELECT Id FROM Country WHERE Code = @countryCode);
 
-DELETE FROM Country WHERE Code = @countryCode;
+--DELETE FROM Country WHERE Code = @countryCode;
 
-INSERT Country(Code, Name, LocalizedName)
+INSERT INTO Country(Code, Name, LocalizedName)
 VALUES(@countryCode, @countryName, @countryLocalizedName);
 
-INSERT Subdivision(CountryId, Name, Code)
+INSERT INTO Subdivision(CountryId, Name, Code)
 VALUES ((SELECT Id FROM Country WHERE Code = @countryCode), @subdivisionName, @subdivisionCode);
 
-INSERT PostalCode(
+INSERT INTO PostalCode(
     PostalCode,
     PlaceName,
     SubdivisionId,
