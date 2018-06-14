@@ -23,8 +23,7 @@ module UpdateProcess =
                 try
                     let countryCode, countryName, countryLocalizedName = getCountryInformation countryCode
 
-                    do!
-                        import
+                    do! import
                         |> Seq.map (fun i ->
                             { Id = Unchecked.defaultof<int>
                               CountryCode = countryCode
@@ -44,13 +43,11 @@ module UpdateProcess =
                         )
                         |> DataAccess.insertPostalCodes
 
-                    // TODO: Why does this still get called
                     do! Ch.give statusChannel (Inserted countryCode)
 
                     return Result.Ok countryCode
                 with
                 | e ->
-                    printfn "herp:    %A" e
                     return Result.Error (countryCode, e)
         }
 
@@ -82,7 +79,6 @@ module UpdateProcess =
                     return! updateCountry insertStatusChannel code
                 }
                 |> run
-                |> Result.Ok
 
         DataAccess.closeConnection()
         updateResult
