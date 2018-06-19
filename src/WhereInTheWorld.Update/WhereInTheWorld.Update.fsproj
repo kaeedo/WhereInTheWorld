@@ -5,8 +5,6 @@
   <ItemGroup>
     <EmbeddedResource Include="sqlScripts/createTables.sql" />
     <EmbeddedResource Include="sqlScripts/insertPostalCode.sql" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="paket.references" />
     <Compile Include="Utilities.fs" />
     <Compile Include="Models.fs" />

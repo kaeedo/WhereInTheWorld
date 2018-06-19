@@ -3,6 +3,7 @@ namespace WhereInTheWorld.Update
 open Models
 open Hopac
 open Utilities
+open System
 open System.IO
 
 module UpdateProcess =
@@ -13,7 +14,17 @@ module UpdateProcess =
             code = countryCode
         )
 
-    let updateCountry statusChannel countryCode =
+    let private defaultSubdivisionCode code countryCode =
+        if String.IsNullOrWhiteSpace(code)
+        then countryCode
+        else code
+
+    let private defaultSubdivisionName code countryName =
+        if String.IsNullOrWhiteSpace(code)
+        then countryName
+        else code
+
+    let updateCountry statusChannel countryCode (dataAccess: DataAccess) =
         job {
             let! importedPostalCodes = DataImport.readPostalCodesFile countryCode
 
@@ -23,7 +34,7 @@ module UpdateProcess =
                 try
                     let countryCode, countryName, countryLocalizedName = getCountryInformation countryCode
 
-                    do! import
+                    do import
                         |> Seq.map (fun i ->
                             { Id = Unchecked.defaultof<int>
                               CountryCode = countryCode
@@ -31,8 +42,8 @@ module UpdateProcess =
                               CountryLocalizedName = countryLocalizedName
                               PostalCode = i.PostalCode
                               PlaceName = i.PlaceName
-                              SubdivisionCode = i.SubdivisionCode
-                              SubdivisionName = i.SubdivisionName
+                              SubdivisionCode = defaultSubdivisionCode i.SubdivisionCode countryCode
+                              SubdivisionName = defaultSubdivisionName i.SubdivisionName countryName
                               CountyName = i.CountyName
                               CountyCode = i.CountyCode
                               CommunityName = i.CommunityName
@@ -41,7 +52,7 @@ module UpdateProcess =
                               Longitude = i.Longitude
                               Accuracy = i.Accuracy }
                         )
-                        |> DataAccess.insertPostalCodes
+                        |> dataAccess.InsertPostalCodes
 
                     do! Ch.give statusChannel (Inserted countryCode)
 
@@ -52,8 +63,8 @@ module UpdateProcess =
         }
 
     let updateCountryProcess countryCode downloadStatusPrinter insertStatusPrinter =
-        DataAccess.ensureDatabase()
-        DataAccess.openConnection()
+        let dataAccess = DataAccess()
+        dataAccess.EnsureDatabase()
 
         let downloadStatusChannel = Ch<DownloadStatus>()
         let insertStatusChannel = Ch<InsertStatus>()
@@ -76,63 +87,68 @@ module UpdateProcess =
                     let insertStatusPrinterChannel = insertStatusPrinter insertStatusChannel
                     do! Job.foreverServer insertStatusPrinterChannel
 
-                    return! updateCountry insertStatusChannel code
+                    return! updateCountry insertStatusChannel code dataAccess
                 }
                 |> run
 
-        DataAccess.closeConnection()
+        //dataAccess.CloseConnection()
         updateResult
 
     let updateAll downloadStatusPrinter insertStatusPrinter =
-        DataAccess.ensureDatabase()
-        DataAccess.openConnection()
+        let dataAccess = DataAccess()
+        dataAccess.EnsureDatabase()
 
         let downloadStatusChannel = Ch<DownloadStatus>()
         let insertStatusChannel = Ch<InsertStatus>()
 
-        let countryDownloads =
-            DataDownload.supportedCountries
-            |> Seq.map (fun (code, _, _) ->
-                job {
-                    let downloadStatusPrinterChannel = downloadStatusPrinter downloadStatusChannel
-                    do! Job.foreverServer downloadStatusPrinterChannel
+        let result =
+            job {
+                let! countryDownloads =
+                    DataDownload.supportedCountries
+                    |> Seq.map (fun (code, _, _) ->
+                        job {
+                            let downloadStatusPrinterChannel = downloadStatusPrinter downloadStatusChannel
+                            do! Job.foreverServer downloadStatusPrinterChannel
 
-                    return! DataDownload.downloadPostalCodesForCountry downloadStatusChannel code
-                }
-            )
-            |> Job.conCollect
+                            return! DataDownload.downloadPostalCodesForCountry downloadStatusChannel code
+                        }
+                    )
+                    |> Job.conCollect
+
+                let successfulDownloads =
+                    countryDownloads
+                    |> Seq.filter isOkResult
+
+                let failedDownloads =
+                    countryDownloads
+                    |> Seq.filter isErrorResult
+
+                let countryInsertions =
+                    successfulDownloads
+                    |> Seq.map (function
+                        | Error (_, e) -> raise e
+                        | Ok filePath ->
+                            let code = filePath.Split(Path.DirectorySeparatorChar) |> Seq.last
+                            job {
+                                let insertStatusPrinterChannel = insertStatusPrinter insertStatusChannel
+                                do! Job.foreverServer insertStatusPrinterChannel
+
+                                return! updateCountry insertStatusChannel code dataAccess
+                            }
+                            |> run
+                    )
+
+                let successfulInsertions =
+                    countryInsertions
+                    |> Seq.filter isOkResult
+
+                let failedInsertions =
+                    countryInsertions
+                    |> Seq.filter isErrorResult
+
+                return successfulInsertions, failedDownloads |> Seq.append failedInsertions
+            }
             |> run
 
-        let successfulDownloads =
-            countryDownloads
-            |> Seq.filter isOkResult
-
-        let failedDownloads =
-            countryDownloads
-            |> Seq.filter isErrorResult
-
-        let countryInsertions =
-            successfulDownloads
-            |> Seq.map (function
-                | Error (_, e) -> raise e
-                | Ok filePath ->
-                    let code = filePath.Split(Path.DirectorySeparatorChar) |> Seq.last
-                    job {
-                        let insertStatusPrinterChannel = insertStatusPrinter insertStatusChannel
-                        do! Job.foreverServer insertStatusPrinterChannel
-
-                        return! updateCountry insertStatusChannel code
-                    }
-                    |> run
-            )
-
-        let successfulInsertions =
-            countryInsertions
-            |> Seq.filter isOkResult
-
-        let failedInsertions =
-            countryInsertions
-            |> Seq.filter isErrorResult
-
-        DataAccess.closeConnection()
-        successfulInsertions, failedDownloads |> Seq.append failedInsertions
+        //dataAccess.CloseConnection()
+        result

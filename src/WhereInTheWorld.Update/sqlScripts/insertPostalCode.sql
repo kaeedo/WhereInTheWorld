@@ -1,17 +1,17 @@
-DELETE FROM PostalCode WHERE SubdivisionId IN
-    (SELECT Id FROM Subdivision WHERE CountryId = (SELECT Id FROM Country WHERE Code = @countryCode));
+-- DELETE FROM PostalCode WHERE SubdivisionId IN
+--     (SELECT Id FROM Subdivision WHERE CountryId = (SELECT Id FROM Country WHERE Code = @countryCode));
 
-DELETE FROM Subdivision WHERE CountryId = (SELECT Id FROM Country WHERE Code = @countryCode);
+-- DELETE FROM Subdivision WHERE CountryId = (SELECT Id FROM Country WHERE Code = @countryCode);
 
-DELETE FROM Country WHERE Code = @countryCode;
+-- DELETE FROM Country WHERE Code = @countryCode;
 
-INSERT INTO Country(Code, Name, LocalizedName)
+INSERT OR IGNORE INTO Country(Code, Name, LocalizedName)
 VALUES(@countryCode, @countryName, @countryLocalizedName);
 
-INSERT INTO Subdivision(CountryId, Name, Code)
+INSERT OR IGNORE INTO Subdivision(CountryId, Name, Code)
 VALUES ((SELECT Id FROM Country WHERE Code = @countryCode), @subdivisionName, @subdivisionCode);
 
-INSERT INTO PostalCode(
+INSERT OR IGNORE INTO PostalCode(
     PostalCode,
     PlaceName,
     SubdivisionId,

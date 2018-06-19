@@ -54,7 +54,7 @@ let updateCountry (countryCode: string) =
             let updateJob = UpdateProcess.updateCountryProcess uppercaseCountryCode StatusPrinter.downloadStatusPrinter StatusPrinter.insertStatusPrinter
             match updateJob with
             | Ok _ -> printfn "Successfully update country: %s" countryCode
-            | Error (countryCode, e) -> printfn "%s failed with message %A" countryCode e
+            | Error (countryCode, e) -> printfn "%s failed with message %s" countryCode e.Message
 
 let updateAll () =
     let successfulUpdates, failedUpdates =
@@ -78,7 +78,7 @@ let parser = ArgumentParser.Create<Arguments>(programName = "witw")
 let main argv =
     ensureDirectory()
 
-    let args = [|"--update"; "ad"|]
+    let args = [|"--update"|]
 
     let arguments = parser.Parse args
 
