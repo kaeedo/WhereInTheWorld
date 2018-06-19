@@ -2,3 +2,5 @@
 System.Data.SQLite.Core
 Dapper
 Http.fs
+SQLProvider
+System.Private.CoreLib

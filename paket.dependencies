@@ -5,3 +5,5 @@ nuget System.Data.SQLite.Core
 nuget Dapper
 nuget Http.fs
 nuget Argu
+nuget SQLProvider
+nuget System.Private.CoreLib

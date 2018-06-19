@@ -57,7 +57,7 @@ module DataImport =
                           CommunityCode = parse string line.[8]
                           Latitude = parse float line.[9]
                           Longitude = parse float line.[10]
-                          Accuracy = parse int line.[11] }
+                          Accuracy = parse int64 line.[11] }
                     )
                 return fileImport |> Result.Ok
             with

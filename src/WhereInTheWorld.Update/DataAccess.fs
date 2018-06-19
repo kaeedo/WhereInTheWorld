@@ -1,44 +1,54 @@
 namespace WhereInTheWorld.Update
 
-open Dapper
 open Models
-open Hopac
-open System.IO
-open System.Data.SQLite
-open System.Reflection
-open System.Text
+open FSharp.Data.Sql
 
-type DataAccess() =
-    let databaseFilename = sprintf "%s/world.db" baseDirectory
-    let connectionString = sprintf "Data Source=%s;Version=3" databaseFilename
-    let getSqlScript scriptName =
-        let assembly = Assembly.GetExecutingAssembly()
-        let resourceStream = assembly.GetManifestResourceStream(scriptName)
-        use reader = new StreamReader(resourceStream, Encoding.UTF8)
-        reader.ReadToEnd()
+type private sql = SqlDataProvider<
+                Common.DatabaseProviderTypes.SQLITE,
+                SQLiteLibrary = Common.SQLiteLibrary.SystemDataSQLite,
+                ConnectionString = "Data Source=./seed.db;Version=3;",
+                UseOptionTypes = true>
 
-    let connection = Utilities.safeSqlConnection connectionString
 
-    do connection.Open()
+module DataAccess =
+    let private ctx = sql.GetDataContext()
 
-    member this.CloseConnection () = connection.Close()
+    let insertCountry (country: CountryDao): int =
+        let insertedCountry =
+            ctx.Main.Country.``Create(Code, LocalizedName, Name)``
+                (country.Code, country.Name, country.LocalizedName)
 
-    member this.EnsureDatabase () =
-        if not (File.Exists(databaseFilename))
-        then SQLiteConnection.CreateFile(databaseFilename)
+        ctx.SubmitUpdates()
+        insertedCountry.Id
 
-        let sql = getSqlScript "WhereInTheWorld.Update.sqlScripts.createTables.sql"
-        connection.Execute(sql) |> ignore
+    let insertSubdivisions (subdivisions: seq<SubdivisionDao>) countryId =
+        let insertedSubdivisions =
+            subdivisions
+            |> Seq.map (fun s ->
+                let insertedSubdvision = ctx.Main.Subdivision.Create()
+                insertedSubdvision.CountryId <- countryId
+                insertedSubdvision.Code <- s.Code
+                insertedSubdvision.Name <- s.Name
 
-    member this.InsertPostalCodes postalCodes =
-        let transaction = connection.BeginTransaction()
+                insertedSubdvision
+            )
 
-        let sql = getSqlScript "WhereInTheWorld.Update.sqlScripts.insertPostalCode.sql"
+        ctx.SubmitUpdates()
+        insertedSubdivisions
 
-        try
-            connection.Execute(sql, postalCodes, transaction) |> ignore
 
-            transaction.Commit()
-        with
-        | Failure (message) ->
-            failwith message
+    // let insertPostalCodes (postalCodes: seq<PostalCodeDao>) subdivisionId =
+    //     postalCodes
+    //     |> Seq.map (fun pc ->
+    //         let insertedPostalCode = ctx.Main.PostalCode.Create()
+    //         insertedPostalCode.SubdivisionId <- subdivisionId
+    //         insertedPostalCode.PostalCode <- pc.PostalCode
+    //         insertedPostalCode.PlaceName <- pc.PlaceName
+    //         insertedPostalCode.CountyName <- pc.CountyName
+    //         insertedPostalCode.CountyCode <- pc.CountyCode
+    //         insertedPostalCode.CommunityName <- pc.CommunityName
+    //         insertedPostalCode.CommunityCode <- pc.CommunityCode
+    //         insertedPostalCode.Latitude <- pc.Latitude
+    //         insertedPostalCode.Longitude <- pc.Longitude
+    //         insertedPostalCode.Accuracy <- pc.Accuracy
+    //     )
