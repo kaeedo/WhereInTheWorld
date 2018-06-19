@@ -35,7 +35,7 @@ module UpdateProcess =
                     let countryCode, countryName, countryLocalizedName = getCountryInformation countryCode
 
                     let countryId =
-                        { Id = 0
+                        { Id = Unchecked.defaultof<int64>
                           Code = countryCode
                           Name = countryName
                           LocalizedName = countryLocalizedName }
@@ -44,7 +44,7 @@ module UpdateProcess =
                     let subdivisions =
                         import
                         |> Seq.map (fun fi ->
-                            { Id = 0
+                            { Id = Unchecked.defaultof<int64>
                               CountryId = countryId
                               Code =  defaultSubdivisionCode fi.SubdivisionCode countryCode
                               Name = defaultSubdivisionName fi.SubdivisionName countryName }

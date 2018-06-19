@@ -2,6 +2,10 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp2.1</TargetFramework>
   </PropertyGroup>
+  <PropertyGroup>
+    <FscToolPath>C:\Program Files (x86)\Microsoft SDKs\F#\4.1\Framework\v4.0</FscToolPath>
+    <FscToolExe>fsc.exe</FscToolExe>
+  </PropertyGroup>
   <ItemGroup>
     <EmbeddedResource Include="sqlScripts/createTables.sql" />
     <EmbeddedResource Include="sqlScripts/insertPostalCode.sql" />

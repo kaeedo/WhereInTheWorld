@@ -22,7 +22,7 @@ module DataImport =
                 let file = baseDirectory @@ sprintf "%s.txt" countryCode
                 let fileContents = File.ReadAllLines(file)
 
-                File.Delete(file)
+                //File.Delete(file)
 
                 return Result.Ok fileContents
             with

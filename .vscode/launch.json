@@ -9,7 +9,7 @@
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
-            "program": "${workspaceFolder}/src/WhereInTheWorld/bin/Debug/netcoreapp2.0/WhereInTheWorld.dll",
+            "program": "${workspaceFolder}/src/WhereInTheWorld/bin/Debug/netcoreapp2.1/WhereInTheWorld.dll",
             "cwd": "${workspaceFolder}",
             "console": "internalConsole",
             "stopAtEntry": false

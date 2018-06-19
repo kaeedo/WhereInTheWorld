@@ -1,19 +1,19 @@
 namespace WhereInTheWorld.Update
 
 open Models
+open System
 open FSharp.Data.Sql
 
 type private sql = SqlDataProvider<
-                Common.DatabaseProviderTypes.SQLITE,
-                SQLiteLibrary = Common.SQLiteLibrary.SystemDataSQLite,
-                ConnectionString = "Data Source=./seed.db;Version=3;",
-                UseOptionTypes = true>
-
+                    Common.DatabaseProviderTypes.SQLITE,
+                    SQLiteLibrary = Common.SQLiteLibrary.SystemDataSQLite,
+                    ConnectionString = "Data Source=./seed.db;Version=3;",
+                    UseOptionTypes = true>
 
 module DataAccess =
     let private ctx = sql.GetDataContext()
 
-    let insertCountry (country: CountryDao): int =
+    let insertCountry (country: CountryDao): int64 =
         let insertedCountry =
             ctx.Main.Country.``Create(Code, LocalizedName, Name)``
                 (country.Code, country.Name, country.LocalizedName)

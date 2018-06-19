@@ -13,22 +13,22 @@ module Models =
 
     [<CLIMutable>]
     type CountryDao =
-        { Id: int
+        { Id: int64
           Code: string
           Name: string
           LocalizedName: string }
 
     [<CLIMutable>]
     type SubdivisionDao =
-        { Id: int
-          CountryId: int
+        { Id: int64
+          CountryId: int64
           Code: string
           Name: string }
 
     [<CLIMutable>]
     type PostalCodeDao =
-        { Id: int
-          SubdivisionId: int
+        { Id: int64
+          SubdivisionId: int64
           PostalCode: string
           PlaceName: string
           CountyName: string option
