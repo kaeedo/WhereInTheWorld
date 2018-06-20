@@ -14,19 +14,20 @@ module DataAccess =
     let private ctx = sql.GetDataContext()
 
     let insertCountry (country: CountryDao): int64 =
-        let insertedCountry =
-            ctx.Main.Country.``Create(Code, LocalizedName, Name)``
-                (country.Code, country.Name, country.LocalizedName)
+        let insertedCountry = ctx.Main.Country.Create()
+        insertedCountry.Code <- country.Code
+        insertedCountry.LocalizedName <- country.LocalizedName
+        insertedCountry.Name <- country.Name
 
         ctx.SubmitUpdates()
         insertedCountry.Id
 
-    let insertSubdivisions (subdivisions: seq<SubdivisionDao>) countryId =
+    let insertSubdivisions (subdivisions: SubdivisionDao list) =
         let insertedSubdivisions =
             subdivisions
-            |> Seq.map (fun s ->
+            |> List.map (fun s ->
                 let insertedSubdvision = ctx.Main.Subdivision.Create()
-                insertedSubdvision.CountryId <- countryId
+                insertedSubdvision.CountryId <- s.CountryId
                 insertedSubdvision.Code <- s.Code
                 insertedSubdvision.Name <- s.Name
 
@@ -37,18 +38,24 @@ module DataAccess =
         insertedSubdivisions
 
 
-    // let insertPostalCodes (postalCodes: seq<PostalCodeDao>) subdivisionId =
-    //     postalCodes
-    //     |> Seq.map (fun pc ->
-    //         let insertedPostalCode = ctx.Main.PostalCode.Create()
-    //         insertedPostalCode.SubdivisionId <- subdivisionId
-    //         insertedPostalCode.PostalCode <- pc.PostalCode
-    //         insertedPostalCode.PlaceName <- pc.PlaceName
-    //         insertedPostalCode.CountyName <- pc.CountyName
-    //         insertedPostalCode.CountyCode <- pc.CountyCode
-    //         insertedPostalCode.CommunityName <- pc.CommunityName
-    //         insertedPostalCode.CommunityCode <- pc.CommunityCode
-    //         insertedPostalCode.Latitude <- pc.Latitude
-    //         insertedPostalCode.Longitude <- pc.Longitude
-    //         insertedPostalCode.Accuracy <- pc.Accuracy
-    //     )
+    let insertPostalCodes (postalCodes: PostalCodeDao list)  =
+        let insertedPostalCodes =
+            postalCodes
+            |> List.map (fun pc ->
+                let insertedPostalCode = ctx.Main.PostalCode.Create()
+                insertedPostalCode.SubdivisionId <- pc.SubdivisionId
+                insertedPostalCode.PostalCode <- pc.PostalCode
+                insertedPostalCode.PlaceName <- pc.PlaceName
+                insertedPostalCode.CountyName <- pc.CountyName
+                insertedPostalCode.CountyCode <- pc.CountyCode
+                insertedPostalCode.CommunityName <- pc.CommunityName
+                insertedPostalCode.CommunityCode <- pc.CommunityCode
+                insertedPostalCode.Latitude <- pc.Latitude
+                insertedPostalCode.Longitude <- pc.Longitude
+                insertedPostalCode.Accuracy <- pc.Accuracy
+
+                insertedPostalCode
+            )
+
+        ctx.SubmitUpdates()
+        insertedPostalCodes

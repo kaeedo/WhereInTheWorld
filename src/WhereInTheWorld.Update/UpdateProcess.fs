@@ -43,33 +43,39 @@ module UpdateProcess =
 
                     let subdivisions =
                         import
+                        |> Seq.distinctBy (fun i ->
+                            i.SubdivisionCode
+                        )
                         |> Seq.map (fun fi ->
                             { Id = Unchecked.defaultof<int64>
                               CountryId = countryId
                               Code =  defaultSubdivisionCode fi.SubdivisionCode countryCode
                               Name = defaultSubdivisionName fi.SubdivisionName countryName }
                         )
+                        |> List.ofSeq
                         |> DataAccess.insertSubdivisions
+                        |> List.map (fun s ->
+                            s.Code, s.Id
+                        )
+                        |> dict
 
-                    // do import
-                    //     |> Seq.map (fun i ->
-                    //         { Id = Unchecked.defaultof<int>
-                    //           CountryCode = countryCode
-                    //           CountryName = countryName
-                    //           CountryLocalizedName = countryLocalizedName
-                    //           PostalCode = i.PostalCode
-                    //           PlaceName = i.PlaceName
-                    //           SubdivisionCode = defaultSubdivisionCode i.SubdivisionCode countryCode
-                    //           SubdivisionName = defaultSubdivisionName i.SubdivisionName countryName
-                    //           CountyName = i.CountyName
-                    //           CountyCode = i.CountyCode
-                    //           CommunityName = i.CommunityName
-                    //           CommunityCode = i.CommunityCode
-                    //           Latitude = i.Latitude
-                    //           Longitude = i.Longitude
-                    //           Accuracy = i.Accuracy }
-                    //     )
-                    //     |> DataAccess.insertPostalCodes
+                    let postalCodes =
+                        import
+                        |> Seq.map (fun i ->
+                            { Id = Unchecked.defaultof<int64>
+                              SubdivisionId = subdivisions.[i.SubdivisionCode]
+                              PostalCode = i.PostalCode
+                              PlaceName = i.PlaceName
+                              CountyName = i.CountyName
+                              CountyCode = i.CountyCode
+                              CommunityName = i.CommunityName
+                              CommunityCode = i.CommunityCode
+                              Latitude = i.Latitude
+                              Longitude = i.Longitude
+                              Accuracy = i.Accuracy }
+                        )
+                        |> List.ofSeq
+                        |> DataAccess.insertPostalCodes
 
                     do! Ch.give statusChannel (Inserted countryCode)
 
@@ -105,7 +111,6 @@ module UpdateProcess =
                 }
                 |> run
 
-        //dataAccess.CloseConnection()
         updateResult
 
     let updateAll downloadStatusPrinter insertStatusPrinter =

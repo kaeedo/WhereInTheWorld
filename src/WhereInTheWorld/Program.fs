@@ -78,7 +78,7 @@ let parser = ArgumentParser.Create<Arguments>(programName = "witw")
 let main argv =
     ensureDirectory()
 
-    let args = [|"--update"|]
+    let args = [|"--update"; "de"|]
 
     let arguments = parser.Parse args
 
