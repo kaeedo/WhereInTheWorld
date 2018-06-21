@@ -39,7 +39,7 @@ module UpdateProcess =
                           Code = countryCode
                           Name = countryName
                           LocalizedName = countryLocalizedName }
-                        |> DataAccess.insertCountry
+                        |> DataAccess.upsertCountry
 
                     let subdivisions =
                         import

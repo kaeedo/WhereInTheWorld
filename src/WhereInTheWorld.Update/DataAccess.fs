@@ -25,6 +25,23 @@ module DataAccess =
         ctx.SubmitUpdates()
         insertedCountry.Id
 
+    let upsertCountry (country: CountryDao) =
+        let foundCountryMaybe =
+            query {
+                for c in ctx.Main.Country do
+                where (c.Code = country.Code)
+                select (Some c)
+                exactlyOneOrDefault
+            }
+
+        match foundCountryMaybe with
+        | None -> insertCountry country
+        | Some foundCountry ->
+            foundCountry.Name <- country.Name
+            foundCountry.LocalizedName <- country.LocalizedName
+            ctx.SubmitUpdates()
+            foundCountry.Id
+
     let insertSubdivisions (subdivisions: SubdivisionDao list) =
         let insertedSubdivisions =
             subdivisions
