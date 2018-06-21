@@ -7,17 +7,18 @@ open FSharp.Data.Sql
 type private sql = SqlDataProvider<
                     Common.DatabaseProviderTypes.SQLITE,
                     SQLiteLibrary = Common.SQLiteLibrary.SystemDataSQLite,
-                    ConnectionString = "Data Source=./seed.db;Version=3;",
+                    ConnectionString = "Data Source=./world.db;Version=3;",
                     UseOptionTypes = true>
 
 module DataAccess =
-    let private ctx = sql.GetDataContext()
+    let private ctx = sql.GetDataContext(sprintf "Data Source=%s/world.db;Version=3" Models.baseDirectory)
 
     let insertCountry (country: CountryDao): int64 =
-        let insertedCountry = ctx.Main.Country.Create()
-        insertedCountry.Code <- country.Code
-        insertedCountry.LocalizedName <- country.LocalizedName
-        insertedCountry.Name <- country.Name
+        let insertedCountry =
+            ctx.Main.Country.``Create(Code, LocalizedName, Name)``
+                                (country.Code,
+                                 country.LocalizedName,
+                                 country.Name)
 
         ctx.SubmitUpdates()
         insertedCountry.Id
@@ -26,10 +27,11 @@ module DataAccess =
         let insertedSubdivisions =
             subdivisions
             |> List.map (fun s ->
-                let insertedSubdvision = ctx.Main.Subdivision.Create()
-                insertedSubdvision.CountryId <- s.CountryId
-                insertedSubdvision.Code <- s.Code
-                insertedSubdvision.Name <- s.Name
+                let insertedSubdvision =
+                    ctx.Main.Subdivision.``Create(Code, CountryId, Name)``
+                                            (s.Code,
+                                             s.CountryId,
+                                             s.Name)
 
                 insertedSubdvision
             )
@@ -37,15 +39,15 @@ module DataAccess =
         ctx.SubmitUpdates()
         insertedSubdivisions
 
-
     let insertPostalCodes (postalCodes: PostalCodeDao list)  =
         let insertedPostalCodes =
             postalCodes
             |> List.map (fun pc ->
-                let insertedPostalCode = ctx.Main.PostalCode.Create()
-                insertedPostalCode.SubdivisionId <- pc.SubdivisionId
-                insertedPostalCode.PostalCode <- pc.PostalCode
-                insertedPostalCode.PlaceName <- pc.PlaceName
+                let insertedPostalCode =
+                    ctx.Main.PostalCode.``Create(PlaceName, PostalCode, SubdivisionId)``
+                                            (pc.PlaceName,
+                                             pc.PostalCode,
+                                             pc.SubdivisionId)
                 insertedPostalCode.CountyName <- pc.CountyName
                 insertedPostalCode.CountyCode <- pc.CountyCode
                 insertedPostalCode.CommunityName <- pc.CommunityName

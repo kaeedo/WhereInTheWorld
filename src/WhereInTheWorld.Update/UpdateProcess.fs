@@ -62,8 +62,13 @@ module UpdateProcess =
                     let postalCodes =
                         import
                         |> Seq.map (fun i ->
+                            let subdivisionCode =
+                                if String.IsNullOrWhiteSpace(i.SubdivisionCode)
+                                then countryCode
+                                else i.SubdivisionCode
+
                             { Id = Unchecked.defaultof<int64>
-                              SubdivisionId = subdivisions.[i.SubdivisionCode]
+                              SubdivisionId = subdivisions.[subdivisionCode]
                               PostalCode = i.PostalCode
                               PlaceName = i.PlaceName
                               CountyName = i.CountyName
