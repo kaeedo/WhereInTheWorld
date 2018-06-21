@@ -1,7 +1,9 @@
 namespace WhereInTheWorld.Update
 
 open Models
+open Utilities
 open System
+open System.IO
 open FSharp.Data.Sql
 
 type private sql = SqlDataProvider<
@@ -11,7 +13,7 @@ type private sql = SqlDataProvider<
                     UseOptionTypes = true>
 
 module DataAccess =
-    let private ctx = sql.GetDataContext(sprintf "Data Source=%s/world.db;Version=3" Models.baseDirectory)
+    let private ctx = sql.GetDataContext(sprintf "Data Source=%s;Version=3" Models.databaseFile)
 
     let insertCountry (country: CountryDao): int64 =
         let insertedCountry =

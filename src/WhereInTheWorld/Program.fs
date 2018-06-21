@@ -1,12 +1,20 @@
 ﻿open Argu
+open System
 open System.IO
+open System.Reflection
 open WhereInTheWorld
 open WhereInTheWorld.ArgumentParser
 open WhereInTheWorld.Update
+open WhereInTheWorld.Update.Utilities
 
 let ensureDirectory () =
     if not (Directory.Exists(Models.baseDirectory))
     then Directory.CreateDirectory(Models.baseDirectory) |> ignore
+
+let ensureDatabase () =
+    let currentDirectory = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)
+    if not (File.Exists(Models.databaseFile))
+    then File.Copy(currentDirectory @@ "world.db", Models.baseDirectory @@ "world.db")
 
 let printSupportedCountries () =
     let longestCountryLength =
@@ -77,6 +85,7 @@ let parser = ArgumentParser.Create<Arguments>(programName = "witw")
 [<EntryPoint>]
 let main argv =
     ensureDirectory()
+    ensureDatabase()
 
     let args = [|"--update"; "ad"|]
 

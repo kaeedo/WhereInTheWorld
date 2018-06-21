@@ -2,7 +2,6 @@ namespace WhereInTheWorld.Update
 
 open System
 open Utilities
-open Hopac
 
 module Models =
     let baseDirectory =
@@ -10,6 +9,8 @@ module Models =
         | PlatformID.Unix -> Environment.GetEnvironmentVariable("HOME") @@ ".WhereInTheWorld"
         | PlatformID.MacOSX -> Environment.GetEnvironmentVariable("HOME") @@ ".WhereInTheWorld"
         | _ -> Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) @@ ".WhereInTheWorld"
+
+    let databaseFile = baseDirectory @@ "world.db"
 
     [<CLIMutable>]
     type CountryDao =
@@ -31,23 +32,6 @@ module Models =
           SubdivisionId: int64
           PostalCode: string
           PlaceName: string
-          CountyName: string option
-          CountyCode: string option
-          CommunityName: string option
-          CommunityCode: string option
-          Latitude: float option
-          Longitude: float option
-          Accuracy: int64 option }
-
-    type PostalCodeInformation =
-        { Id: int
-          CountryCode: string
-          CountryName: string
-          CountryLocalizedName: string
-          PostalCode: string
-          PlaceName: string
-          SubdivisionCode: string
-          SubdivisionName: string
           CountyName: string option
           CountyCode: string option
           CommunityName: string option

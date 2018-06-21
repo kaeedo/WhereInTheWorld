@@ -6,12 +6,13 @@
     <FscToolPath>C:\Program Files (x86)\Microsoft SDKs\F#\4.1\Framework\v4.0</FscToolPath>
     <FscToolExe>fsc.exe</FscToolExe>
   </PropertyGroup>
-  <Target Name="CopyDb" BeforeTargets="BeforeBuild">
-    <Exec Command="cp ./world.db %USERPROFILE%/.WhereInTheWorld" />
-  </Target>
+
+
   <ItemGroup>
+    <None Include="world.db">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <EmbeddedResource Include="sqlScripts/createTables.sql" />
-    <EmbeddedResource Include="sqlScripts/insertPostalCode.sql" />
     <None Include="paket.references" />
     <Compile Include="Utilities.fs" />
     <Compile Include="Models.fs" />
