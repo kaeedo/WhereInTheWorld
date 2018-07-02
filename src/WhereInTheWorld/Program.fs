@@ -87,7 +87,7 @@ let main argv =
     ensureDirectory()
     ensureDatabase()
 
-    let args = [|"--update"; "ad"|]
+    let args = [|"--update"; "us"|]
 
     let arguments = parser.Parse args
 

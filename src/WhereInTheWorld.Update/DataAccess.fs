@@ -1,19 +1,16 @@
 namespace WhereInTheWorld.Update
 
 open Models
-open Utilities
-open System
-open System.IO
 open FSharp.Data.Sql
 
-type private sql = SqlDataProvider<
+type private Sql = SqlDataProvider<
                     Common.DatabaseProviderTypes.SQLITE,
                     SQLiteLibrary = Common.SQLiteLibrary.SystemDataSQLite,
                     ConnectionString = "Data Source=./world.db;Version=3;",
                     UseOptionTypes = true>
 
 module DataAccess =
-    let private ctx = sql.GetDataContext(sprintf "Data Source=%s;Version=3" Models.databaseFile)
+    let private ctx = Sql.GetDataContext(sprintf "Data Source=%s;Version=3" Models.databaseFile)
 
     let insertCountry (country: CountryDao): int64 =
         let insertedCountry =
@@ -24,23 +21,6 @@ module DataAccess =
 
         ctx.SubmitUpdates()
         insertedCountry.Id
-
-    let upsertCountry (country: CountryDao) =
-        let foundCountryMaybe =
-            query {
-                for c in ctx.Main.Country do
-                where (c.Code = country.Code)
-                select (Some c)
-                exactlyOneOrDefault
-            }
-
-        match foundCountryMaybe with
-        | None -> insertCountry country
-        | Some foundCountry ->
-            foundCountry.Name <- country.Name
-            foundCountry.LocalizedName <- country.LocalizedName
-            ctx.SubmitUpdates()
-            foundCountry.Id
 
     let insertSubdivisions (subdivisions: SubdivisionDao list) =
         let insertedSubdivisions =
