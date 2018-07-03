@@ -1,8 +1,8 @@
 namespace WhereInTheWorld.Update
 
-open Models
 open Hopac
 open WhereInTheWorld.Utilities.ResultUtilities
+open WhereInTheWorld.Utilities.Models
 open System
 open System.IO
 

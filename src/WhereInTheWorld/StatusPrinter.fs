@@ -1,6 +1,6 @@
 namespace WhereInTheWorld
 
-open WhereInTheWorld.Update.Models
+open WhereInTheWorld.Utilities.Models
 open Hopac
 
 module StatusPrinter =

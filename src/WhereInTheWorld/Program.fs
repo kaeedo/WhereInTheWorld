@@ -5,6 +5,7 @@ open System.Reflection
 open WhereInTheWorld
 open WhereInTheWorld.ArgumentParser
 open WhereInTheWorld.Update
+open WhereInTheWorld.Utilities
 open WhereInTheWorld.Utilities.IoUtilities
 
 let ensureDirectory () =

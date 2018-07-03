@@ -10,11 +10,10 @@
     <ProjectReference Include="..\WhereInTheWorld.Utilities\WhereInTheWorld.Utilities.fsproj" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="world.db">
+    <None Include="..\world.db">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="paket.references" />
-    <Compile Include="Models.fs" />
     <Compile Include="DataDownload.fs" />
     <Compile Include="DataImport.fs" />
     <Compile Include="DataAccess.fs" />
