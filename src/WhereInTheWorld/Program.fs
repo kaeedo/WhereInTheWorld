@@ -5,7 +5,7 @@ open System.Reflection
 open WhereInTheWorld
 open WhereInTheWorld.ArgumentParser
 open WhereInTheWorld.Update
-open WhereInTheWorld.Update.Utilities
+open WhereInTheWorld.Utilities.IoUtilities
 
 let ensureDirectory () =
     if not (Directory.Exists(Models.baseDirectory))
@@ -87,7 +87,7 @@ let main argv =
     ensureDirectory()
     ensureDatabase()
 
-    let args = [|"--update"; "us"|]
+    let args = [|"--update"; "de"|]
 
     let arguments = parser.Parse args
 

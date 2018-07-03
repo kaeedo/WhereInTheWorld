@@ -5,8 +5,8 @@ open System.IO.Compression
 open Hopac
 open HttpFs.Client
 open Models
-open Utilities
-open System
+open WhereInTheWorld.Utilities.ResultUtilities
+open WhereInTheWorld.Utilities.IoUtilities
 
 module DataDownload =
     let private baseUrl = "http://download.geonames.org/export/zip/"

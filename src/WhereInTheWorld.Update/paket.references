@@ -1,5 +1,4 @@
 ﻿FSharp.Core
 System.Data.SQLite.Core
-Dapper
 Http.fs
 SQLProvider

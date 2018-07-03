@@ -1,7 +1,7 @@
 namespace WhereInTheWorld.Update
 
 open System
-open Utilities
+open WhereInTheWorld.Utilities.IoUtilities
 
 module Models =
     let baseDirectory =

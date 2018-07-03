@@ -3,7 +3,8 @@ namespace WhereInTheWorld.Update
 open System
 open System.IO
 open Models
-open Utilities
+open WhereInTheWorld.Utilities.ResultUtilities
+open WhereInTheWorld.Utilities.IoUtilities
 open Hopac
 
 module DataImport =

@@ -6,15 +6,14 @@
     <FscToolPath>C:\Program Files (x86)\Microsoft SDKs\F#\4.1\Framework\v4.0</FscToolPath>
     <FscToolExe>fsc.exe</FscToolExe>
   </PropertyGroup>
-
-
+  <ItemGroup>
+    <ProjectReference Include="..\WhereInTheWorld.Utilities\WhereInTheWorld.Utilities.fsproj" />
+  </ItemGroup>
   <ItemGroup>
     <None Include="world.db">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <EmbeddedResource Include="sqlScripts/createTables.sql" />
     <None Include="paket.references" />
-    <Compile Include="Utilities.fs" />
     <Compile Include="Models.fs" />
     <Compile Include="DataDownload.fs" />
     <Compile Include="DataImport.fs" />

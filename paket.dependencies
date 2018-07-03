@@ -2,7 +2,6 @@ source https://api.nuget.org/v3/index.json
 
 nuget FSharp.Core
 nuget System.Data.SQLite.Core
-nuget Dapper
 nuget Http.fs
 nuget Argu
 nuget SQLProvider
