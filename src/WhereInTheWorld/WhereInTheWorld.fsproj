@@ -14,6 +14,7 @@
   <ItemGroup>
     <ProjectReference Include="..\WhereInTheWorld.Update\WhereInTheWorld.Update.fsproj" />
     <ProjectReference Include="..\WhereInTheWorld.Utilities\WhereInTheWorld.Utilities.fsproj" />
+    <ProjectReference Include="..\WhereInTheWorld.Query\WhereInTheWorld.Query.fsproj" />
   </ItemGroup>
   <ItemGroup>
     <None Include="paket.references" />

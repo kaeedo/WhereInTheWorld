@@ -6,13 +6,13 @@ open FSharp.Data.Sql
 type private Sql = SqlDataProvider<
                     Common.DatabaseProviderTypes.SQLITE,
                     SQLiteLibrary = Common.SQLiteLibrary.SystemDataSQLite,
-                    ConnectionString = "Data Source=../world.db;Version=3;",
+                    ConnectionString = "Data Source=./world.db;Version=3;",
                     UseOptionTypes = true>
 
 module DataAccess =
     let private ctx = Sql.GetDataContext(sprintf "Data Source=%s;Version=3" databaseFile)
 
-    let insertCountry (country: CountryDao): int64 =
+    let insertCountry (country: Country): int64 =
         let insertedCountry =
             ctx.Main.Country.``Create(Code, LocalizedName, Name)``
                                 (country.Code,
@@ -22,7 +22,7 @@ module DataAccess =
         ctx.SubmitUpdates()
         insertedCountry.Id
 
-    let insertSubdivisions (subdivisions: SubdivisionDao list) =
+    let insertSubdivisions (subdivisions: Subdivision list) =
         let insertedSubdivisions =
             subdivisions
             |> List.map (fun s ->
@@ -38,7 +38,7 @@ module DataAccess =
         ctx.SubmitUpdates()
         insertedSubdivisions
 
-    let insertPostalCodes (postalCodes: PostalCodeDao list)  =
+    let insertPostalCodes (postalCodes: PostalCode list)  =
         let insertedPostalCodes =
             postalCodes
             |> List.map (fun pc ->

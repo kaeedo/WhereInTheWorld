@@ -12,24 +12,43 @@ module Models =
 
     let databaseFile = baseDirectory @@ "world.db"
 
-    [<CLIMutable>]
-    type CountryDao =
+    type Country =
         { Id: int64
           Code: string
           Name: string
           LocalizedName: string }
 
-    [<CLIMutable>]
-    type SubdivisionDao =
+    type Subdivision =
         { Id: int64
           CountryId: int64
           Code: string
           Name: string }
 
-    [<CLIMutable>]
-    type PostalCodeDao =
+    type PostalCode =
         { Id: int64
           SubdivisionId: int64
+          PostalCode: string
+          PlaceName: string
+          CountyName: string option
+          CountyCode: string option
+          CommunityName: string option
+          CommunityCode: string option
+          Latitude: float option
+          Longitude: float option
+          Accuracy: int64 option }
+
+    type CountryDao =
+        { Code: string
+          Name: string
+          LocalizedName: string }
+
+    type SubdivisionDao =
+        { Country: CountryDao
+          Code: string
+          Name: string }
+
+    type PostalCodeDao =
+        { Subdivision: SubdivisionDao
           PostalCode: string
           PlaceName: string
           CountyName: string option

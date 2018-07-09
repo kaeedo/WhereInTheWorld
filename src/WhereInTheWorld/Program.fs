@@ -5,6 +5,7 @@ open System.Reflection
 open WhereInTheWorld
 open WhereInTheWorld.ArgumentParser
 open WhereInTheWorld.Update
+open WhereInTheWorld.Query
 open WhereInTheWorld.Utilities
 open WhereInTheWorld.Utilities.IoUtilities
 
@@ -42,7 +43,7 @@ let printSupportedCountries () =
     printfn "%s" <| String.replicate (longestCountryLength + longestLocalizedCountryLength + 12) "-"
 
 let getPostalCodeInformation postalCode =
-    printfn "Received postal code: %s" postalCode
+    printfn "Place name is: %A" <| Query.getInformation postalCode
 
 let updateCountry (countryCode: string) =
     let uppercaseCountryCode = countryCode.ToUpperInvariant()
@@ -88,7 +89,7 @@ let main argv =
     ensureDirectory()
     ensureDatabase()
 
-    let args = [|"--update"; "de"|]
+    let args = [|"01983"|]
 
     let arguments = parser.Parse args
 
@@ -106,6 +107,7 @@ let main argv =
         then
             match arguments.GetResult Update with
             | None -> updateAll()
-            | Some countryCode -> updateCountry countryCode
+            | Some countryCode ->
+                updateCountry countryCode
 
     0
