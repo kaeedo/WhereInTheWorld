@@ -1,5 +1,4 @@
 ﻿open Argu
-open System
 open System.IO
 open System.Reflection
 open WhereInTheWorld
@@ -43,7 +42,38 @@ let printSupportedCountries () =
     printfn "%s" <| String.replicate (longestCountryLength + longestLocalizedCountryLength + 12) "-"
 
 let getPostalCodeInformation postalCode =
-    printfn "Place name is: %A" <| Query.getInformation postalCode
+    let postalCodeInformation = Query.getInformation postalCode
+    let numberOfResults = Seq.length postalCodeInformation
+
+    if numberOfResults = 0
+    then
+        printfn "No information found for postal code: \"%s\"." postalCode
+    else
+        printfn "Information about \"%s\" (found %i %s):" postalCode numberOfResults (if numberOfResults = 1 then "result" else "results")
+        printfn "%s" <| String.replicate 50 "-"
+        postalCodeInformation
+        |> Seq.iter (fun pci ->
+            printfn "Place name: %s" pci.PlaceName
+
+            if pci.CommunityName.IsSome
+            then
+                printf "%4sIn Community: %s" "" pci.CommunityName.Value
+                if pci.CommunityCode.IsSome
+                then printf " (%s)" pci.CommunityCode.Value
+                printfn ""
+
+            if pci.CountyName.IsSome
+            then
+                printf "%4sIn County: %s" "" pci.CountyName.Value
+                if pci.CountyCode.IsSome
+                then printf " (%s)" pci.CountyCode.Value
+                printfn ""
+
+            printfn "%4sWithin Subdivision: %s (%s)" "" pci.Subdivision.Name pci.Subdivision.Code
+            printfn "%4sIn Country: %s (%s)" "" pci.Subdivision.Country.Name pci.Subdivision.Country.Code
+            printfn "%4sKnown locally as: %s" "" pci.Subdivision.Country.LocalizedName
+            printfn "%s" <| String.replicate 25 "-"
+        )
 
 let updateCountry (countryCode: string) =
     let uppercaseCountryCode = countryCode.ToUpperInvariant()
