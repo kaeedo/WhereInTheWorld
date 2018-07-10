@@ -32,6 +32,7 @@ module UpdateProcess =
             | Error e -> return Result.Error (countryCode, e)
             | Ok import ->
                 try
+                    do! Ch.give statusChannel (Started countryCode)
                     let countryCode, countryName, countryLocalizedName = getCountryInformation countryCode
 
                     let countryId =
@@ -81,6 +82,8 @@ module UpdateProcess =
                         )
                         |> List.ofSeq
                         |> DataAccess.insertPostalCodes
+
+                    do! timeOutMillis 3000
 
                     do! Ch.give statusChannel (Inserted countryCode)
 

@@ -119,7 +119,7 @@ let main argv =
     ensureDirectory()
     ensureDatabase()
 
-    let args = [|"01983"|]
+    let args = [|"--update"; "ca"|]
 
     let arguments = parser.Parse args
 
