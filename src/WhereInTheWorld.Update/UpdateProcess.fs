@@ -10,7 +10,7 @@ module UpdateProcess =
     let private getCountryInformation countryCode =
         DataDownload.supportedCountries
         |> Seq.find (fun sc ->
-            let code, _, _ = sc
+            let code, _ = sc
             code = countryCode
         )
 
@@ -33,13 +33,12 @@ module UpdateProcess =
             | Ok import ->
                 try
                     do! Ch.give statusChannel (Started countryCode)
-                    let countryCode, countryName, countryLocalizedName = getCountryInformation countryCode
+                    let countryCode, countryName = getCountryInformation countryCode
 
                     let countryId =
                         { Id = Unchecked.defaultof<int64>
                           Code = countryCode
-                          Name = countryName
-                          LocalizedName = countryLocalizedName }
+                          Name = countryName }
                         |> DataAccess.insertCountry
 
                     let subdivisions =
@@ -128,7 +127,7 @@ module UpdateProcess =
         job {
             let! countryDownloads =
                 DataDownload.supportedCountries
-                |> Seq.map (fun (code, _, _) ->
+                |> Seq.map (fun (code, _) ->
                     job {
                         let downloadStatusPrinterChannel = downloadStatusPrinter downloadStatusChannel
                         do! Job.foreverServer downloadStatusPrinterChannel

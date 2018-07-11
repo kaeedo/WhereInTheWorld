@@ -15,8 +15,7 @@ module Models =
     type Country =
         { Id: int64
           Code: string
-          Name: string
-          LocalizedName: string }
+          Name: string }
 
     type Subdivision =
         { Id: int64
@@ -39,8 +38,7 @@ module Models =
 
     type CountryDao =
         { Code: string
-          Name: string
-          LocalizedName: string }
+          Name: string }
 
     type SubdivisionDao =
         { Country: CountryDao

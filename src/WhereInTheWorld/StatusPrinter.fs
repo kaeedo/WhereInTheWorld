@@ -4,15 +4,6 @@ open WhereInTheWorld.Utilities.Models
 open Hopac
 
 module StatusPrinter =
-    let private printSpinner =
-        printfn "wefwefdsfdsf"
-        job {
-            let mutable current = "|"
-            while true do
-                printfn "\r%s" current
-                current <- if current = "|" then "-" else "|"
-                do! timeOutMillis 100
-        }
 
     let downloadStatusPrinter channel =
         job {
@@ -24,14 +15,12 @@ module StatusPrinter =
         }
 
     let insertStatusPrinter channel =
-        let isFinished status =
-            match status with
-                | Started _ ->
-                    false
-                | Inserted _ ->
-                    true
-
         job {
             let! status = Ch.take channel
-            do! Job.whileDo (fun () -> not <| isFinished status) printSpinner
+
+            match status with
+                | Started cc ->
+                    printfn "Started %s" cc
+                | Inserted cc ->
+                    printfn "Inserted %s" cc
         }

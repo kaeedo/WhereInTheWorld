@@ -14,9 +14,8 @@ module DataAccess =
 
     let insertCountry (country: Country): int64 =
         let insertedCountry =
-            ctx.Main.Country.``Create(Code, LocalizedName, Name)``
+            ctx.Main.Country.``Create(Code, Name)``
                                 (country.Code,
-                                 country.LocalizedName,
                                  country.Name)
 
         ctx.SubmitUpdates()

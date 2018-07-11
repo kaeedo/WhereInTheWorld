@@ -20,26 +20,19 @@ let ensureDatabase () =
 let printSupportedCountries () =
     let longestCountryLength =
         DataDownload.supportedCountries
-        |> Seq.maxBy (fun (_, countryName, _) -> countryName.Length)
-        |> fun (_, countryName, _) -> countryName.Length
+        |> Seq.maxBy (fun (_, countryName) -> countryName.Length)
+        |> fun (_, countryName) -> countryName.Length
 
-    let longestLocalizedCountryLength =
-        DataDownload.supportedCountries
-        |> Seq.maxBy (fun (_, _, localizedName) -> localizedName.Length)
-        |> fun (_, _, localizedName) -> localizedName.Length
-
-    printfn "%s" <| String.replicate (longestCountryLength + longestLocalizedCountryLength + 12) "-"
-    printf "|Code| %-*s" (longestCountryLength + 1) "Country"
-    printfn "| %-*s|" (longestLocalizedCountryLength + 1) "Localized Name"
-    printfn "%s" <| String.replicate (longestCountryLength + longestLocalizedCountryLength + 12) "-"
+    printfn "%s" <| String.replicate (longestCountryLength + 9) "-"
+    printfn "|Code| %-*s|" (longestCountryLength + 1) "Country"
+    printfn "%s" <| String.replicate (longestCountryLength + 9) "-"
 
     DataDownload.supportedCountries
-    |> Seq.iter (fun (countryCode, countryName, localizedName) ->
+    |> Seq.iter (fun (countryCode, countryName) ->
         printf "|%3s " countryCode
-        printf "| %-*s " longestCountryLength countryName
-        printfn "| %-*s |" longestLocalizedCountryLength localizedName
+        printfn "| %-*s |" longestCountryLength countryName
     )
-    printfn "%s" <| String.replicate (longestCountryLength + longestLocalizedCountryLength + 12) "-"
+    printfn "%s" <| String.replicate (longestCountryLength + 9) "-"
 
 let getPostalCodeInformation postalCode =
     let postalCodeInformation = Query.getInformation postalCode
@@ -71,7 +64,6 @@ let getPostalCodeInformation postalCode =
 
             printfn "%4sWithin Subdivision: %s (%s)" "" pci.Subdivision.Name pci.Subdivision.Code
             printfn "%4sIn Country: %s (%s)" "" pci.Subdivision.Country.Name pci.Subdivision.Country.Code
-            printfn "%4sKnown locally as: %s" "" pci.Subdivision.Country.LocalizedName
             printfn "%s" <| String.replicate 25 "-"
         )
 
@@ -84,7 +76,7 @@ let updateCountry (countryCode: string) =
     else
         let isValidCountryCode =
             DataDownload.supportedCountries
-            |> Seq.exists (fun (code, _, _) ->
+            |> Seq.exists (fun (code, _) ->
                 code = uppercaseCountryCode
             )
 
@@ -119,7 +111,8 @@ let main argv =
     ensureDirectory()
     ensureDatabase()
 
-    let args = [|"--update"; "ca"|]
+    //let args = [|"--update"; "im"|]
+    let args = [|"01983"|]
 
     let arguments = parser.Parse args
 

@@ -24,7 +24,7 @@ module Query =
             }
             |> Seq.map (fun (postalCode, subdivision, country) ->
                 let country =
-                    { Code = country.Code; Name = country.Name; LocalizedName = country.LocalizedName }
+                    { Code = country.Code; Name = country.Name }
 
                 let subdivision =
                     { Country = country; Code = subdivision.Code; Name = subdivision.Name }
