@@ -84,24 +84,14 @@ let updateCountry (countryCode: string) =
         if not isValidCountryCode
         then printfn "%s is not a valid country code. \"witw --update supported\" to see a list of supported countries" countryCode
         else
-            let ticker = StatusPrinter.Ticker(500)
-            let insertStatusPrinterChannel = StatusPrinter.insertStatusPrinter ticker.Channel
-
-            ticker.Start()
-            let updateJob = UpdateProcess.updateCountryProcess uppercaseCountryCode StatusPrinter.downloadStatusPrinter insertStatusPrinterChannel
+            let updateJob = UpdateProcess.updateCountryProcess uppercaseCountryCode StatusPrinter.downloadStatusPrinter StatusPrinter.insertStatusPrinter
             match updateJob with
             | Ok _ -> printfn "Successfully update country: %s" countryCode
             | Error (countryCode, e) -> printfn "%s failed with message %s" countryCode e.Message
-            ticker.Stop()
 
 let updateAll () =
-    let ticker = StatusPrinter.Ticker(500)
-    let insertStatusPrinterChannel = StatusPrinter.insertStatusPrinter ticker.Channel
-
-    ticker.Start()
     let successfulUpdates, failedUpdates =
-            UpdateProcess.updateAll StatusPrinter.downloadStatusPrinter insertStatusPrinterChannel
-    ticker.Stop()
+            UpdateProcess.updateAll StatusPrinter.downloadStatusPrinter StatusPrinter.insertStatusPrinter
 
     printfn "Succesfully updated %i countries" (successfulUpdates |> Seq.length)
 

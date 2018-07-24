@@ -1,6 +1,7 @@
 namespace WhereInTheWorld.Update
 
 open Hopac
+open WhereInTheWorld.Utilities
 open WhereInTheWorld.Utilities.ResultUtilities
 open WhereInTheWorld.Utilities.Models
 open System
@@ -87,7 +88,7 @@ module UpdateProcess =
                     return Result.Error (countryCode, e)
         }
 
-    let updateCountryProcess countryCode downloadStatusPrinter insertStatusPrinterChannel =
+    let updateCountryProcess countryCode downloadStatusPrinter insertStatusPrinter =
         let downloadStatusChannel = Ch<DownloadStatus>()
 
         let countryDownload =
@@ -105,15 +106,23 @@ module UpdateProcess =
             | Ok filePath ->
                 let code = filePath.Split(Path.DirectorySeparatorChar) |> Seq.last
                 job {
+                    let ticker = Ticker(50)
+                    ticker.Start()
+
+                    let insertStatusPrinterChannel = insertStatusPrinter ticker.Channel
                     do! Job.foreverServer insertStatusPrinterChannel
 
-                    return! updateCountry code
+                    let! updateCountryResult = updateCountry code
+
+                    ticker.Stop()
+
+                    return updateCountryResult
                 }
                 |> run
 
         updateResult
 
-    let updateAll downloadStatusPrinter insertStatusPrinterChannel =
+    let updateAll downloadStatusPrinter insertStatusPrinter =
         let downloadStatusChannel = Ch<DownloadStatus>()
 
         job {
@@ -144,9 +153,18 @@ module UpdateProcess =
                     | Ok filePath ->
                         let code = filePath.Split(Path.DirectorySeparatorChar) |> Seq.last
                         job {
+                            let ticker = Ticker(50)
+                            ticker.Start()
+
+                            let insertStatusPrinterChannel = insertStatusPrinter ticker.Channel
                             do! Job.foreverServer insertStatusPrinterChannel
 
-                            return! updateCountry code
+
+                            let! updateCountryResult = updateCountry code
+
+                            ticker.Stop()
+
+                            return updateCountryResult
                         }
                         |> run
                 )

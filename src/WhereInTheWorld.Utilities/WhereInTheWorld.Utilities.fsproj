@@ -6,6 +6,7 @@
     <Compile Include="IoUtilities.fs" />
     <Compile Include="Models.fs" />
     <Compile Include="ResultUtilities.fs" />
+    <Compile Include="Ticker.fs" />
   </ItemGroup>
   <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>
