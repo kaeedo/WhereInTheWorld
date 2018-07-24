@@ -145,3 +145,48 @@ let main argv =
                 updateCountry countryCode
 
     0
+
+(*
+let progressStatusPrinter channel =
+    job {
+        let! status = Ch.take channel
+
+        printfn "ssss %A" status
+    }
+
+type Ticker (milliseconds: int) =
+    let tickChannel = Ch<DateTimeOffset>()
+
+    let cancelled = IVar()
+
+    let tick () =
+        Ch.give tickChannel DateTimeOffset.Now
+
+    let rec loop () =
+        let tickerLoop =
+            timeOutMillis milliseconds
+            |> Alt.afterJob tick
+            |> Alt.afterJob loop
+        tickerLoop <|> IVar.read cancelled
+
+    member __.Stop() =
+        IVar.tryFill cancelled () |> start
+
+    member __.Start() =
+        do start (loop())
+
+    member __.C
+        with get() = tickChannel
+job {
+    ticker.Start()
+
+    let progressPrinterChannel = progressStatusPrinter ticker.C
+    do! Job.foreverServer progressPrinterChannel
+
+    do! doWork
+    ticker.Stop()
+    do! doWork
+    printfn "finished again"
+}
+|> run
+*)
