@@ -24,7 +24,7 @@ module UpdateProcess =
         then countryName
         else code
 
-    let updateCountry statusChannel countryCode =
+    let updateCountry countryCode =
         job {
             let! importedPostalCodes = DataImport.readPostalCodesFile countryCode
 
@@ -32,7 +32,6 @@ module UpdateProcess =
             | Error e -> return Result.Error (countryCode, e)
             | Ok import ->
                 try
-                    do! Ch.give statusChannel (Started countryCode)
                     let countryCode, countryName = getCountryInformation countryCode
 
                     let countryId =
@@ -59,9 +58,8 @@ module UpdateProcess =
                         )
                         |> dict
 
-                    let postalCodes =
-                        import
-                        |> Seq.map (fun i ->
+                    do import
+                       |> Seq.map (fun i ->
                             let subdivisionCode =
                                 if String.IsNullOrWhiteSpace(i.SubdivisionCode)
                                 then countryCode
@@ -81,10 +79,7 @@ module UpdateProcess =
                         )
                         |> List.ofSeq
                         |> DataAccess.insertPostalCodes
-
-                    do! timeOutMillis 3000
-
-                    do! Ch.give statusChannel (Inserted countryCode)
+                        |> ignore
 
                     return Result.Ok countryCode
                 with
@@ -92,9 +87,8 @@ module UpdateProcess =
                     return Result.Error (countryCode, e)
         }
 
-    let updateCountryProcess countryCode downloadStatusPrinter insertStatusPrinter =
+    let updateCountryProcess countryCode downloadStatusPrinter insertStatusPrinterChannel =
         let downloadStatusChannel = Ch<DownloadStatus>()
-        let insertStatusChannel = Ch<InsertStatus>()
 
         let countryDownload =
             job {
@@ -111,18 +105,16 @@ module UpdateProcess =
             | Ok filePath ->
                 let code = filePath.Split(Path.DirectorySeparatorChar) |> Seq.last
                 job {
-                    let insertStatusPrinterChannel = insertStatusPrinter insertStatusChannel
                     do! Job.foreverServer insertStatusPrinterChannel
 
-                    return! updateCountry insertStatusChannel code
+                    return! updateCountry code
                 }
                 |> run
 
         updateResult
 
-    let updateAll downloadStatusPrinter insertStatusPrinter =
+    let updateAll downloadStatusPrinter insertStatusPrinterChannel =
         let downloadStatusChannel = Ch<DownloadStatus>()
-        let insertStatusChannel = Ch<InsertStatus>()
 
         job {
             let! countryDownloads =
@@ -152,10 +144,9 @@ module UpdateProcess =
                     | Ok filePath ->
                         let code = filePath.Split(Path.DirectorySeparatorChar) |> Seq.last
                         job {
-                            let insertStatusPrinterChannel = insertStatusPrinter insertStatusChannel
                             do! Job.foreverServer insertStatusPrinterChannel
 
-                            return! updateCountry insertStatusChannel code
+                            return! updateCountry code
                         }
                         |> run
                 )

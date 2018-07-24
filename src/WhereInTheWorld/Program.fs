@@ -1,6 +1,7 @@
 ﻿open Argu
 open System.IO
 open System.Reflection
+open Hopac
 open WhereInTheWorld
 open WhereInTheWorld.ArgumentParser
 open WhereInTheWorld.Update
@@ -83,14 +84,24 @@ let updateCountry (countryCode: string) =
         if not isValidCountryCode
         then printfn "%s is not a valid country code. \"witw --update supported\" to see a list of supported countries" countryCode
         else
-            let updateJob = UpdateProcess.updateCountryProcess uppercaseCountryCode StatusPrinter.downloadStatusPrinter StatusPrinter.insertStatusPrinter
+            let ticker = StatusPrinter.Ticker(500)
+            let insertStatusPrinterChannel = StatusPrinter.insertStatusPrinter ticker.Channel
+
+            ticker.Start()
+            let updateJob = UpdateProcess.updateCountryProcess uppercaseCountryCode StatusPrinter.downloadStatusPrinter insertStatusPrinterChannel
             match updateJob with
             | Ok _ -> printfn "Successfully update country: %s" countryCode
             | Error (countryCode, e) -> printfn "%s failed with message %s" countryCode e.Message
+            ticker.Stop()
 
 let updateAll () =
+    let ticker = StatusPrinter.Ticker(500)
+    let insertStatusPrinterChannel = StatusPrinter.insertStatusPrinter ticker.Channel
+
+    ticker.Start()
     let successfulUpdates, failedUpdates =
-            UpdateProcess.updateAll StatusPrinter.downloadStatusPrinter StatusPrinter.insertStatusPrinter
+            UpdateProcess.updateAll StatusPrinter.downloadStatusPrinter insertStatusPrinterChannel
+    ticker.Stop()
 
     printfn "Succesfully updated %i countries" (successfulUpdates |> Seq.length)
 
@@ -111,8 +122,8 @@ let main argv =
     ensureDirectory()
     ensureDatabase()
 
-    //let args = [|"--update"; "im"|]
-    let args = [|"01983"|]
+    let args = [|"--update"; "de"|]
+    //let args = [|"01983"|]
 
     let arguments = parser.Parse args
 

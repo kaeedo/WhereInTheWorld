@@ -1,37 +1,43 @@
 namespace WhereInTheWorld
 
 open WhereInTheWorld.Utilities.Models
+open System
 open Hopac
 open Hopac.Infixes
 
 module StatusPrinter =
-    type Message =
-    | Started of string
-    | Tick
-    | Finished of string
+    type Ticker (milliseconds: int) =
+        let tickChannel = Ch<string>()
 
-    type CounterActor =
-    | CA of Ch<Message>
+        let cancelled = IVar()
 
-    let create : Job<CounterActor> =
-        job {
-            let inChannel = Ch ()
-            let state = ref (false, "|")
-            do! Job.foreverServer
-                 (inChannel >>= function
-                   | Started cc ->
-                        state := true, "-"
-                        Job.unit ()
-                   | Tick ->
-                        let symbol = if snd !state = "|" then "-" else "|"
-                        state := true, symbol
-                        Job.unit ()
-                   | Finished cc ->
-                        state := false, ""
-                        Job.unit ())
-            return CA inChannel
-        }
-// https://vasily-kirichenko.github.io/fsharpblog/actors
+        let tick () =
+            let mutable current = "|"
+            Ch.give tickChannel <|
+                if current = "|"
+                then
+                    current <- "-"
+                    "-"
+                else
+                    current <- "|"
+                    "|"
+
+        let rec loop () =
+            let tickerLoop =
+                timeOutMillis milliseconds
+                |> Alt.afterJob tick
+                |> Alt.afterJob loop
+            tickerLoop <|> IVar.read cancelled
+
+        member __.Stop() =
+            IVar.tryFill cancelled () |> start
+
+        member __.Start() =
+            do start (loop())
+
+        member __.Channel
+            with get() = tickChannel
+
     let downloadStatusPrinter channel =
         job {
             let! status = Ch.take channel
@@ -41,13 +47,9 @@ module StatusPrinter =
                 printfn "%s downloaded" cc
         }
 
-    let insertStatusPrinter channel =
+    let insertStatusPrinter message =
         job {
-            let! status = Ch.take channel
+            let! status = Ch.take message
 
-            match status with
-                | Started cc ->
-                    printfn "Started %s" cc
-                | Inserted cc ->
-                    printfn "Inserted %s" cc
+            printf "%A" status
         }
