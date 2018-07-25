@@ -12,44 +12,36 @@ module DataDownload =
     let private baseUrl = "http://download.geonames.org/export/zip/"
 
     let private downloadZip countryCode =
-        let downloadJob =
-            job {
-                let! file =
-                    Request.createUrl Get (sprintf "%s%s.zip" baseUrl countryCode)
-                    |> Request.responseAsBytes
+        job {
+            let! file =
+                Request.createUrl Get (sprintf "%s%s.zip" baseUrl countryCode)
+                |> Request.responseAsBytes
 
-                return file |> Result.Ok
-            }
+            return file |> Result.Ok
+        }
 
-        Job.tryWith downloadJob (fun exn -> Job.lift Result.Error (countryCode, exn))
 
     let private saveZip countryCode file =
-        try
-            let filePath = baseDirectory @@ countryCode
-            File.WriteAllBytes(sprintf "%s.zip" filePath, file)
-            filePath |> Result.Ok
-        with
-        | e -> Result.Error (countryCode, e)
+        let filePath = baseDirectory @@ countryCode
+        File.WriteAllBytes(sprintf "%s.zip" filePath, file)
+        filePath |> Result.Ok
 
     let private saveCountryFile filePath =
         let zipFileName = sprintf "%s.zip" filePath
         let countryCode = filePath.Split(Path.DirectorySeparatorChar) |> Seq.last
 
-        try
-            let archive = ZipFile.OpenRead(zipFileName)
+        let archive = ZipFile.OpenRead(zipFileName)
 
-            archive.Entries
-            |> Seq.find (fun zae ->
-                zae.Name <> "readme.txt"
-            )
-            |> fun entry -> entry.ExtractToFile(sprintf "%s.txt" (baseDirectory @@ countryCode))
-            archive.Dispose()
+        archive.Entries
+        |> Seq.find (fun zae ->
+            zae.Name <> "readme.txt"
+        )
+        |> fun entry -> entry.ExtractToFile(sprintf "%s.txt" (baseDirectory @@ countryCode))
+        archive.Dispose()
 
-            File.Delete(zipFileName)
+        File.Delete(zipFileName)
 
-            Result.Ok filePath
-        with
-        | e -> Result.Error (countryCode, e)
+        Result.Ok filePath
 
     let supportedCountries =
         [ "AD", "Andorra"

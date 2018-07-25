@@ -20,7 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="paket.references" />
-    <Compile Include="StatusPrinter.fs" />
+    <Compile Include="ConsolePrinter.fs" />
     <Compile Include="ArgumentParser.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>

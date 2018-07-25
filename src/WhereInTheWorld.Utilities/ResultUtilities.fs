@@ -15,14 +15,14 @@ module ResultUtilities =
             | Error _ -> true
 
     let bind (fn: 'a -> Job<Result<'b, 'c>>) (jobValue: Job<Result<'a, 'c>>) =
-        job {
+        Job.tryWith (job {
             let! r = jobValue
             match r with
             | Ok value ->
                 let next = fn value
                 return! next
             | Error err -> return (Error err)
-        }
+        }) (Job.lift Error)
 
     let compose oneTrack twoTrack value =
         bind twoTrack (oneTrack value)
