@@ -1,8 +1,10 @@
 namespace WhereInTheWorld
 
+open System
 open WhereInTheWorld.Utilities.Models
 open WhereInTheWorld.Update
 open Hopac
+open HttpFs.Logging
 
 module ConsolePrinter =
     let downloadStatusPrinter channel =
@@ -18,7 +20,8 @@ module ConsolePrinter =
         job {
             let! status = Ch.take message
 
-            printf "%A" status
+            Console.SetCursorPosition(0, Console.CursorTop)
+            printf "%s" status
         }
 
     let printSupportedCountries () =
