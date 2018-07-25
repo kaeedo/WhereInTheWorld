@@ -16,12 +16,14 @@ module Query =
     let private ctx = Sql.GetDataContext(sprintf "Data Source=%s;Version=3" databaseFile)
 
     let getInformation (postalCodeInput: string) =
+        let sanitizedInput = postalCodeInput.Replace(" ", "").ToUpper()
+
         let query (input: string) =
             query {
                 for postalCode in ctx.Main.PostalCode do
                     for subdivision in postalCode.``main.Subdivision by Id`` do
                         for country in subdivision.``main.Country by Id`` do
-                            where (postalCode.PostalCode.Replace(" ", "").ToUpper() = input.Replace(" ", "").ToUpper())
+                            where (postalCode.PostalCode.Replace(" ", "").ToUpper().StartsWith(input))
                             select (postalCode, subdivision, country)
             } |> Seq.toList
 
@@ -38,7 +40,7 @@ module Query =
                 else results
 
         let result =
-            queryUntilMatch postalCodeInput
+            queryUntilMatch sanitizedInput
             |> Seq.map (fun (postalCode, subdivision, country) ->
                 let country =
                     { Code = country.Code; Name = country.Name }

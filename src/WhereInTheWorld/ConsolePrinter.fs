@@ -46,7 +46,7 @@ module ConsolePrinter =
         printfn "%s" <| String.replicate 50 "-"
         postalCodeInformation
         |> Seq.iter (fun pci ->
-            printfn "Place name: %s" pci.PlaceName
+            printfn "Place name: %s with postal code: %s" pci.PlaceName pci.PostalCode
 
             if pci.CommunityName.IsSome
             then
