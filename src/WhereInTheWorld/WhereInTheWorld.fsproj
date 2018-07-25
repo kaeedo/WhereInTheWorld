@@ -25,4 +25,8 @@
     <Compile Include="Program.fs" />
   </ItemGroup>
   <Import Project="..\..\.paket\Paket.Restore.targets" />
+
+  <Target Name="CopyCustomContent" AfterTargets="AfterBuild">
+    <Copy SourceFiles="../../packages/System.Data.SQLite.Core/build/net46/x64/SQLite.Interop.dll" DestinationFolder="$(PublishDir)" />
+  </Target>
 </Project>

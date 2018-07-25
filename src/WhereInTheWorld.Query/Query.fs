@@ -11,7 +11,6 @@ type private Sql = SqlDataProvider<
                     ConnectionString = "Data Source=./world.db;Version=3;",
                     UseOptionTypes = true>
 
-
 module Query =
     let private ctx = Sql.GetDataContext(sprintf "Data Source=%s;Version=3" databaseFile)
 

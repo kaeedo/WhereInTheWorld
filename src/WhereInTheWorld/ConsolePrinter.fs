@@ -4,7 +4,6 @@ open System
 open WhereInTheWorld.Utilities.Models
 open WhereInTheWorld.Update
 open Hopac
-open HttpFs.Logging
 
 module ConsolePrinter =
     let downloadStatusPrinter channel =

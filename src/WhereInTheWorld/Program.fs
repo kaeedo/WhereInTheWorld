@@ -47,7 +47,7 @@ let updateCountry (countryCode: string) =
                 UpdateProcess.updateCountryProcess uppercaseCountryCode ConsolePrinter.downloadStatusPrinter ConsolePrinter.insertStatusPrinter
             match updateJob with
             | Ok _ -> printfn "Successfully update country: %s" countryCode
-            | Error e -> printfn "%s failed with message %s" countryCode e.Message
+            | Error e -> printfn "%s failed with message %s" countryCode e.StackTrace
 
 let updateAll () =
     let successfulUpdates, failedUpdates =
@@ -72,26 +72,29 @@ let main argv =
     ensureDirectory()
     ensureDatabase()
 
-    //let args = [|"--update"; "ca"|]
-    let args = [|"M5E1 W5"|]
-
-    let arguments = parser.Parse args
-
-    if args |> Seq.isEmpty || arguments.IsUsageRequested
+    if argv |> Array.contains("--help")
     then printfn "%s" <| parser.PrintUsage()
     else
-        let hasPostalCode = arguments.Contains PostalCode
-        let hasUpdate = arguments.Contains Update
+        let arguments = parser.Parse argv
 
-        if hasPostalCode && hasUpdate
+        if argv |> Seq.isEmpty || arguments.IsUsageRequested
         then printfn "%s" <| parser.PrintUsage()
-        elif hasPostalCode && not hasUpdate
-        then getPostalCodeInformation <| arguments.GetResult PostalCode
-        elif not hasPostalCode && hasUpdate
-        then
-            match arguments.GetResult Update with
-            | None -> updateAll()
-            | Some countryCode ->
-                updateCountry countryCode
+        else
+            let hasPostalCode = arguments.Contains PostalCode
+            let hasUpdate = arguments.Contains Update
+            let hasSupported = arguments.Contains Supported
+
+            if hasPostalCode && hasUpdate
+            then printfn "%s" <| parser.PrintUsage()
+            elif hasPostalCode && not hasUpdate
+            then getPostalCodeInformation <| arguments.GetResult PostalCode
+            elif hasSupported
+            then ConsolePrinter.printSupportedCountries()
+            elif not hasPostalCode && hasUpdate
+            then
+                match arguments.GetResult Update with
+                | None -> updateAll()
+                | Some countryCode ->
+                    updateCountry countryCode
 
     0

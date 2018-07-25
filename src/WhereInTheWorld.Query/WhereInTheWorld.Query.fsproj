@@ -12,7 +12,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="..\world.db">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <Compile Include="Query.fs" />
   </ItemGroup>
