@@ -35,13 +35,13 @@ module UpdateProcess =
                 try
                     let countryCode, countryName = getCountryInformation countryCode
 
-                    let countryId =
+                    let! countryId =
                         { Id = Unchecked.defaultof<int64>
                           Code = countryCode
                           Name = countryName }
                         |> DataAccess.insertCountry
 
-                    let subdivisions =
+                    let! subdivisions =
                         import
                         |> Seq.distinctBy (fun i ->
                             i.SubdivisionCode
@@ -54,12 +54,16 @@ module UpdateProcess =
                         )
                         |> List.ofSeq
                         |> DataAccess.insertSubdivisions
+                        
+                    let subdivisionsDictionary =
+                        subdivisions
                         |> List.map (fun s ->
                             s.Code, s.Id
                         )
                         |> dict
 
-                    do import
+                    let postalCodeList =
+                       import
                        |> Seq.map (fun i ->
                             let subdivisionCode =
                                 if String.IsNullOrWhiteSpace(i.SubdivisionCode)
@@ -67,7 +71,7 @@ module UpdateProcess =
                                 else i.SubdivisionCode
 
                             { Id = Unchecked.defaultof<int64>
-                              SubdivisionId = subdivisions.[subdivisionCode]
+                              SubdivisionId = subdivisionsDictionary.[subdivisionCode]
                               PostalCode = i.PostalCode
                               PlaceName = i.PlaceName
                               CountyName = i.CountyName
@@ -79,13 +83,23 @@ module UpdateProcess =
                               Accuracy = i.Accuracy }
                         )
                         |> List.ofSeq
-                        |> DataAccess.insertPostalCodes
-                        |> ignore
+
+                    let! _ = DataAccess.insertPostalCodes postalCodeList
 
                     return Result.Ok countryCode
                 with
                 | e ->
                     return Result.Error (countryCode, e)
+        }
+
+    let countryDownloadJob printer countryCode =
+        let downloadStatusChannel = Ch<DownloadStatus>()
+
+        job {
+            let downloadStatusPrinterChannel = printer downloadStatusChannel
+            do! Job.foreverServer downloadStatusPrinterChannel
+
+            return! DataDownload.downloadPostalCodesForCountry downloadStatusChannel countryCode
         }
 
     let updateCountryProcess countryCode downloadStatusPrinter insertStatusPrinter =
@@ -128,13 +142,8 @@ module UpdateProcess =
         job {
             let! countryDownloads =
                 DataDownload.supportedCountries
-                |> Seq.map (fun (code, _) ->
-                    job {
-                        let downloadStatusPrinterChannel = downloadStatusPrinter downloadStatusChannel
-                        do! Job.foreverServer downloadStatusPrinterChannel
-
-                        return! DataDownload.downloadPostalCodesForCountry downloadStatusChannel code
-                    }
+                |> Seq.map (fun (countryCode, _) ->
+                    countryDownloadJob downloadStatusPrinter countryCode
                 )
                 |> Job.conCollect
 

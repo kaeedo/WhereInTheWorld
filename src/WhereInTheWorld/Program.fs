@@ -84,7 +84,8 @@ let updateCountry (countryCode: string) =
         if not isValidCountryCode
         then printfn "%s is not a valid country code. \"witw --update supported\" to see a list of supported countries" countryCode
         else
-            let updateJob = UpdateProcess.updateCountryProcess uppercaseCountryCode StatusPrinter.downloadStatusPrinter StatusPrinter.insertStatusPrinter
+            let updateJob =
+                UpdateProcess.updateCountryProcess uppercaseCountryCode StatusPrinter.downloadStatusPrinter StatusPrinter.insertStatusPrinter
             match updateJob with
             | Ok _ -> printfn "Successfully update country: %s" countryCode
             | Error (countryCode, e) -> printfn "%s failed with message %s" countryCode e.Message
@@ -135,48 +136,3 @@ let main argv =
                 updateCountry countryCode
 
     0
-
-(*
-let progressStatusPrinter channel =
-    job {
-        let! status = Ch.take channel
-
-        printfn "ssss %A" status
-    }
-
-type Ticker (milliseconds: int) =
-    let tickChannel = Ch<DateTimeOffset>()
-
-    let cancelled = IVar()
-
-    let tick () =
-        Ch.give tickChannel DateTimeOffset.Now
-
-    let rec loop () =
-        let tickerLoop =
-            timeOutMillis milliseconds
-            |> Alt.afterJob tick
-            |> Alt.afterJob loop
-        tickerLoop <|> IVar.read cancelled
-
-    member __.Stop() =
-        IVar.tryFill cancelled () |> start
-
-    member __.Start() =
-        do start (loop())
-
-    member __.C
-        with get() = tickChannel
-job {
-    ticker.Start()
-
-    let progressPrinterChannel = progressStatusPrinter ticker.C
-    do! Job.foreverServer progressPrinterChannel
-
-    do! doWork
-    ticker.Stop()
-    do! doWork
-    printfn "finished again"
-}
-|> run
-*)
