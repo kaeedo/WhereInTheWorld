@@ -1,8 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
+    <PackAsTool>true</PackAsTool>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp2.1</TargetFramework>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <ToolCommandName>witw</ToolCommandName>
   </PropertyGroup>
   <PropertyGroup>
     <ServerGarbageCollection>true</ServerGarbageCollection>

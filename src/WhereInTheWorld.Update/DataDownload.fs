@@ -10,51 +10,46 @@ open WhereInTheWorld.Utilities.Models
 
 module DataDownload =
     let private baseUrl = "http://download.geonames.org/export/zip/"
-    // let private baseUrl = @"http://localhost:8080/"
 
     let private downloadZip countryCode =
-        job {
-            try
+        let downloadJob =
+            job {
                 let! file =
-                    Request.createUrl Get <| sprintf "%s%s.zip" baseUrl countryCode
+                    Request.createUrl Get (sprintf "%s%s.zip" baseUrl countryCode)
                     |> Request.responseAsBytes
 
                 return file |> Result.Ok
-            with
-            | e -> return Result.Error (countryCode, e)
-        }
+            }
+
+        Job.tryWith downloadJob (fun exn -> Job.lift Result.Error (countryCode, exn))
 
     let private saveZip countryCode file =
-        job {
-            try
-                let filePath = baseDirectory @@ countryCode
-                File.WriteAllBytes(sprintf "%s.zip" filePath, file)
-                return filePath |> Result.Ok
-            with
-            | e -> return Result.Error (countryCode, e)
-        }
+        try
+            let filePath = baseDirectory @@ countryCode
+            File.WriteAllBytes(sprintf "%s.zip" filePath, file)
+            filePath |> Result.Ok
+        with
+        | e -> Result.Error (countryCode, e)
 
     let private saveCountryFile filePath =
         let zipFileName = sprintf "%s.zip" filePath
         let countryCode = filePath.Split(Path.DirectorySeparatorChar) |> Seq.last
 
-        job {
-            try
-                let archive = ZipFile.OpenRead(zipFileName)
+        try
+            let archive = ZipFile.OpenRead(zipFileName)
 
-                archive.Entries
-                |> Seq.find (fun zae ->
-                    zae.Name <> "readme.txt"
-                )
-                |> fun entry -> entry.ExtractToFile(sprintf "%s.txt" (baseDirectory @@ countryCode))
-                archive.Dispose()
+            archive.Entries
+            |> Seq.find (fun zae ->
+                zae.Name <> "readme.txt"
+            )
+            |> fun entry -> entry.ExtractToFile(sprintf "%s.txt" (baseDirectory @@ countryCode))
+            archive.Dispose()
 
-                File.Delete(zipFileName)
+            File.Delete(zipFileName)
 
-                return Result.Ok filePath
-            with
-            | e -> return Result.Error (countryCode, e)
-        }
+            Result.Ok filePath
+        with
+        | e -> Result.Error (countryCode, e)
 
     let supportedCountries =
         [ "AD", "Andorra"
@@ -144,7 +139,7 @@ module DataDownload =
           "ZA", "South Africa" ]
 
     let downloadPostalCodesForCountry statusChannel countryCode =
-        let workflow = downloadZip >=> (saveZip countryCode) >=> saveCountryFile
+        let workflow = downloadZip >=> Job.lift (saveZip countryCode) >=> Job.lift saveCountryFile
         job {
             let! result = workflow countryCode
 

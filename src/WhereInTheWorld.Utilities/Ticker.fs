@@ -10,15 +10,6 @@ type Ticker (milliseconds: int) =
 
     let tick () =
         Ch.give tickChannel "----------------"
-        // let mutable current = "|"
-        // Ch.give tickChannel <|
-        //     if current = "|"
-        //     then
-        //         current <- "-"
-        //         "-"
-        //     else
-        //         current <- "|"
-        //         "|"
 
     let rec loop () =
         let tickerLoop =

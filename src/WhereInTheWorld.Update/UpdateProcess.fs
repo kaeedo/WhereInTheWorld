@@ -54,7 +54,7 @@ module UpdateProcess =
                         )
                         |> List.ofSeq
                         |> DataAccess.insertSubdivisions
-                        
+
                     let subdivisionsDictionary =
                         subdivisions
                         |> List.map (fun s ->

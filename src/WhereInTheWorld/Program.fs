@@ -1,7 +1,6 @@
 ﻿open Argu
 open System.IO
 open System.Reflection
-open Hopac
 open WhereInTheWorld
 open WhereInTheWorld.ArgumentParser
 open WhereInTheWorld.Update
