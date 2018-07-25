@@ -1,6 +1,7 @@
 namespace WhereInTheWorld.Query
 
 open WhereInTheWorld.Utilities.Models
+open System
 open FSharp.Data.Sql
 open FSharp.Data.Sql.Common
 
@@ -10,18 +11,34 @@ type private Sql = SqlDataProvider<
                     ConnectionString = "Data Source=./world.db;Version=3;",
                     UseOptionTypes = true>
 
+
 module Query =
     let private ctx = Sql.GetDataContext(sprintf "Data Source=%s;Version=3" databaseFile)
 
-    let getInformation postalCodeInput =
-        let result =
+    let getInformation (postalCodeInput: string) =
+        let query (input: string) =
             query {
                 for postalCode in ctx.Main.PostalCode do
                     for subdivision in postalCode.``main.Subdivision by Id`` do
                         for country in subdivision.``main.Country by Id`` do
-                            where (postalCode.PostalCode = postalCodeInput)
+                            where (postalCode.PostalCode.Replace(" ", "").ToUpper() = input.Replace(" ", "").ToUpper())
                             select (postalCode, subdivision, country)
-            }
+            } |> Seq.toList
+
+        let rec queryUntilMatch (input: string) =
+            match input with
+            | _ when input.Length = 3 -> query input
+            | _ ->
+                let results = query input
+
+                if results |> List.isEmpty
+                then
+                    let newInput = input.Substring(0, int (Math.Ceiling(float input.Length / 2.0)))
+                    queryUntilMatch newInput
+                else results
+
+        let result =
+            queryUntilMatch postalCodeInput
             |> Seq.map (fun (postalCode, subdivision, country) ->
                 let country =
                     { Code = country.Code; Name = country.Name }
