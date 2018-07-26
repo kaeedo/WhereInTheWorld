@@ -1,5 +1,9 @@
 namespace WhereInTheWorld.Update
 
+open System.IO
+open System.Reflection
+open System.Text
+open System.Data.SQLite
 open WhereInTheWorld.Utilities.Models
 open FSharp.Data.Sql
 open Hopac
@@ -11,7 +15,24 @@ type private Sql = SqlDataProvider<
                     UseOptionTypes = true>
 
 module DataAccess =
-    let private ctx = Sql.GetDataContext(sprintf "Data Source=%s;Version=3" databaseFile)
+    let private runtimeConnectionString = sprintf "Data Source=%s;Version=3" databaseFile
+    let private ctx = Sql.GetDataContext(runtimeConnectionString)
+
+    let private getSqlScript scriptName =
+        let assembly = Assembly.GetExecutingAssembly()
+        let resourceStream = assembly.GetManifestResourceStream(scriptName)
+        use reader = new StreamReader(resourceStream, Encoding.UTF8)
+        reader.ReadToEnd()
+
+    let ensureDatabase () =
+        if not (File.Exists(databaseFile))
+        then
+            let connection = new SQLiteConnection(runtimeConnectionString)
+            connection.Open()
+            let sql = getSqlScript "WhereInTheWorld.Update.sqlScripts.createTables.sql"
+            let command = new SQLiteCommand(sql, connection)
+            command.ExecuteNonQuery() |> ignore
+            connection.Close()
 
     let insertCountry (country: Country): Job<int64> =
         job {

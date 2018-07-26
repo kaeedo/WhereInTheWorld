@@ -1,21 +1,14 @@
 ﻿open Argu
 open System.IO
-open System.Reflection
 open WhereInTheWorld
 open WhereInTheWorld.ArgumentParser
 open WhereInTheWorld.Update
 open WhereInTheWorld.Query
 open WhereInTheWorld.Utilities
-open WhereInTheWorld.Utilities.IoUtilities
 
 let ensureDirectory () =
     if not (Directory.Exists(Models.baseDirectory))
     then Directory.CreateDirectory(Models.baseDirectory) |> ignore
-
-let ensureDatabase () =
-    let currentDirectory = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)
-    if not (File.Exists(Models.databaseFile))
-    then File.Copy(currentDirectory @@ "world.db", Models.baseDirectory @@ "world.db")
 
 let getPostalCodeInformation postalCode =
     let postalCodeInformation = Query.getInformation postalCode
@@ -70,7 +63,7 @@ let parser = ArgumentParser.Create<Arguments>(programName = "witw")
 [<EntryPoint>]
 let main argv =
     ensureDirectory()
-    ensureDatabase()
+    DataAccess.ensureDatabase()
 
     if argv |> Array.contains("--help")
     then printfn "%s" <| parser.PrintUsage()

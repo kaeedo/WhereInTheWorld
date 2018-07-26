@@ -10,8 +10,8 @@
     <ProjectReference Include="..\WhereInTheWorld.Utilities\WhereInTheWorld.Utilities.fsproj" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\world.db">
-    </None>
+    <None Include="..\world.db" />
+    <EmbeddedResource Include="sqlScripts\createTables.sql" />
     <None Include="paket.references" />
     <Compile Include="DataDownload.fs" />
     <Compile Include="DataImport.fs" />
