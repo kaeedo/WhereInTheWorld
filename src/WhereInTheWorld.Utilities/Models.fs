@@ -72,6 +72,7 @@ module Models =
           Accuracy: int64 option }
 
     type DownloadStatus =
+    | Started of countryCode: string
     | Completed of countryCode: string
 
     type InsertStatus =

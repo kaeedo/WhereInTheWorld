@@ -133,6 +133,8 @@ module DataDownload =
     let downloadPostalCodesForCountry statusChannel countryCode =
         let workflow = downloadZip >=> Job.lift (saveZip countryCode) >=> Job.lift saveCountryFile
         job {
+            do! Ch.give statusChannel (DownloadStatus.Started countryCode)
+
             let! result = workflow countryCode
 
             do! Ch.give statusChannel (Completed countryCode)

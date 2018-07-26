@@ -11,8 +11,10 @@ module ConsolePrinter =
             let! status = Ch.take channel
 
             match status with
+            | DownloadStatus.Started cc ->
+                printfn "Downloading data for country with code %s" cc
             | Completed cc ->
-                printfn "%s downloaded" cc
+                printfn "Finished downloading data for country with code %s" cc
         }
 
     let insertStatusPrinter message =
