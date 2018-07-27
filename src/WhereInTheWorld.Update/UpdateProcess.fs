@@ -95,7 +95,9 @@ module UpdateProcess =
             let downloadStatusPrinterChannel = printer downloadStatusChannel
             do! Job.foreverServer downloadStatusPrinterChannel
 
-            return! DataDownload.downloadPostalCodesForCountry downloadStatusChannel countryCode
+            let! _ = DataDownload.downloadPostalCodesForCountry downloadStatusChannel countryCode
+
+            return Result.Ok countryCode
         }
 
     let updateCountryJob insertStatusPrinter countryCode =
@@ -116,14 +118,17 @@ module UpdateProcess =
         }
 
     let updateCountryProcess countryCode downloadStatusPrinter insertStatusPrinter =
-        let countryDownload =
-            countryDownloadJob downloadStatusPrinter countryCode |> run
+        try
+            let countryDownload =
+                countryDownloadJob downloadStatusPrinter countryCode |> run
 
-        let updateResult =
-            match countryDownload with
-            | Error e -> Result.Error e
-            | Ok filePath ->
-                let code = filePath.Split(Path.DirectorySeparatorChar) |> Seq.last
-                updateCountryJob insertStatusPrinter code |> run
+            let updateResult =
+                match countryDownload with
+                | Error e -> Result.Error e
+                | Ok filePath ->
+                    let code = filePath.Split(Path.DirectorySeparatorChar) |> Seq.last
+                    updateCountryJob insertStatusPrinter code |> run
 
-        updateResult
+            Result.Ok updateResult
+        with
+        | :? Exception as e -> Result.Error e

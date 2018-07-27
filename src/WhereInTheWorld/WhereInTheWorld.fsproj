@@ -14,9 +14,9 @@
     <FscToolExe>fsc.exe</FscToolExe>
   </PropertyGroup>
   <ItemGroup>
+    <ProjectReference Include="..\WhereInTheWorld.Query\WhereInTheWorld.Query.fsproj" />
     <ProjectReference Include="..\WhereInTheWorld.Update\WhereInTheWorld.Update.fsproj" />
     <ProjectReference Include="..\WhereInTheWorld.Utilities\WhereInTheWorld.Utilities.fsproj" />
-    <ProjectReference Include="..\WhereInTheWorld.Query\WhereInTheWorld.Query.fsproj" />
   </ItemGroup>
   <ItemGroup>
     <None Include="paket.references" />
@@ -26,7 +26,7 @@
   </ItemGroup>
   <Import Project="..\..\.paket\Paket.Restore.targets" />
 
-  <Target Name="CopyCustomContent" AfterTargets="AfterBuild">
+  <Target Name="CopySQLite" AfterTargets="AfterBuild">
     <Copy SourceFiles="../../packages/System.Data.SQLite.Core/build/net46/x64/SQLite.Interop.dll" DestinationFolder="$(PublishDir)" />
   </Target>
 </Project>

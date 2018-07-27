@@ -14,7 +14,13 @@ type private Sql = SqlDataProvider<
 module Query =
     let private ctx = Sql.GetDataContext(sprintf "Data Source=%s;Version=3" databaseFile)
 
-    let getInformation (postalCodeInput: string) =
+    let getAvailableCountries () =
+        query {
+            for country in ctx.Main.Country do
+                select (country.Code, country.Name)
+        } |> Seq.toList
+
+    let getPostalCodeInformation (postalCodeInput: string) =
         let sanitizedInput = postalCodeInput.Replace(" ", "").ToUpper()
 
         let query (input: string) =

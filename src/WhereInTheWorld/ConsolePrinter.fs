@@ -11,10 +11,10 @@ module ConsolePrinter =
             let! status = Ch.take channel
 
             match status with
-            | DownloadStatus.Started cc ->
-                printfn "Downloading data for country with code %s" cc
-            | Completed cc ->
-                printfn "Finished downloading data for country with code %s" cc
+            | DownloadStatus.Started country ->
+                printfn "Downloading data for country: %s" country
+            | Completed country ->
+                printfn "Finished downloading data for country: %s" country
         }
 
     let insertStatusPrinter message =
@@ -29,9 +29,9 @@ module ConsolePrinter =
             | Inserted -> printfn "\nFinished inserting postal code data into local database"
         }
 
-    let printSupportedCountries () =
+    let printCountries (countryList: seq<string * string>) =
         let longestCountryLength =
-            DataDownload.supportedCountries
+            countryList
             |> Seq.maxBy (fun (_, countryName) -> countryName.Length)
             |> fun (_, countryName) -> countryName.Length
 
@@ -39,7 +39,7 @@ module ConsolePrinter =
         printfn "|Code| %-*s|" (longestCountryLength + 1) "Country"
         printfn "%s" <| String.replicate (longestCountryLength + 9) "-"
 
-        DataDownload.supportedCountries
+        countryList
         |> Seq.iter (fun (countryCode, countryName) ->
             printf "|%3s " countryCode
             printfn "| %-*s |" longestCountryLength countryName
