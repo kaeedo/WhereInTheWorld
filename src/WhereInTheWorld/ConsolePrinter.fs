@@ -21,8 +21,12 @@ module ConsolePrinter =
         job {
             let! status = Ch.take message
 
-            Console.SetCursorPosition(0, Console.CursorTop)
-            printf "%s" status
+            match status with
+            | Progress symbol ->
+                Console.SetCursorPosition(0, Console.CursorTop)
+                printf "%s" symbol
+            | Started -> printfn "Inserting postal code data into local database"
+            | Inserted -> printfn "\nFinished inserting postal code data into local database"
         }
 
     let printSupportedCountries () =

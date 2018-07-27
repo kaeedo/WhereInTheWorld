@@ -3,6 +3,7 @@ namespace WhereInTheWorld.Update
 open System.IO
 open System.IO.Compression
 open Hopac
+open Hopac.Infixes
 open HttpFs.Client
 open WhereInTheWorld.Utilities.ResultUtilities
 open WhereInTheWorld.Utilities.IoUtilities
@@ -133,11 +134,11 @@ module DataDownload =
     let downloadPostalCodesForCountry statusChannel countryCode =
         let workflow = downloadZip >=> Job.lift (saveZip countryCode) >=> Job.lift saveCountryFile
         job {
-            do! Ch.give statusChannel (DownloadStatus.Started countryCode)
+            do! statusChannel *<- (DownloadStatus.Started countryCode)
 
             let! result = workflow countryCode
 
-            do! Ch.give statusChannel (Completed countryCode)
+            do! statusChannel *<- (Completed countryCode)
 
             return result
         }

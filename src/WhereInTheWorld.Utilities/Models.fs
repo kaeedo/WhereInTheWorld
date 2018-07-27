@@ -76,5 +76,6 @@ module Models =
     | Completed of countryCode: string
 
     type InsertStatus =
-    | Started of countryCode: string
-    | Inserted of countryCode: string
+    | Progress of symbol: string
+    | Started
+    | Inserted

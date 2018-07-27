@@ -13,5 +13,5 @@ module ArgumentParser =
             member s.Usage =
                 match s with
                 | PostalCode _ -> "Postal Code to look up. If the update option is specified, this will be ignored"
-                | Update _ -> "Update the local database. Omit countryCode to download all"
+                | Update _ -> "Update the local database"
                 | Supported -> "List all supported countries"

@@ -1,18 +1,18 @@
 namespace WhereInTheWorld.Utilities
 
-open System
 open Hopac
 open Hopac.Infixes
+open Models
 
 type Ticker (milliseconds: int) =
     let mutable symbol = "-"
-    let tickChannel = Ch<string>()
+    let tickChannel = Ch<InsertStatus>()
 
     let cancelled = IVar()
 
     let tick () =
         symbol <- if symbol = "|" then "-" else "|"
-        Ch.give tickChannel symbol
+        tickChannel *<- Progress symbol
 
     let rec loop () =
         let tickerLoop =
@@ -21,12 +21,11 @@ type Ticker (milliseconds: int) =
             |> Alt.afterJob loop
         tickerLoop <|> IVar.read cancelled
 
-    member __.Stop() =
-        Console.WriteLine()
+    member this.Stop() =
         IVar.tryFill cancelled () |> start
 
-    member __.Start() =
+    member this.Start() =
         do start (loop())
 
-    member __.Channel
+    member this.Channel
         with get() = tickChannel

@@ -1,8 +1,8 @@
 namespace WhereInTheWorld.Update
 
 open Hopac
+open Hopac.Infixes
 open WhereInTheWorld.Utilities
-open WhereInTheWorld.Utilities.ResultUtilities
 open WhereInTheWorld.Utilities.Models
 open System
 open System.IO
@@ -101,13 +101,15 @@ module UpdateProcess =
     let updateCountryJob insertStatusPrinter countryCode =
         job {
             let ticker = Ticker(50)
-            ticker.Start()
 
             let insertStatusPrinterChannel = insertStatusPrinter ticker.Channel
             do! Job.foreverServer insertStatusPrinterChannel
 
-            let! updateCountryResult = updateCountry countryCode
+            do! ticker.Channel *<- Started
 
+            ticker.Start()
+            let! updateCountryResult = updateCountry countryCode
+            do! ticker.Channel *<- Inserted
             ticker.Stop()
 
             return updateCountryResult
@@ -125,41 +127,3 @@ module UpdateProcess =
                 updateCountryJob insertStatusPrinter code |> run
 
         updateResult
-
-    let updateAll downloadStatusPrinter insertStatusPrinter =
-        job {
-            let! countryDownloads =
-                DataDownload.supportedCountries
-                |> Seq.map (fun (countryCode, _) ->
-                    countryDownloadJob downloadStatusPrinter countryCode
-                )
-                |> Job.conCollect
-
-            let successfulDownloads =
-                countryDownloads
-                |> Seq.filter isOkResult
-
-            let failedDownloads =
-                countryDownloads
-                |> Seq.filter isErrorResult
-
-            let countryInsertions =
-                successfulDownloads
-                |> Seq.map (function
-                    | Error e -> raise e
-                    | Ok filePath ->
-                        let code = filePath.Split(Path.DirectorySeparatorChar) |> Seq.last
-                        updateCountryJob insertStatusPrinter code |> run
-                )
-
-            let successfulInsertions =
-                countryInsertions
-                |> Seq.filter isOkResult
-
-            let failedInsertions =
-                countryInsertions
-                |> Seq.filter isErrorResult
-
-            return successfulInsertions, failedDownloads |> Seq.append failedInsertions
-        }
-        |> run
