@@ -24,6 +24,10 @@ module DataAccess =
         use reader = new StreamReader(resourceStream, Encoding.UTF8)
         reader.ReadToEnd()
 
+    let clearDatabase () =
+        if File.Exists(databaseFile)
+        then File.Delete(databaseFile)
+
     let ensureDatabase () =
         if not (File.Exists(databaseFile))
         then

@@ -17,6 +17,7 @@ let ensureCleanDirectory () =
 
 
 let getPostalCodeInformation postalCode =
+    DataAccess.ensureDatabase()
     let postalCodeInformation = Query.getPostalCodeInformation postalCode
     let numberOfResults = Seq.length postalCodeInformation
 
@@ -27,6 +28,7 @@ let getPostalCodeInformation postalCode =
         ConsolePrinter.printQueryResults postalCode postalCodeInformation numberOfResults
 
 let updateCountry (countryCode: string) =
+    DataAccess.ensureDatabase()
     let uppercaseCountryCode = countryCode.ToUpperInvariant()
 
     let isValidCountryCode =
@@ -57,7 +59,6 @@ let parser = ArgumentParser.Create<Arguments>(programName = "witw")
 [<EntryPoint>]
 let main argv =
     ensureCleanDirectory()
-    DataAccess.ensureDatabase()
 
     if argv |> Array.contains("--help")
     then printfn "%s" <| parser.PrintUsage()
@@ -70,6 +71,7 @@ let main argv =
             let hasPostalCode = arguments.Contains PostalCode
             let hasUpdate = arguments.Contains Update
             let hasList = arguments.Contains List
+            let hasClearDatabase = arguments.Contains ClearDatabase
 
             if hasPostalCode && hasUpdate
             then printfn "%s" <| parser.PrintUsage()
@@ -83,6 +85,9 @@ let main argv =
                     match list with
                     | Supported -> ConsolePrinter.printCountries DataDownload.supportedCountries
                     | Available -> ConsolePrinter.printCountries (Query.getAvailableCountries())
+            elif hasClearDatabase
+            then
+                DataAccess.clearDatabase()
             elif not hasPostalCode && hasUpdate
             then
                 match arguments.GetResult Update with
