@@ -2,7 +2,6 @@ namespace WhereInTheWorld
 
 open System
 open WhereInTheWorld.Utilities.Models
-open WhereInTheWorld.Update
 open Hopac
 
 module ConsolePrinter =
@@ -51,7 +50,8 @@ module ConsolePrinter =
         printfn "%s" <| String.replicate 50 "-"
         postalCodeInformation
         |> Seq.iter (fun pci ->
-            printfn "Place name: %s with postal code: %s" pci.PlaceName pci.PostalCode
+            let foundPostalCode = if pci.PostalCode = postalCode then String.Empty else sprintf " with postal code: %s" pci.PostalCode
+            printfn "Place name: %s%s" pci.PlaceName foundPostalCode
 
             if pci.CommunityName.IsSome
             then

@@ -22,6 +22,7 @@
     <None Include="paket.references" />
     <Compile Include="ConsolePrinter.fs" />
     <Compile Include="ArgumentParser.fs" />
+    <Compile Include="ErrorLog.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
   <Import Project="..\..\.paket\Paket.Restore.targets" />

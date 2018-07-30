@@ -46,13 +46,12 @@ let updateCountry (countryCode: string) =
         | Ok _ -> printfn "Successfully updated country: %s" uppercaseCountryCode
         | Error e ->
             let innermost = e.GetBaseException()
+            do ErrorLog.writeException innermost
             match innermost with
-            | :? IOException ->
-                printfn "Text file already exists"
             | :? SQLiteException ->
-                printfn "Problem with the database"
+                printfn "Problem with the database. Please try again. If the problem persists, try running \"witw --cleardatabase\" to start fresh."
             | _ ->
-                printfn "%s failed with message %s" uppercaseCountryCode e.StackTrace
+                printfn "An error occured. Please try again"
 
 let parser = ArgumentParser.Create<Arguments>(programName = "witw")
 
