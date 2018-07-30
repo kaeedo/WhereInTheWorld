@@ -7,16 +7,14 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{372E26F3-899
 EndProject
 Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "WhereInTheWorld", "src\WhereInTheWorld\WhereInTheWorld.fsproj", "{9779B7DA-4DDC-45CA-B937-49D5363BFBB3}"
 EndProject
-Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "WhereInTheWorld.Update", "src\WhereInTheWorld.Update\WhereInTheWorld.Update.fsproj", "{E29BB8EC-A563-4492-ABAB-8B2E20034159}"
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "WhereInTheWorld.Data", "src\WhereInTheWorld.Data\WhereInTheWorld.Data.fsproj", "{E29BB8EC-A563-4492-ABAB-8B2E20034159}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{B6B6D7DE-695D-4D4A-8DB3-BDC47C04C6C2}"
 	ProjectSection(SolutionItems) = preProject
 		paket.dependencies = paket.dependencies
 	EndProjectSection
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "WhereInTheWorld.Utilities", "src\WhereInTheWorld.Utilities\WhereInTheWorld.Utilities.fsproj", "{A36E18E2-A82B-495B-B1EC-739558D90E71}"
-EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "WhereInTheWorld.Query", "src\WhereInTheWorld.Query\WhereInTheWorld.Query.fsproj", "{AC4EDDE1-A5EC-4A08-8EBA-4A619C21DAAD}"
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "WhereInTheWorld.Utilities", "src\WhereInTheWorld.Utilities\WhereInTheWorld.Utilities.fsproj", "{A36E18E2-A82B-495B-B1EC-739558D90E71}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -50,14 +48,6 @@ Global
 		{A36E18E2-A82B-495B-B1EC-739558D90E71}.Release|Any CPU.Build.0 = Release|Any CPU
 		{A36E18E2-A82B-495B-B1EC-739558D90E71}.Release|x64.ActiveCfg = Release|Any CPU
 		{A36E18E2-A82B-495B-B1EC-739558D90E71}.Release|x64.Build.0 = Release|Any CPU
-		{AC4EDDE1-A5EC-4A08-8EBA-4A619C21DAAD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{AC4EDDE1-A5EC-4A08-8EBA-4A619C21DAAD}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{AC4EDDE1-A5EC-4A08-8EBA-4A619C21DAAD}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{AC4EDDE1-A5EC-4A08-8EBA-4A619C21DAAD}.Debug|x64.Build.0 = Debug|Any CPU
-		{AC4EDDE1-A5EC-4A08-8EBA-4A619C21DAAD}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{AC4EDDE1-A5EC-4A08-8EBA-4A619C21DAAD}.Release|Any CPU.Build.0 = Release|Any CPU
-		{AC4EDDE1-A5EC-4A08-8EBA-4A619C21DAAD}.Release|x64.ActiveCfg = Release|Any CPU
-		{AC4EDDE1-A5EC-4A08-8EBA-4A619C21DAAD}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -66,7 +56,6 @@ Global
 		{9779B7DA-4DDC-45CA-B937-49D5363BFBB3} = {372E26F3-8997-4CFA-ADB8-FF9678015886}
 		{E29BB8EC-A563-4492-ABAB-8B2E20034159} = {372E26F3-8997-4CFA-ADB8-FF9678015886}
 		{A36E18E2-A82B-495B-B1EC-739558D90E71} = {372E26F3-8997-4CFA-ADB8-FF9678015886}
-		{AC4EDDE1-A5EC-4A08-8EBA-4A619C21DAAD} = {372E26F3-8997-4CFA-ADB8-FF9678015886}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {5D699ECB-6EF5-477A-827F-BE2CE5173C8B}

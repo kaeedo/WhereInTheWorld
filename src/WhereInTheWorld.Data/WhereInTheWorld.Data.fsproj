@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>netcoreapp2.1</TargetFramework>
   </PropertyGroup>
@@ -10,7 +10,7 @@
     <ProjectReference Include="..\WhereInTheWorld.Utilities\WhereInTheWorld.Utilities.fsproj" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\world.db" />
+    <None Include=".\world.db" />
     <EmbeddedResource Include="sqlScripts\createTables.sql" />
     <None Include="paket.references" />
     <Compile Include="DataDownload.fs" />

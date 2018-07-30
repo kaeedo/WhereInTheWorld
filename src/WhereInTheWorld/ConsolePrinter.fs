@@ -67,7 +67,7 @@ module ConsolePrinter =
                 then printf " (%s)" pci.CountyCode.Value
                 printfn ""
 
-            printfn "%4sWithin Subdivision: %s (%s)" "" pci.Subdivision.Name pci.Subdivision.Code
-            printfn "%4sIn Country: %s (%s)" "" pci.Subdivision.Country.Name pci.Subdivision.Country.Code
+            printfn "%4sWithin Subdivision: %s (%s)" String.Empty pci.Subdivision.Name pci.Subdivision.Code
+            printfn "%4sIn Country: %s (%s)" String.Empty pci.Subdivision.Country.Name pci.Subdivision.Country.Code
             printfn "%s" <| String.replicate 25 "-"
         )

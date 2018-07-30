@@ -1,4 +1,4 @@
-namespace WhereInTheWorld.Update
+namespace WhereInTheWorld.Data
 
 open System.IO
 open System.IO.Compression

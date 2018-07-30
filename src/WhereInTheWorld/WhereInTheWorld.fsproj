@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <PackAsTool>true</PackAsTool>
     <OutputType>Exe</OutputType>
@@ -14,8 +14,7 @@
     <FscToolExe>fsc.exe</FscToolExe>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\WhereInTheWorld.Query\WhereInTheWorld.Query.fsproj" />
-    <ProjectReference Include="..\WhereInTheWorld.Update\WhereInTheWorld.Update.fsproj" />
+    <ProjectReference Include="..\WhereInTheWorld.Data\WhereInTheWorld.Data.fsproj" />
     <ProjectReference Include="..\WhereInTheWorld.Utilities\WhereInTheWorld.Utilities.fsproj" />
   </ItemGroup>
   <ItemGroup>

@@ -2,8 +2,7 @@
 open System.IO
 open WhereInTheWorld
 open WhereInTheWorld.ArgumentParser
-open WhereInTheWorld.Update
-open WhereInTheWorld.Query
+open WhereInTheWorld.Data
 open WhereInTheWorld.Utilities
 open System.Data.SQLite
 
