@@ -9,8 +9,9 @@ open WhereInTheWorld.Utilities.ResultUtilities
 open WhereInTheWorld.Utilities.IoUtilities
 open WhereInTheWorld.Utilities.Models
 
+
 module DataDownload =
-    let private baseUrl = "http://download.geonames.org/export/zip/"
+    let private baseUrl = downloadUrl
 
     let private downloadZip countryCode =
         job {

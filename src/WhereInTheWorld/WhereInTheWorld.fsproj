@@ -19,6 +19,9 @@
     <ProjectReference Include="..\WhereInTheWorld.Utilities\WhereInTheWorld.Utilities.fsproj" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="applicationConfig.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <None Include="paket.references" />
     <Compile Include="ConsolePrinter.fs" />
     <Compile Include="ArgumentParser.fs" />

@@ -28,6 +28,9 @@ NUGET
       System.Threading.Thread (>= 4.0) - restriction: && (< net45) (>= netstandard1.6) (< netstandard2.0)
       System.Threading.ThreadPool (>= 4.0.10) - restriction: && (< net45) (>= netstandard1.6) (< netstandard2.0)
       System.Threading.Timer (>= 4.0.1) - restriction: && (< net45) (>= netstandard1.6) (< netstandard2.0)
+    FSharp.Data (2.4.6)
+      FSharp.Core (>= 4.0.0.1) - restriction: && (< net40) (< portable-net45+win8+wp8+wpa81)
+      Zlib.Portable (>= 1.11) - restriction: || (&& (< net40) (>= portable-net45+win8)) (&& (< net40) (< portable-net45+win8) (>= portable-net45+win8+wp8+wpa81))
     Hedgehog (0.8.1)
       FSharp.Core (>= 4.1.17)
       System.Collections.Specialized (>= 4.0.1)
@@ -734,3 +737,4 @@ NUGET
       xunit.extensibility.core (2.4) - restriction: >= netstandard1.1
     xunit.runner.visualstudio (2.4)
       Microsoft.NET.Test.Sdk (>= 15.0) - restriction: >= netcoreapp1.0
+    Zlib.Portable (1.11) - restriction: || (&& (< net40) (>= portable-net45+win8)) (&& (< net40) (< portable-net45+win8) (>= portable-net45+win8+wp8+wpa81))

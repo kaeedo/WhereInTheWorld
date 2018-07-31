@@ -10,3 +10,4 @@ nuget xunit.runner.visualstudio
 nuget Microsoft.NET.Test.Sdk
 nuget Unquote
 nuget Hedgehog
+nuget FSharp.Data

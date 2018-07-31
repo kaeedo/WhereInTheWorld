@@ -1,10 +1,10 @@
 ﻿open Argu
 open System.IO
+open System.Data.SQLite
 open WhereInTheWorld
 open WhereInTheWorld.ArgumentParser
 open WhereInTheWorld.Data
 open WhereInTheWorld.Utilities
-open System.Data.SQLite
 
 let ensureCleanDirectory () =
     if not (Directory.Exists(Models.baseDirectory))

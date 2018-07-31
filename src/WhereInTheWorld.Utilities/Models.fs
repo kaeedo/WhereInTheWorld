@@ -1,16 +1,25 @@
 namespace WhereInTheWorld.Utilities
 
 open System
+open FSharp.Data
 open IoUtilities
 
+type AppSettings = JsonProvider<"../WhereInTheWorld/applicationConfig.json">
+
+
 module Models =
+    let private applicationConfig = AppSettings.Load("./applicationConfig.json")
+
+    let downloadUrl = applicationConfig.ConnectionStrings.CitiesDownloadUrl
+    let isTest = applicationConfig.IsTest
+
     let baseDirectory =
         match Environment.OSVersion.Platform with
         | PlatformID.Unix -> Environment.GetEnvironmentVariable("HOME") @@ ".WhereInTheWorld"
         | PlatformID.MacOSX -> Environment.GetEnvironmentVariable("HOME") @@ ".WhereInTheWorld"
         | _ -> Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) @@ ".WhereInTheWorld"
 
-    let databaseFile = baseDirectory @@ "world.db"
+    let databaseFile = baseDirectory @@ if isTest then "test" else String.Empty @@ "world.db"
 
     type Country =
         { Id: int64
