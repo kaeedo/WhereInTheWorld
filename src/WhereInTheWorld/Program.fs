@@ -32,9 +32,7 @@ let updateCountry (countryCode: string) =
 
     let isValidCountryCode =
         DataDownload.supportedCountries
-        |> Seq.exists (fun (code, _) ->
-            code = uppercaseCountryCode
-        )
+        |> Map.exists (fun key _ -> key = uppercaseCountryCode)
 
     if not isValidCountryCode
     then printfn "%s is not a valid country code. \"witw --supported\" to see a list of supported countries" countryCode

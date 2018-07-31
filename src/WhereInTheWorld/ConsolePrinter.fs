@@ -28,9 +28,10 @@ module ConsolePrinter =
             | Inserted -> printfn "\nFinished inserting postal code data into local database"
         }
 
-    let printCountries (countryList: seq<string * string>) =
+    let printCountries (countryList: Map<string, string>) =
         let longestCountryLength =
             countryList
+            |> Map.toSeq
             |> Seq.maxBy (fun (_, countryName) -> countryName.Length)
             |> fun (_, countryName) -> countryName.Length
 
@@ -39,7 +40,7 @@ module ConsolePrinter =
         printfn "%s" <| String.replicate (longestCountryLength + 9) "-"
 
         countryList
-        |> Seq.iter (fun (countryCode, countryName) ->
+        |> Map.iter (fun countryCode countryName ->
             printf "|%3s " countryCode
             printfn "| %-*s |" longestCountryLength countryName
         )

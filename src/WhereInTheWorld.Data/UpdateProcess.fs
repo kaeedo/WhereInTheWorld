@@ -8,13 +8,6 @@ open System
 open System.IO
 
 module UpdateProcess =
-    let private getCountryInformation countryCode =
-        DataDownload.supportedCountries
-        |> Seq.find (fun sc ->
-            let code, _ = sc
-            code = countryCode
-        )
-
     let private defaultSubdivisionCode code countryCode =
         if String.IsNullOrWhiteSpace(code)
         then countryCode
@@ -32,7 +25,7 @@ module UpdateProcess =
             match importedPostalCodes with
             | Error e -> return Result.Error e
             | Ok import ->
-                let countryCode, countryName = getCountryInformation countryCode
+                let countryName = DataDownload.supportedCountries.[countryCode]
 
                 let! countryId =
                     { Id = Unchecked.defaultof<int64>

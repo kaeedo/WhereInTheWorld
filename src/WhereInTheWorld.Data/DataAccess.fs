@@ -23,10 +23,10 @@ module Query =
             query {
                 for country in ctx.Main.Country do
                     select (country.Code, country.Name)
-            } |> Seq.toList
+            } |> Map.ofSeq
 
     let getPostalCodeInformation (postalCodeInput: string) =
-        let sanitizedInput = postalCodeInput.Replace(" ", "").ToUpper()
+        let sanitizedInput = postalCodeInput.Replace(" ", String.Empty).ToUpper()
 
         let query (input: string) =
             query {

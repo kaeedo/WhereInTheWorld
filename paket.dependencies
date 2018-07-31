@@ -5,3 +5,8 @@ nuget System.Data.SQLite.Core
 nuget Http.fs
 nuget Argu
 nuget SQLProvider
+nuget xunit
+nuget xunit.runner.visualstudio
+nuget Microsoft.NET.Test.Sdk
+nuget Unquote
+nuget Hedgehog

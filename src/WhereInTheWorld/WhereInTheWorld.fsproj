@@ -1,4 +1,5 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <PackAsTool>true</PackAsTool>
     <OutputType>Exe</OutputType>
@@ -24,9 +25,8 @@
     <Compile Include="ErrorLog.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
-  <Import Project="..\..\.paket\Paket.Restore.targets" />
-
   <Target Name="CopySQLite" AfterTargets="AfterBuild">
     <Copy SourceFiles="../../packages/System.Data.SQLite.Core/build/net46/x64/SQLite.Interop.dll" DestinationFolder="$(PublishDir)" />
   </Target>
+  <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>

@@ -129,22 +129,16 @@ module DataDownload =
           "WF", "Wallis and Futuna"
           "YT", "Mayotte"
           "ZA", "South Africa" ]
-
-    let getNameForCountryCode countryCode =
-        supportedCountries
-        |> Seq.find (fun (code, _) ->
-            code = countryCode
-        )
-        |> snd
+          |> Map.ofSeq
 
     let downloadPostalCodesForCountry statusChannel countryCode =
         let workflow = downloadZip >=> Job.lift (saveZip countryCode) >=> Job.lift saveCountryFile
         job {
-            do! statusChannel *<- (DownloadStatus.Started <| getNameForCountryCode countryCode)
+            do! statusChannel *<- (DownloadStatus.Started <| supportedCountries.[countryCode])
 
             let! result = workflow countryCode
 
-            do! statusChannel *<- (Completed <| getNameForCountryCode countryCode)
+            do! statusChannel *<- (Completed <| supportedCountries.[countryCode])
 
             return result
         }
