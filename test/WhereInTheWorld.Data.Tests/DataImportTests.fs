@@ -9,7 +9,7 @@ open WhereInTheWorld.Utilities.IoUtilities
 open WhereInTheWorld.Utilities.Models
 open WhereInTheWorld.Utilities.ResultUtilities
 
-module DataImportTests =
+type DataImportTests() =
     let validCountryFile = getEmbeddedResource "WhereInTheWorld.Data.Tests.AD.txt"
     let invalidCountryFile = getEmbeddedResource "WhereInTheWorld.Data.Tests.ADbad.txt"
 
@@ -32,5 +32,3 @@ module DataImportTests =
         let workflowResult = DataImport.readPostalCodeFile "AD" |> run
 
         test <@ workflowResult.IsError @>
-
-

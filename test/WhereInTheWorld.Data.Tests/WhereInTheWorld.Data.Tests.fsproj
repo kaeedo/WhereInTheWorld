@@ -12,6 +12,7 @@
     </Content>
     <None Include="paket.references" />
     <Compile Include="DataImportTests.fs" />
+    <Compile Include="DataDownloadTests.fs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\WhereInTheWorld.Data\WhereInTheWorld.Data.fsproj" />
