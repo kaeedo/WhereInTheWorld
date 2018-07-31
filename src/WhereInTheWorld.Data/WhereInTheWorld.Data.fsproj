@@ -13,8 +13,8 @@
     <None Include=".\world.db" />
     <EmbeddedResource Include="sqlScripts\createTables.sql" />
     <None Include="paket.references" />
-    <Compile Include="DataDownload.fs" />
     <Compile Include="DataImport.fs" />
+    <Compile Include="DataDownload.fs" />
     <Compile Include="DataAccess.fs" />
     <Compile Include="UpdateProcess.fs" />
   </ItemGroup>

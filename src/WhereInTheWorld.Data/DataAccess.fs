@@ -8,6 +8,7 @@ open WhereInTheWorld.Utilities.Models
 open FSharp.Data.Sql
 open Hopac
 open System
+open WhereInTheWorld.Utilities
 
 type private Sql = SqlDataProvider<
                     Common.DatabaseProviderTypes.SQLITE,
@@ -80,12 +81,6 @@ module DataAccess =
     let private runtimeConnectionString = sprintf "Data Source=%s;Version=3" databaseFile
     let private ctx = Sql.GetDataContext(runtimeConnectionString)
 
-    let private getSqlScript scriptName =
-        let assembly = Assembly.GetExecutingAssembly()
-        let resourceStream = assembly.GetManifestResourceStream(scriptName)
-        use reader = new StreamReader(resourceStream, Encoding.UTF8)
-        reader.ReadToEnd()
-
     let clearDatabase () =
         if File.Exists(databaseFile)
         then File.Delete(databaseFile)
@@ -95,7 +90,7 @@ module DataAccess =
         then
             let connection = new SQLiteConnection(runtimeConnectionString)
             connection.Open()
-            let sql = getSqlScript "WhereInTheWorld.Data.sqlScripts.createTables.sql"
+            let sql = IoUtilities.getEmbeddedResource "WhereInTheWorld.Data.sqlScripts.createTables.sql"
             let command = new SQLiteCommand(sql, connection)
             command.ExecuteNonQuery() |> ignore
             connection.Close()

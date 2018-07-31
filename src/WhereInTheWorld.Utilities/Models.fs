@@ -14,10 +14,14 @@ module Models =
     let isTest = applicationConfig.IsTest
 
     let baseDirectory =
-        match Environment.OSVersion.Platform with
-        | PlatformID.Unix -> Environment.GetEnvironmentVariable("HOME") @@ ".WhereInTheWorld"
-        | PlatformID.MacOSX -> Environment.GetEnvironmentVariable("HOME") @@ ".WhereInTheWorld"
-        | _ -> Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) @@ ".WhereInTheWorld"
+        let homeDirectory =
+            match Environment.OSVersion.Platform with
+            | PlatformID.Unix -> Environment.GetEnvironmentVariable("HOME") @@ ".WhereInTheWorld"
+            | PlatformID.MacOSX -> Environment.GetEnvironmentVariable("HOME") @@ ".WhereInTheWorld"
+            | _ -> Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) @@ ".WhereInTheWorld"
+        if isTest 
+        then homeDirectory @@ "test" 
+        else homeDirectory
 
     let databaseFile = baseDirectory @@ if isTest then "test" else String.Empty @@ "world.db"
 

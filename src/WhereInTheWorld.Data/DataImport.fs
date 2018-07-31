@@ -52,6 +52,6 @@ module DataImport =
         )
         |> Result.Ok
 
-    let readPostalCodesFile filePath =
+    let readPostalCodeFile filePath =
         let workflow = Job.lift readFile >=> Job.lift splitLines >=> Job.lift mapFileImport
         workflow filePath

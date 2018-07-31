@@ -48,7 +48,7 @@ let updateCountry (countryCode: string) =
             | :? SQLiteException ->
                 printfn "Problem with the database. Please try again. If the problem persists, try running \"witw --cleardatabase\" to start fresh."
             | _ ->
-                printfn "An error occured. Please try again"
+                printfn "An error occurred. Please try again"
 
 let parser = ArgumentParser.Create<Arguments>(programName = "witw")
 

@@ -20,7 +20,7 @@ module UpdateProcess =
 
     let updateCountry countryCode =
         job {
-            let! importedPostalCodes = DataImport.readPostalCodesFile countryCode
+            let! importedPostalCodes = DataImport.readPostalCodeFile countryCode
 
             match importedPostalCodes with
             | Error e -> return Result.Error e
