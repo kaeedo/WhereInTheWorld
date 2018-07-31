@@ -5,11 +5,10 @@ open Hopac
 open Swensen.Unquote
 open WhereInTheWorld.Utilities.ResultUtilities
 open System
-open Xunit.Sdk
 
 module ResultUtilitiesTests =
     [<Fact>]
-    let ``Result utilities should work`` () =
+    let ``Result utilities should be true for appropriate values`` () =
         let OkResult: Result<string, int> = Result.Ok "testValue"
         let ErrorResult: Result<int, string> = Result.Error "Some problem"
 

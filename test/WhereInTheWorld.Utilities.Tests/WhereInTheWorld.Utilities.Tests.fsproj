@@ -12,6 +12,7 @@
     <None Include="paket.references" />
     <Compile Include="IoUtilitiesTests.fs" />
     <Compile Include="ResultUtilitiesTests.fs" />
+    <Compile Include="TickerTests.fs" />
   </ItemGroup>
 
   <ItemGroup>
