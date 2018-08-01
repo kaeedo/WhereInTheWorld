@@ -8,7 +8,7 @@ open Foq
 type IWork =
     abstract member DoWork: 'a -> unit
 
-module TickerTests =
+type TickerTests() =
     let verifier (printer: IWork) message =
         job {
             let! status = Ch.take message
@@ -19,7 +19,7 @@ module TickerTests =
         }
     
     [<Fact>]
-    let ``New ticker should not have loop started`` () =
+    member __.``New ticker should not have loop started`` () =
         let printer = Mock<IWork>().Create()
         job {
             let ticker = WhereInTheWorld.Utilities.Ticker(50)
@@ -31,7 +31,7 @@ module TickerTests =
         } |> run
 
     [<Fact>]
-    let ``Ticker should tick twice`` () =
+    member __.``Ticker should tick twice`` () =
         let printer = Mock<IWork>().Create()
         job {
             let ticker = WhereInTheWorld.Utilities.Ticker(50)
@@ -49,7 +49,7 @@ module TickerTests =
         } |> run
 
     [<Fact>]
-    let ``Ticker should tick twice then stop`` () =
+    member __.``Ticker should tick twice then stop`` () =
         let printer = Mock<IWork>().Create()
         job {
             let ticker = WhereInTheWorld.Utilities.Ticker(50)

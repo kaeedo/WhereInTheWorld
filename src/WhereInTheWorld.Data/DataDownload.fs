@@ -23,6 +23,7 @@ module DataDownload =
         }
 
     let private saveZip countryCode file =
+        Directory.CreateDirectory(baseDirectory) |> ignore
         let filePath = baseDirectory @@ countryCode
         File.WriteAllBytes(sprintf "%s.zip" filePath, file)
         filePath |> Result.Ok
@@ -134,12 +135,14 @@ module DataDownload =
 
     let downloadPostalCodesForCountry statusChannel countryCode =
         let workflow = downloadZip >=> Job.lift (saveZip countryCode) >=> Job.lift saveCountryFile
-        job {
-            do! statusChannel *<- (DownloadStatus.Started <| supportedCountries.[countryCode])
+        let workflowResult =
+            job {
+                do! statusChannel *<- (DownloadStatus.Started <| supportedCountries.[countryCode])
 
-            let! result = workflow countryCode
+                let! result = workflow countryCode
 
-            do! statusChannel *<- (Completed <| supportedCountries.[countryCode])
+                do! statusChannel *<- (Completed <| supportedCountries.[countryCode])
 
-            return result
-        }
+                return result
+            }
+        Job.tryWith workflowResult (Job.lift Result.Error)

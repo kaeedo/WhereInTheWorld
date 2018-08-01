@@ -18,7 +18,7 @@ type DataImportTests() =
         File.WriteAllLines(baseDirectory @@ fileName, contents)
 
     [<Fact>]
-    let ``Reading from valid file should give Ok result`` () =
+    member __.``Reading from valid file should give Ok result`` () =
         createTestImportFile "AD.txt" (validCountryFile |> String.split('\n') |> Seq.toArray)
 
         let workflowResult = DataImport.readPostalCodeFile "AD" |> run
@@ -26,7 +26,7 @@ type DataImportTests() =
         test <@ workflowResult.IsOk @>
 
     [<Fact>]
-    let ``Reading from invalid file should give error result`` () =
+    member __.``Reading from invalid file should give error result`` () =
         createTestImportFile "ADbad.txt" (invalidCountryFile |> String.split('\n') |> Seq.toArray)
 
         let workflowResult = DataImport.readPostalCodeFile "AD" |> run

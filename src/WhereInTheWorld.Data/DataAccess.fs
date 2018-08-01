@@ -1,8 +1,6 @@
 namespace WhereInTheWorld.Data
 
 open System.IO
-open System.Reflection
-open System.Text
 open System.Data.SQLite
 open WhereInTheWorld.Utilities.Models
 open FSharp.Data.Sql

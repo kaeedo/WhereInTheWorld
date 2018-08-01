@@ -124,4 +124,4 @@ module UpdateProcess =
 
             Result.Ok updateResult
         with
-        | :? Exception as e -> Result.Error e
+        | _ as e -> Result.Error e

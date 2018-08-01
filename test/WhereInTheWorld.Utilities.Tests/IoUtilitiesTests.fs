@@ -6,9 +6,9 @@ open Swensen.Unquote
 open Hedgehog
 open WhereInTheWorld.Utilities.IoUtilities
 
-module IoUtilitiesTests =
+type IoUtilitiesTests() =
     [<Fact>]
-    let ``Path combine infix should have same total length`` () =
+    member __.``Path combine infix should have same total length`` () =
         property {
             let! (firstPath, secondPath) = 
                 Gen.char 'a' 'z'
@@ -24,7 +24,7 @@ module IoUtilitiesTests =
         |> Property.check
 
     [<Fact>]
-    let ``Path combine infix should contain each part`` () =
+    member __.``Path combine infix should contain each part`` () =
         property {
             let! (firstPath, secondPath) = 
                 Gen.char 'a' 'z'
