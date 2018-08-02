@@ -28,8 +28,6 @@
     <Compile Include="ErrorLog.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
-  <Target Name="CopySQLite" AfterTargets="AfterBuild">
-    <Copy SourceFiles="../../packages/System.Data.SQLite.Core/build/net46/x64/SQLite.Interop.dll" DestinationFolder="$(PublishDir)" />
-  </Target>
+  
   <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>

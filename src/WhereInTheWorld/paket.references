@@ -1,3 +1,5 @@
 ﻿FSharp.Core
 Hopac
 Argu
+System.Data.SQLite.Core
+SQLProvider
