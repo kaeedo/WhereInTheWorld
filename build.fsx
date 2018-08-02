@@ -40,10 +40,6 @@ Target.create "Clean" (fun _ ->
     then Directory.Delete("output", true)
 )
 
-Target.create "Restore" (fun _ ->
-    Paket.restore id
-)
-
 Target.create "Build" (fun _ ->
     DotNet.build (fun buildOptions ->
         { buildOptions with
@@ -95,7 +91,6 @@ Target.createFinal "Done" (fun _ ->
 )
 
 "Clean"
-    ==> "Restore"
     ==> "Build"
     ==> "Test"
     ==> "Publish"
