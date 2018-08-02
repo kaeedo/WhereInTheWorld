@@ -36,7 +36,8 @@ Target.create "Clean" (fun _ ->
         then Directory.Delete(objDirectory, true)
     )
 
-    Directory.Delete("output", true)
+    if Directory.Exists("output")
+    then Directory.Delete("output", true)
 )
 
 Target.create "Restore" (fun _ ->
@@ -72,12 +73,19 @@ Target.create "Publish" (fun _ ->
     DotNet.publish setPublishParams "./src/WhereInTheWorld/WhereInTheWorld.fsproj"
 )
 
+Target.create "CopySqlite" (fun _ ->
+    Directory.CreateDirectory("./src/WhereInTheWorld/bin/Release/netcoreapp2.1/publish/x64") |> ignore
+    Directory.CreateDirectory("./src/WhereInTheWorld/bin/Release/netcoreapp2.1/publish/x86") |> ignore
+    File.Copy("./src/WhereInTheWorld/bin/Release/netcoreapp2.1/x64/SQLite.Interop.dll", "./src/WhereInTheWorld/bin/Release/netcoreapp2.1/publish/x64/SQLite.Interop.dll", true)
+    File.Copy("./src/WhereInTheWorld/bin/Release/netcoreapp2.1/x86/SQLite.Interop.dll", "./src/WhereInTheWorld/bin/Release/netcoreapp2.1/publish/x86/SQLite.Interop.dll", true)
+)
+
 Target.create "Pack" (fun _ ->
     DotNet.pack (fun packOptions ->
         { packOptions with 
             Configuration = DotNet.BuildConfiguration.Release
             NoBuild = true
-            VersionSuffix = Some "1.0.1-preview7"
+            VersionSuffix = Some "1.0.1-preview8"
             OutputPath = Some outputDirectory }
     ) "./src/WhereInTheWorld/WhereInTheWorld.fsproj"
 )
@@ -91,6 +99,7 @@ Target.createFinal "Done" (fun _ ->
     ==> "Build"
     ==> "Test"
     ==> "Publish"
+    ==> "CopySqlite"
     ==> "Pack"
     ==> "Done"
 
