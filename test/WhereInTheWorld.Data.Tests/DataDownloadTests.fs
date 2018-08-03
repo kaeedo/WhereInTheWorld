@@ -9,6 +9,7 @@ open WhereInTheWorld.Utilities.Models
 open WhereInTheWorld.Utilities.ResultUtilities
 open System
 open Foq
+open Xunit.Abstractions
 
 type IWork =
     abstract member DoWork: 'a -> unit

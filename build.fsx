@@ -48,15 +48,15 @@ Target.create "Build" (fun _ ->
 )
 
 Target.create "Test" (fun _ ->
-    let setDotNetOptions (projectDirectory:string) : (DotNet.TestOptions-> DotNet.TestOptions) =
-        fun (dotNetTestOptions:DotNet.TestOptions) -> 
+    let setDotNetOptions projectDirectory =
+        fun (dotNetTestOptions: DotNet.TestOptions) -> 
             { dotNetTestOptions with
                 Common = { dotNetTestOptions.Common with WorkingDirectory = projectDirectory} }
 
     !!("test/**/*.Tests.fsproj")
     |> Seq.iter (
-        fun fullFsProjectName -> 
-            let projectDirectory = Path.GetDirectoryName(fullFsProjectName)
+        fun projectName -> 
+            let projectDirectory = Path.GetDirectoryName(projectName)
             DotNet.test (setDotNetOptions projectDirectory) ""
     )
 )
@@ -69,19 +69,12 @@ Target.create "Publish" (fun _ ->
     DotNet.publish setPublishParams "./src/WhereInTheWorld/WhereInTheWorld.fsproj"
 )
 
-Target.create "CopySqlite" (fun _ ->
-    Directory.CreateDirectory("./src/WhereInTheWorld/bin/Release/netcoreapp2.1/publish/x64") |> ignore
-    Directory.CreateDirectory("./src/WhereInTheWorld/bin/Release/netcoreapp2.1/publish/x86") |> ignore
-    File.Copy("./src/WhereInTheWorld/bin/Release/netcoreapp2.1/x64/SQLite.Interop.dll", "./src/WhereInTheWorld/bin/Release/netcoreapp2.1/publish/x64/SQLite.Interop.dll", true)
-    File.Copy("./src/WhereInTheWorld/bin/Release/netcoreapp2.1/x86/SQLite.Interop.dll", "./src/WhereInTheWorld/bin/Release/netcoreapp2.1/publish/x86/SQLite.Interop.dll", true)
-)
-
 Target.create "Pack" (fun _ ->
     DotNet.pack (fun packOptions ->
         { packOptions with 
             Configuration = DotNet.BuildConfiguration.Release
             NoBuild = true
-            VersionSuffix = Some "1.0.1-preview8"
+            VersionSuffix = Some "1.0.1-preview14"
             OutputPath = Some outputDirectory }
     ) "./src/WhereInTheWorld/WhereInTheWorld.fsproj"
 )
@@ -94,7 +87,6 @@ Target.createFinal "Done" (fun _ ->
     ==> "Build"
     ==> "Test"
     ==> "Publish"
-    ==> "CopySqlite"
     ==> "Pack"
     ==> "Done"
 

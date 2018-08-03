@@ -10,16 +10,13 @@ open WhereInTheWorld.Utilities.Models
 open WhereInTheWorld.Utilities.ResultUtilities
 
 type DataImportTests() =
-    let validCountryFile = getEmbeddedResource "WhereInTheWorld.Data.Tests.AD.txt"
-    let invalidCountryFile = getEmbeddedResource "WhereInTheWorld.Data.Tests.ADbad.txt"
-
-    let createTestImportFile fileName contents =
+    let createTestImportFile fileName =
         Directory.CreateDirectory(baseDirectory) |> ignore
-        File.WriteAllLines(baseDirectory @@ fileName, contents)
+        File.Copy(Directory.GetCurrentDirectory() @@ fileName, baseDirectory @@ fileName)
 
     [<Fact>]
     member __.``Reading from valid file should give Ok result`` () =
-        createTestImportFile "AD.txt" (validCountryFile |> String.split('\n') |> Seq.toArray)
+        createTestImportFile "AD.txt"
 
         let workflowResult = DataImport.readPostalCodeFile "AD" |> run
 
@@ -27,7 +24,7 @@ type DataImportTests() =
 
     [<Fact>]
     member __.``Reading from invalid file should give error result`` () =
-        createTestImportFile "ADbad.txt" (invalidCountryFile |> String.split('\n') |> Seq.toArray)
+        createTestImportFile "ADbad.txt"
 
         let workflowResult = DataImport.readPostalCodeFile "AD" |> run
 

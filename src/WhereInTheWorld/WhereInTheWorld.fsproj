@@ -1,33 +1,38 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <PackAsTool>true</PackAsTool>
-    <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp2.1</TargetFramework>
-    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
-    <ToolCommandName>witw</ToolCommandName>
-  </PropertyGroup>
-  <PropertyGroup>
-    <ServerGarbageCollection>true</ServerGarbageCollection>
-  </PropertyGroup>
-  <PropertyGroup>
-    <FscToolPath>C:\Program Files (x86)\Microsoft SDKs\F#\4.1\Framework\v4.0</FscToolPath>
-    <FscToolExe>fsc.exe</FscToolExe>
-  </PropertyGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\WhereInTheWorld.Data\WhereInTheWorld.Data.fsproj" />
-    <ProjectReference Include="..\WhereInTheWorld.Utilities\WhereInTheWorld.Utilities.fsproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="applicationConfig.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <None Include="paket.references" />
-    <Compile Include="ConsolePrinter.fs" />
-    <Compile Include="ArgumentParser.fs" />
-    <Compile Include="ErrorLog.fs" />
-    <Compile Include="Program.fs" />
-  </ItemGroup>
-  
-  <Import Project="..\..\.paket\Paket.Restore.targets" />
+    <PropertyGroup>
+        <PackAsTool>true</PackAsTool>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>netcoreapp2.1</TargetFramework>
+        <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+        <ToolCommandName>witw</ToolCommandName>
+    </PropertyGroup>
+    
+    <PropertyGroup>
+        <ServerGarbageCollection>true</ServerGarbageCollection>
+    </PropertyGroup>
+    <PropertyGroup>
+        <FscToolPath>C:\Program Files (x86)\Microsoft SDKs\F#\4.1\Framework\v4.0</FscToolPath>
+        <FscToolExe>fsc.exe</FscToolExe>
+    </PropertyGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\WhereInTheWorld.Data\WhereInTheWorld.Data.fsproj" />
+        <ProjectReference Include="..\WhereInTheWorld.Utilities\WhereInTheWorld.Utilities.fsproj" />
+    </ItemGroup>
+    <ItemGroup>
+        <Content Include="../../packages/System.Data.SQLite.Core/build/net46/**/*">
+            <Pack>true</Pack>
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </Content>
+        <Content Include="applicationConfig.json">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </Content>
+        <None Include="paket.references" />
+        <Compile Include="ConsolePrinter.fs" />
+        <Compile Include="ArgumentParser.fs" />
+        <Compile Include="ErrorLog.fs" />
+        <Compile Include="Program.fs" />
+    </ItemGroup>
+    
+    <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>
