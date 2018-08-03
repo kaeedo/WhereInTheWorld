@@ -1,11 +1,15 @@
 open Fake.DotNet
 
-#r "paket: 
+#r "paket:
 nuget FSharp.Core
 nuget Fake.IO.FileSystem
 nuget Fake.DotNet.Cli
 nuget Fake.DotNet.Paket
+nuget Fake.DotNet.AssemblyInfoFile
+nuget Fake.DotNet.MSBuild
 nuget Fake.Core.Target
+nuget Fake.Core.ReleaseNotes
+nuget Fake.Core.Xml
 "
 #load "./.fake/build.fsx/intellisense.fsx"
 
@@ -14,10 +18,8 @@ open Fake.Core
 open Fake.Core.TargetOperators
 open Fake.IO.FileSystemOperators
 open Fake.IO.Globbing.Operators
-open Fake.DotNet
 
-let outputDirectory = "../../output"
-
+let entryProject = "./src/WhereInTheWorld/WhereInTheWorld.fsproj"
 
 Target.create "Clean" (fun _ ->
     DotNet.exec id "clean" ""
@@ -40,6 +42,13 @@ Target.create "Clean" (fun _ ->
     then Directory.Delete("output", true)
 )
 
+Target.create "SetVersion" (fun _ ->
+    let release = ReleaseNotes.load "RELEASE_NOTES.md"
+    let releaseVersion = release.SemVer.ToString()
+    Xml.pokeInnerText entryProject "/Project/PropertyGroup[1]/Version[1]" releaseVersion
+    Xml.saveDoc entryProject (Xml.loadDoc entryProject)
+)
+
 Target.create "Build" (fun _ ->
     DotNet.build (fun buildOptions ->
         { buildOptions with
@@ -49,45 +58,45 @@ Target.create "Build" (fun _ ->
 
 Target.create "Test" (fun _ ->
     let setDotNetOptions projectDirectory =
-        fun (dotNetTestOptions: DotNet.TestOptions) -> 
+        fun (dotNetTestOptions: DotNet.TestOptions) ->
             { dotNetTestOptions with
                 Common = { dotNetTestOptions.Common with WorkingDirectory = projectDirectory} }
 
     !!("test/**/*.Tests.fsproj")
     |> Seq.iter (
-        fun projectName -> 
+        fun projectName ->
             let projectDirectory = Path.GetDirectoryName(projectName)
             DotNet.test (setDotNetOptions projectDirectory) ""
     )
 )
 
 Target.create "Publish" (fun _ ->
-    let setPublishParams (defaultPublishParams: DotNet.PublishOptions) = 
+    let setPublishParams (defaultPublishParams: DotNet.PublishOptions) =
         { defaultPublishParams with
             Configuration = DotNet.BuildConfiguration.Release }
 
-    DotNet.publish setPublishParams "./src/WhereInTheWorld/WhereInTheWorld.fsproj"
+    DotNet.publish setPublishParams entryProject
 )
 
 Target.create "Pack" (fun _ ->
     DotNet.pack (fun packOptions ->
-        { packOptions with 
+        { packOptions with
             Configuration = DotNet.BuildConfiguration.Release
             NoBuild = true
-            VersionSuffix = Some "1.0.1-preview14"
-            OutputPath = Some outputDirectory }
-    ) "./src/WhereInTheWorld/WhereInTheWorld.fsproj"
+            OutputPath = Some "../../output" }
+    ) entryProject
 )
 
 Target.createFinal "Done" (fun _ ->
   Trace.log " --- Fake script is done --- "
 )
 
-"Clean"
+(*"Clean"
+    ==> "SetVersion"
     ==> "Build"
     ==> "Test"
     ==> "Publish"
     ==> "Pack"
-    ==> "Done"
+    ==> "Done"*)
 
-Target.runOrDefault "Done"
+Target.runOrDefault "SetVersion"
