@@ -91,7 +91,7 @@ Target.createFinal "Done" (fun _ ->
   Trace.log " --- Fake script is done --- "
 )
 
-(Clean"
+"Clean"
     ==> "SetVersion"
     ==> "Build"
     ==> "Test"
