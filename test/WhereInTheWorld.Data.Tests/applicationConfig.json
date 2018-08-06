@@ -1,6 +1,6 @@
 ﻿{
     "isTest": true,
     "connectionStrings": {
-        "citiesDownloadUrl": "http://download.geonames.org/export/zip/"
+        "citiesDownloadUrl": "http://download.geonames.org/export/dump/"
     }
 }

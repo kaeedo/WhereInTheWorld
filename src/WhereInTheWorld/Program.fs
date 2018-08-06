@@ -9,8 +9,8 @@ open WhereInTheWorld.Utilities
 let ensureCleanDirectory () =
     if not (Directory.Exists(Models.baseDirectory))
     then Directory.CreateDirectory(Models.baseDirectory) |> ignore
-    Directory.EnumerateFiles(Models.baseDirectory)
 
+    Directory.EnumerateFiles(Models.baseDirectory)
     |> Seq.filter (fun f -> f.EndsWith("zip") || f.EndsWith("txt"))
     |> Seq.iter File.Delete
 
