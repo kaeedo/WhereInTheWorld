@@ -14,15 +14,36 @@ type private Sql = SqlDataProvider<
                     ConnectionString = "Data Source=./world.db;Version=3;",
                     UseOptionTypes = true>
 
+module Database =
+    let runtimeConnectionString = sprintf "Data Source=%s;Version=3" databaseFile
+
+    let clearDatabase () =
+        if File.Exists(databaseFile)
+        then File.Delete(databaseFile)
+
+    let ensureDatabase () =
+        if not (File.Exists(databaseFile))
+        then
+            let connection = new SQLiteConnection(runtimeConnectionString)
+            connection.Open()
+            let sql = IoUtilities.getEmbeddedResource "WhereInTheWorld.Data.sqlScripts.createTables.sql"
+            let command = new SQLiteCommand(sql, connection)
+            command.ExecuteNonQuery() |> ignore
+            connection.Close()
+
 module Query =
-    let private runtimeConnectionString = sprintf "Data Source=%s;Version=3" databaseFile
-    let private ctx = Sql.GetDataContext(runtimeConnectionString)
+    let private ctx = Sql.GetDataContext(Database.runtimeConnectionString)
 
     let getAvailableCountries () =
-            query {
-                for country in ctx.Main.Country do
-                    select (country.Code, country.Name)
-            } |> Map.ofSeq
+            let results = 
+                query {
+                    for country in ctx.Main.Country do
+                        select (country.Code, country.Name)
+                }
+
+            match results |> Seq.isEmpty with
+            | true -> None
+            | false -> Some (results |> Map.ofSeq)
 
     let getPostalCodeInformation (postalCodeInput: string) =
         let sanitizedInput = postalCodeInput.Replace(" ", String.Empty).ToUpper()
@@ -76,22 +97,7 @@ module Query =
 
 
 module DataAccess =
-    let private runtimeConnectionString = sprintf "Data Source=%s;Version=3" databaseFile
-    let private ctx = Sql.GetDataContext(runtimeConnectionString)
-
-    let clearDatabase () =
-        if File.Exists(databaseFile)
-        then File.Delete(databaseFile)
-
-    let ensureDatabase () =
-        if not (File.Exists(databaseFile))
-        then
-            let connection = new SQLiteConnection(runtimeConnectionString)
-            connection.Open()
-            let sql = IoUtilities.getEmbeddedResource "WhereInTheWorld.Data.sqlScripts.createTables.sql"
-            let command = new SQLiteCommand(sql, connection)
-            command.ExecuteNonQuery() |> ignore
-            connection.Close()
+    let private ctx = Sql.GetDataContext(Database.runtimeConnectionString)
 
     let insertCountry (country: Country): Job<int64> =
         job {

@@ -16,7 +16,7 @@ let ensureCleanDirectory () =
 
 
 let getPostalCodeInformation postalCode =
-    DataAccess.ensureDatabase()
+    Database.ensureDatabase()
     let postalCodeInformation = Query.getPostalCodeInformation postalCode
     let numberOfResults = Seq.length postalCodeInformation
 
@@ -27,7 +27,7 @@ let getPostalCodeInformation postalCode =
         ConsolePrinter.printQueryResults postalCode postalCodeInformation numberOfResults
 
 let updateCountry (countryCode: string) =
-    DataAccess.ensureDatabase()
+    Database.ensureDatabase()
     let uppercaseCountryCode = countryCode.ToUpperInvariant()
 
     let isValidCountryCode =
@@ -80,10 +80,12 @@ let main argv =
                 | Some list ->
                     match list with
                     | Supported -> ConsolePrinter.printCountries DataDownload.supportedCountries
-                    | Available -> ConsolePrinter.printCountries (Query.getAvailableCountries())
+                    | Available -> 
+                        Query.getAvailableCountries()
+                        |> Option.iter ConsolePrinter.printCountries
             elif hasClearDatabase
             then
-                DataAccess.clearDatabase()
+                Database.clearDatabase()
             elif not hasPostalCode && hasUpdate
             then
                 match arguments.GetResult Update with

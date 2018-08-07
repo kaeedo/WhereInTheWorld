@@ -13,6 +13,7 @@ type DataImportTests() =
     let createTestImportFile fileName =
         Directory.CreateDirectory(baseDirectory) |> ignore
         File.Copy(Directory.GetCurrentDirectory() @@ fileName, baseDirectory @@ fileName)
+        File.Move(baseDirectory @@ fileName, baseDirectory @@ "AD.txt")
 
     [<Fact>]
     member __.``Reading from valid file should give Ok result`` () =

@@ -24,18 +24,25 @@ module ResultUtilities =
             | Ok _ -> invalidArg "Value" "Result is not an Error"
             | Error value -> value
 
-    let bind (fn: 'a -> Job<Result<'b, 'c>>) (jobValue: Job<Result<'a, 'c>>) =
-        Job.tryWith (job {
-            let! r = jobValue
-            match r with
-            | Ok value ->
-                let next = fn value
-                return! next
-            | Error err -> return (Error err)
-        }) (Job.lift Error)
+    let bind (fn: 'a -> Job<Result<'b, exn>>) (a: Job<Result<'a, exn>>) = 
+        job {
+            let! p = a
+            match p with
+            | Error e ->
+                return Result.Error e
+            | Ok q ->
+                let! r = fn q
+                return r
+                //try
+                    //let! r = fn q
+                    //return r
+                //with
+                //| e -> return Result.Error e
+        }
 
-    let compose firstSwitch secondSwitch value =
-        bind secondSwitch (firstSwitch value)
+    let compose (first : 'a -> Job<Result<'b, exn>>) (second : 'b -> Job<Result<'c, exn>>) : 'a -> Job<Result<'c, exn>> =
+        fun x ->
+            bind second (first x)
 
     let (>>=) twoTrackInput switchFunction = bind switchFunction twoTrackInput
     let (>=>) firstSwitch secondSwitch = compose firstSwitch secondSwitch
