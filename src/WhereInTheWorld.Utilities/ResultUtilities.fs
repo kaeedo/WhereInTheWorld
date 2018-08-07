@@ -24,20 +24,15 @@ module ResultUtilities =
             | Ok _ -> invalidArg "Value" "Result is not an Error"
             | Error value -> value
 
-    let bind (fn: 'a -> Job<Result<'b, exn>>) (a: Job<Result<'a, exn>>) = 
+    let bind (fn: 'a -> Job<Result<'b, exn>>) (jobValue: Job<Result<'a, exn>>) = 
         job {
-            let! p = a
-            match p with
-            | Error e ->
-                return Result.Error e
-            | Ok q ->
-                let! r = fn q
-                return r
-                //try
-                    //let! r = fn q
-                    //return r
-                //with
-                //| e -> return Result.Error e
+            try
+                let! result = jobValue
+                match result with
+                | Error e -> return Result.Error e
+                | Ok q -> return! fn q
+            with
+            | ex -> return Result.Error ex
         }
 
     let compose (first : 'a -> Job<Result<'b, exn>>) (second : 'b -> Job<Result<'c, exn>>) : 'a -> Job<Result<'c, exn>> =
