@@ -12,6 +12,7 @@ module ArgumentParser =
     | Update of countryCode: string option
     | List of ListOptions option
     | ClearDatabase
+    | Info
 
     with
         interface IArgParserTemplate with
@@ -21,3 +22,4 @@ module ArgumentParser =
                 | Update _ -> "Update the local database"
                 | List _ -> "List available or all supported countries"
                 | ClearDatabase -> "Clear the local database to start anew"
+                | Info -> "Show information about WhereInTheWorld"

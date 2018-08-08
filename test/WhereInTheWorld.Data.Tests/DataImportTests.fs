@@ -1,5 +1,6 @@
 ﻿namespace WhereInTheWorld.Data.Tests
 
+open System
 open System.IO
 open Xunit
 open Swensen.Unquote
@@ -14,6 +15,9 @@ type DataImportTests() =
         Directory.CreateDirectory(baseDirectory) |> ignore
         File.Copy(Directory.GetCurrentDirectory() @@ fileName, baseDirectory @@ fileName)
         File.Move(baseDirectory @@ fileName, baseDirectory @@ "AD.txt")
+
+    interface IDisposable with
+        member __.Dispose() = File.Delete(baseDirectory @@ "AD.txt")
 
     [<Fact>]
     member __.``Reading from valid file should give Ok result`` () =

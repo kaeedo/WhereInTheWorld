@@ -13,8 +13,6 @@ let ensureCleanDirectory () =
     Directory.EnumerateFiles(Models.baseDirectory)
     |> Seq.filter (fun f -> f.EndsWith("zip") || f.EndsWith("txt"))
     |> Seq.iter File.Delete
-
-
 let getPostalCodeInformation postalCode =
     Database.ensureDatabase()
     let postalCodeInformation = Query.getPostalCodeInformation postalCode
@@ -64,12 +62,15 @@ let main argv =
         if argv |> Seq.isEmpty || arguments.IsUsageRequested
         then printfn "%s" <| parser.PrintUsage()
         else
+            let hasInfo = arguments.Contains Info
             let hasPostalCode = arguments.Contains PostalCode
             let hasUpdate = arguments.Contains Update
             let hasList = arguments.Contains List
             let hasClearDatabase = arguments.Contains ClearDatabase
 
-            if hasPostalCode && hasUpdate
+            if hasInfo
+            then printfn "info"
+            elif hasPostalCode && hasUpdate
             then printfn "%s" <| parser.PrintUsage()
             elif hasPostalCode && not hasUpdate
             then getPostalCodeInformation <| arguments.GetResult PostalCode
@@ -80,7 +81,7 @@ let main argv =
                 | Some list ->
                     match list with
                     | Supported -> ConsolePrinter.printCountries DataDownload.supportedCountries
-                    | Available -> 
+                    | Available ->
                         Query.getAvailableCountries()
                         |> Option.iter ConsolePrinter.printCountries
             elif hasClearDatabase
