@@ -1,10 +1,8 @@
 source https://api.nuget.org/v3/index.json
 
 nuget FSharp.Core
-nuget System.Data.SQLite.Core
-nuget Http.fs
+nuget Hopac
 nuget Argu
-nuget SQLProvider
 nuget xunit
 nuget xunit.runner.visualstudio
 nuget Microsoft.NET.Test.Sdk
@@ -12,3 +10,14 @@ nuget Unquote
 nuget Hedgehog
 nuget FSharp.Data
 nuget Foq
+
+nuget SQLProvider
+nuget SQLitePCLRaw.bundle_green
+nuget System.Data.SqlClient
+nuget System.Runtime
+nuget System.Runtime.Extensions
+nuget System.Reflection
+nuget System.Reflection.TypeExtensions
+nuget System.Runtime.Serialization.Formatters
+nuget Microsoft.Data.Sqlite.Core
+

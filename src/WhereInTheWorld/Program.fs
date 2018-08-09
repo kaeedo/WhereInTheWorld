@@ -1,10 +1,10 @@
 ﻿open Argu
 open System.IO
-open System.Data.SQLite
 open WhereInTheWorld
 open WhereInTheWorld.ArgumentParser
 open WhereInTheWorld.Data
 open WhereInTheWorld.Utilities
+open Microsoft.Data.Sqlite
 
 let ensureCleanDirectory () =
     if not (Directory.Exists(Models.baseDirectory))
@@ -43,7 +43,7 @@ let updateCountry (countryCode: string) =
             let innermost = e.GetBaseException()
             do ErrorLog.writeException innermost
             match innermost with
-            | :? SQLiteException ->
+            | :? SqliteException ->
                 printfn "Problem with the database. Please try again. If the problem persists, try running \"witw --cleardatabase\" to start fresh."
             | _ ->
                 printfn "An error occurred. Please try again"

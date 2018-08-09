@@ -23,7 +23,8 @@ module UpdateProcess =
             let! importedPostalCodes = DataImport.readPostalCodeFile countryCode
 
             match importedPostalCodes with
-            | Error e -> return Result.Error e
+            | Error e ->
+                return Result.Error e
             | Ok import ->
                 let countryName = DataDownload.supportedCountries.[countryCode]
 

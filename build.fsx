@@ -73,7 +73,7 @@ Target.create "Test" (fun _ ->
 Target.create "Publish" (fun _ ->
     let setPublishParams (defaultPublishParams: DotNet.PublishOptions) =
         { defaultPublishParams with
-            Configuration = DotNet.BuildConfiguration.Debug }
+            Configuration = DotNet.BuildConfiguration.Release }
 
     DotNet.publish setPublishParams entryProject
 )
@@ -81,7 +81,7 @@ Target.create "Publish" (fun _ ->
 Target.create "Pack" (fun _ ->
     DotNet.pack (fun packOptions ->
         { packOptions with
-            Configuration = DotNet.BuildConfiguration.Debug
+            Configuration = DotNet.BuildConfiguration.Release
             NoBuild = true
             OutputPath = Some "../../output" }
     ) entryProject

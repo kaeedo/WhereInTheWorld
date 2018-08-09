@@ -1,21 +1,22 @@
 namespace WhereInTheWorld.Data
 
 open System.IO
-open System.Data.SQLite
 open WhereInTheWorld.Utilities.Models
 open FSharp.Data.Sql
 open Hopac
 open System
+open Microsoft.Data.Sqlite
 open WhereInTheWorld.Utilities
 
 type private Sql = SqlDataProvider<
                     Common.DatabaseProviderTypes.SQLITE,
-                    SQLiteLibrary = Common.SQLiteLibrary.SystemDataSQLite,
-                    ConnectionString = "Data Source=./world.db;Version=3;",
+                    SQLiteLibrary = Common.SQLiteLibrary.MicrosoftDataSqlite,
+                    ResolutionPath = "temp",
+                    ConnectionString = "Filename=./../world.db",
                     UseOptionTypes = true>
 
 module Database =
-    let runtimeConnectionString = sprintf "Data Source=%s;Version=3" databaseFile
+    let runtimeConnectionString = sprintf "Filename=%s" databaseFile
 
     let clearDatabase () =
         if File.Exists(databaseFile)
@@ -24,10 +25,10 @@ module Database =
     let ensureDatabase () =
         if not (File.Exists(databaseFile))
         then
-            let connection = new SQLiteConnection(runtimeConnectionString)
+            let connection = new SqliteConnection(runtimeConnectionString)
             connection.Open()
             let sql = IoUtilities.getEmbeddedResource "WhereInTheWorld.Data.sqlScripts.createTables.sql"
-            let command = new SQLiteCommand(sql, connection)
+            let command = new SqliteCommand(sql, connection)
             command.ExecuteNonQuery() |> ignore
             connection.Close()
 
@@ -35,7 +36,7 @@ module Query =
     let private ctx = Sql.GetDataContext(Database.runtimeConnectionString)
 
     let getAvailableCountries () =
-            let results = 
+            let results =
                 query {
                     for country in ctx.Main.Country do
                         select (country.Code, country.Name)

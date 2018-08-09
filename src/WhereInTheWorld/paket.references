@@ -1,5 +1,13 @@
 ﻿FSharp.Core
 Hopac
 Argu
-System.Data.SQLite.Core
+
 SQLProvider
+SQLitePCLRaw.bundle_green
+System.Data.SqlClient
+System.Runtime
+System.Runtime.Extensions
+System.Reflection
+System.Reflection.TypeExtensions
+System.Runtime.Serialization.Formatters
+Microsoft.Data.Sqlite.Core

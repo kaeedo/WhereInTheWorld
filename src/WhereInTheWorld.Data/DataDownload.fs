@@ -2,9 +2,9 @@ namespace WhereInTheWorld.Data
 
 open System.IO
 open System.IO.Compression
+open System.Net.Http
 open Hopac
 open Hopac.Infixes
-open HttpFs.Client
 open WhereInTheWorld.Utilities.ResultUtilities
 open WhereInTheWorld.Utilities.IoUtilities
 open WhereInTheWorld.Utilities.Models
@@ -12,23 +12,20 @@ open WhereInTheWorld.Utilities.Models
 
 module DataDownload =
     let private baseUrl = downloadUrl
-
-    let private downloadZip countryCode =
+    let downloadZip countryCode =
         job {
-            let! file =
-                Request.createUrl Get (sprintf "%s%s.zip" baseUrl countryCode)
-                |> Request.responseAsBytes
-
-            return file |> Result.Ok
+            let httpClient = new HttpClient()
+            let! response = httpClient.GetByteArrayAsync(sprintf "%s%s.zip" baseUrl countryCode) |> Job.awaitTask
+            return Result.Ok response
         }
 
-    let private saveZip countryCode file =
+    let saveZip countryCode file =
         Directory.CreateDirectory(baseDirectory) |> ignore
         let filePath = baseDirectory @@ countryCode
         File.WriteAllBytes(sprintf "%s.zip" filePath, file)
         filePath |> Result.Ok
 
-    let private saveCountryFile filePath =
+    let saveCountryFile filePath =
         let zipFileName = sprintf "%s.zip" filePath
         let countryCode = filePath.Split(Path.DirectorySeparatorChar) |> Seq.last
 

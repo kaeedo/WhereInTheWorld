@@ -18,5 +18,14 @@
     <Compile Include="DataAccess.fs" />
     <Compile Include="UpdateProcess.fs" />
   </ItemGroup>
+  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+  <!-- Note also the physical architecture (x86/x64/arm) of SQLitePCLRaw.lib.e_sqlite3 Win: -->
+    <Exec Command="xcopy ..\..\packages\SQLitePCLRaw.provider.e_sqlite3.netstandard11\lib\netstandard1.1\SQLitePCLRaw.provider.e_sqlite3.dll temp\ /y" />
+    <Exec Command="xcopy ..\..\packages\SQLitePCLRaw.core\lib\netstandard1.1\SQLitePCLRaw.core.dll temp\ /y" />
+    <Exec Command="xcopy ..\..\packages\SQLitePCLRaw.lib.e_sqlite3.v110_xp\runtimes\win-x86\native\e_sqlite3.dll temp\ /y" />
+    <Exec Command="xcopy ..\..\packages\SQLitePCLRaw.bundle_green\lib\netcoreapp\SQLitePCLRaw.batteries_green.dll temp\ /y" />
+    <Exec Command="xcopy ..\..\packages\SQLitePCLRaw.bundle_green\lib\netcoreapp\SQLitePCLRaw.batteries_v2.dll temp\ /y" />
+    <Exec Command="xcopy ..\..\packages\Microsoft.Data.Sqlite.Core\lib\netstandard2.0\Microsoft.Data.Sqlite.dll temp\ /y" />
+  </Target>
   <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>
