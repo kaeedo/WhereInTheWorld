@@ -12,6 +12,7 @@
   <ItemGroup>
     <None Include=".\world.db" />
     <EmbeddedResource Include="sqlScripts\createTables.sql" />
+    <EmbeddedResource Include="supportedCountries.txt" />
     <None Include="paket.references" />
     <Compile Include="DataImport.fs" />
     <Compile Include="DataDownload.fs" />

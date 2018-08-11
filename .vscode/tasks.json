@@ -5,7 +5,7 @@
     "tasks": [
         {
             "label": "build",
-            "command": "dotnet build -c Release",
+            "command": "dotnet build",
             "type": "shell",
             "group": "build",
             "presentation": {

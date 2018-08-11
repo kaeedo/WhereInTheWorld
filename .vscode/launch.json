@@ -9,8 +9,8 @@
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
-            "program": "${workspaceFolder}/src/WhereInTheWorld/bin/Release/netcoreapp2.1/WhereInTheWorld.dll",
-            "args": "--update de",
+            "program": "${workspaceFolder}/src/WhereInTheWorld/bin/Debug/netcoreapp2.1/WhereInTheWorld.dll",
+            "args": "--list supported",
             "cwd": "${workspaceFolder}",
             "console": "integratedTerminal",
             "stopAtEntry": false
