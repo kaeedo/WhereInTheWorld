@@ -1,6 +1,6 @@
 {
     "isTest": false,
     "connectionStrings": {
-        "citiesDownloadUrl": "http://download.geonames.org/export/dump/"
+        "citiesDownloadUrl": "https://github.com/kaeedo/WhereInTheWorldSupport/raw/master/countryFiles/"
     }
 }
