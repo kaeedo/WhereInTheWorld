@@ -1,6 +1,6 @@
 {
     "isTest": false,
     "connectionStrings": {
-        "citiesDownloadUrl": "https://github.com/kaeedo/WhereInTheWorldSupport/raw/master/countryFiles/"
+        "citiesDownloadUrl": "https://github.com/kaeedo/WhereInTheWorldSupport/raw/master/simple/countryFiles/"
     }
 }
