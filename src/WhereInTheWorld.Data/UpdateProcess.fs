@@ -4,6 +4,7 @@ open Hopac
 open Hopac.Infixes
 open WhereInTheWorld.Utilities
 open WhereInTheWorld.Utilities.Models
+open WhereInTheWorld.Utilities.ResultUtilities
 open System
 open System.IO
 
@@ -18,68 +19,62 @@ module UpdateProcess =
         then countryName
         else code
 
-    let updateCountry countryCode =
+    let updateCountry countryCode fileImports =
         job {
-            let! importedPostalCodes = DataImport.readPostalCodeFile countryCode
+            let countryName = DataDownload.supportedCountries.[countryCode]
 
-            match importedPostalCodes with
-            | Error e ->
-                return Result.Error e
-            | Ok import ->
-                let countryName = DataDownload.supportedCountries.[countryCode]
+            let! countryId =
+                { Id = Unchecked.defaultof<int64>
+                  Code = countryCode
+                  Name = countryName }
+                |> DataAccess.insertCountry
 
-                let! countryId =
+            let! subdivisions =
+                fileImports
+                |> Seq.distinctBy (fun i ->
+                    i.SubdivisionCode
+                )
+                |> Seq.map (fun fi ->
                     { Id = Unchecked.defaultof<int64>
-                      Code = countryCode
-                      Name = countryName }
-                    |> DataAccess.insertCountry
+                      CountryId = countryId
+                      Code =  defaultSubdivisionCode fi.SubdivisionCode countryCode
+                      Name = defaultSubdivisionName fi.SubdivisionName countryName }
+                )
+                |> List.ofSeq
+                |> DataAccess.insertSubdivisions
 
-                let! subdivisions =
-                    import
-                    |> Seq.distinctBy (fun i ->
-                        i.SubdivisionCode
-                    )
-                    |> Seq.map (fun fi ->
-                        { Id = Unchecked.defaultof<int64>
-                          CountryId = countryId
-                          Code =  defaultSubdivisionCode fi.SubdivisionCode countryCode
-                          Name = defaultSubdivisionName fi.SubdivisionName countryName }
-                    )
-                    |> List.ofSeq
-                    |> DataAccess.insertSubdivisions
+            let subdivisionsDictionary =
+                subdivisions
+                |> List.map (fun s ->
+                    s.Code, s.Id
+                )
+                |> dict
 
-                let subdivisionsDictionary =
-                    subdivisions
-                    |> List.map (fun s ->
-                        s.Code, s.Id
-                    )
-                    |> dict
+            let postalCodeList =
+               fileImports
+               |> Seq.map (fun i ->
+                    let subdivisionCode =
+                        if String.IsNullOrWhiteSpace(i.SubdivisionCode)
+                        then countryCode
+                        else i.SubdivisionCode
 
-                let postalCodeList =
-                   import
-                   |> Seq.map (fun i ->
-                        let subdivisionCode =
-                            if String.IsNullOrWhiteSpace(i.SubdivisionCode)
-                            then countryCode
-                            else i.SubdivisionCode
+                    { Id = Unchecked.defaultof<int64>
+                      SubdivisionId = subdivisionsDictionary.[subdivisionCode]
+                      PostalCode = i.PostalCode
+                      PlaceName = i.PlaceName
+                      CountyName = i.CountyName
+                      CountyCode = i.CountyCode
+                      CommunityName = i.CommunityName
+                      CommunityCode = i.CommunityCode
+                      Latitude = i.Latitude
+                      Longitude = i.Longitude
+                      Accuracy = i.Accuracy }
+                )
+                |> List.ofSeq
 
-                        { Id = Unchecked.defaultof<int64>
-                          SubdivisionId = subdivisionsDictionary.[subdivisionCode]
-                          PostalCode = i.PostalCode
-                          PlaceName = i.PlaceName
-                          CountyName = i.CountyName
-                          CountyCode = i.CountyCode
-                          CommunityName = i.CommunityName
-                          CommunityCode = i.CommunityCode
-                          Latitude = i.Latitude
-                          Longitude = i.Longitude
-                          Accuracy = i.Accuracy }
-                    )
-                    |> List.ofSeq
+            let! _ = DataAccess.insertPostalCodes postalCodeList
 
-                let! _ = DataAccess.insertPostalCodes postalCodeList
-
-                return Result.Ok countryCode
+            return Result.Ok countryCode
         }
 
     let countryDownloadJob printer countryCode =
@@ -96,21 +91,27 @@ module UpdateProcess =
 
     let updateCountryJob insertStatusPrinter countryCode =
         job {
-            let ticker = Ticker(50)
+            let! fileImports = DataImport.readPostalCodeFile countryCode
 
-            let insertStatusPrinterChannel = insertStatusPrinter ticker.Channel
-            do! Job.foreverServer insertStatusPrinterChannel
+            match fileImports with
+            | Error e -> return Result.Error e
+            | Ok imports ->
+                let ticker = Ticker(50)
 
-            do! ticker.Channel *<- Started
+                let insertStatusPrinterChannel = insertStatusPrinter ticker.Channel
+                do! Job.foreverServer insertStatusPrinterChannel
 
-            ticker.Start()
-            let! updateCountryResult = updateCountry countryCode
-            do! ticker.Channel *<- Inserted
-            ticker.Stop()
+                do! ticker.Channel *<- Started
 
-            return updateCountryResult
+                ticker.Start()
+                let! updateCountryResult = updateCountry countryCode imports
+
+                do! ticker.Channel *<- Inserted
+                ticker.Stop()
+
+                return updateCountryResult
         }
-
+// why this and updateCountryJob
     let updateCountryProcess countryCode downloadStatusPrinter insertStatusPrinter =
         try
             let countryDownload =
