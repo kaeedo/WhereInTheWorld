@@ -13,7 +13,6 @@ type Ticker (milliseconds: int) =
     let tick () =
         symbol <- if symbol = "|" then "-" else "|"
         tickChannel *<- Progress symbol
-
     let rec loop () =
         let tickerLoop =
             timeOutMillis milliseconds

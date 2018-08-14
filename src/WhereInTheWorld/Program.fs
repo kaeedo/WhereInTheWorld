@@ -46,7 +46,7 @@ let updateCountry (countryCode: string) =
             | :? SqliteException ->
                 printfn "Problem with the database. Please try again. If the problem persists, try running \"witw --cleardatabase\" to start fresh."
             | _ ->
-                printfn "An error occurred. Please try again"
+                printfn "Following error occured: %s Please try again. If the problem persists, please report the error along with the latest error log from %s" e.Message Models.baseDirectory
 
 let parser = ArgumentParser.Create<Arguments>(programName = "witw")
 

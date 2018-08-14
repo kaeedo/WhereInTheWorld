@@ -50,6 +50,7 @@ module DataImport =
               Longitude = parse float line.[10]
               Accuracy = parse int64 line.[11] }
         )
+        |> Seq.distinctBy (fun fi -> (fi.PostalCode, fi.PlaceName))
         |> Seq.toList
         |> Result.Ok
 

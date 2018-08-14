@@ -19,8 +19,9 @@ module UpdateProcess =
         then countryName
         else code
 
-    let updateCountry countryCode fileImports =
+    let updateCountry fileImports =
         job {
+            let countryCode = (fileImports |> Seq.head).CountryCode
             let countryName = DataDownload.supportedCountries.[countryCode]
 
             let! countryId =
@@ -89,41 +90,28 @@ module UpdateProcess =
             return Result.Ok countryCode
         }
 
-    let updateCountryJob insertStatusPrinter countryCode =
+    let insertJob insertStatusPrinter imports =
         job {
-            let! fileImports = DataImport.readPostalCodeFile countryCode
+            let ticker = Ticker(50)
 
-            match fileImports with
-            | Error e -> return Result.Error e
-            | Ok imports ->
-                let ticker = Ticker(50)
+            let insertStatusPrinterChannel = insertStatusPrinter ticker.Channel
+            do! Job.foreverServer insertStatusPrinterChannel
 
-                let insertStatusPrinterChannel = insertStatusPrinter ticker.Channel
-                do! Job.foreverServer insertStatusPrinterChannel
+            do! ticker.Channel *<- Started
 
-                do! ticker.Channel *<- Started
+            ticker.Start()
 
-                ticker.Start()
-                let! updateCountryResult = updateCountry countryCode imports
+            let! updateCountryResult = updateCountry imports
 
-                do! ticker.Channel *<- Inserted
-                ticker.Stop()
+            if updateCountryResult.IsOk
+            then do! ticker.Channel *<- Inserted
 
-                return updateCountryResult
+            ticker.Stop()
+
+            return updateCountryResult
         }
-// why this and updateCountryJob
+
     let updateCountryProcess countryCode downloadStatusPrinter insertStatusPrinter =
-        try
-            let countryDownload =
-                countryDownloadJob downloadStatusPrinter countryCode |> run
+        let workflow = (countryDownloadJob downloadStatusPrinter) >=> DataImport.readPostalCodeFile >=> insertJob insertStatusPrinter
 
-            let updateResult =
-                match countryDownload with
-                | Error e -> Result.Error e
-                | Ok filePath ->
-                    let code = filePath.Split(Path.DirectorySeparatorChar) |> Seq.last
-                    updateCountryJob insertStatusPrinter code |> run
-
-            Result.Ok updateResult
-        with
-        | _ as e -> Result.Error e
+        workflow countryCode |> run

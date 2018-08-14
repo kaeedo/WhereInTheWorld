@@ -17,7 +17,7 @@ type TickerTests() =
             | _ ->
                 printer.DoWork("")
         }
-    
+
     [<Fact>]
     member __.``New ticker should not have loop started`` () =
         let printer = Mock<IWork>().Create()

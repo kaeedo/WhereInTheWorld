@@ -62,7 +62,8 @@ module DataDownload =
 
                 let! result = workflow countryCode
 
-                do! statusChannel *<- (Completed <| supportedCountries.[countryCode])
+                if result.IsOk
+                then do! statusChannel *<- (Completed <| supportedCountries.[countryCode])
 
                 return result
             }
