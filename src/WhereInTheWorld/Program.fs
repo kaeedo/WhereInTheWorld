@@ -4,7 +4,6 @@ open WhereInTheWorld
 open WhereInTheWorld.ArgumentParser
 open WhereInTheWorld.Data
 open WhereInTheWorld.Utilities
-open Microsoft.Data.Sqlite
 
 let ensureCleanDirectory () =
     if not (Directory.Exists(Models.baseDirectory))
@@ -14,8 +13,9 @@ let ensureCleanDirectory () =
     |> Seq.filter (fun f -> f.EndsWith("zip") || f.EndsWith("txt"))
     |> Seq.iter File.Delete
 let getPostalCodeInformation postalCode =
-    Database.ensureDatabase()
-    let postalCodeInformation = Query.getPostalCodeInformation postalCode
+    let da = new DataAccess()
+    da.EnsureDatabase()
+    let postalCodeInformation = []//Query.getPostalCodeInformation postalCode
     let numberOfResults = Seq.length postalCodeInformation
 
     if numberOfResults = 0
@@ -25,7 +25,8 @@ let getPostalCodeInformation postalCode =
         ConsolePrinter.printQueryResults postalCode postalCodeInformation numberOfResults
 
 let updateCountry (countryCode: string) =
-    Database.ensureDatabase()
+    let da = new DataAccess()
+    da.EnsureDatabase()
     let uppercaseCountryCode = countryCode.ToUpperInvariant()
 
     let isValidCountryCode =
@@ -43,8 +44,8 @@ let updateCountry (countryCode: string) =
             let innermost = e.GetBaseException()
             do ErrorLog.writeException innermost
             match innermost with
-            | :? SqliteException ->
-                printfn "Problem with the database. Please try again. If the problem persists, try running \"witw --cleardatabase\" to start fresh."
+            (* | :? SQLiteException ->
+                printfn "Problem with the database. Please try again. If the problem persists, try running \"witw --cleardatabase\" to start fresh." *)
             | _ ->
                 printfn "Following error occured: %s Please try again. If the problem persists, please report the error along with the latest error log from %s" e.Message Models.baseDirectory
 
@@ -82,11 +83,13 @@ let main argv =
                     match list with
                     | Supported -> ConsolePrinter.printCountries DataDownload.supportedCountries
                     | Available ->
-                        Query.getAvailableCountries()
-                        |> Option.iter ConsolePrinter.printCountries
+                        printfn "available"
+                        // Query.getAvailableCountries()
+                        // |> Option.iter ConsolePrinter.printCountries
             elif hasClearDatabase
             then
-                Database.clearDatabase()
+                let da = new DataAccess()
+                da.ClearDatabase()
             elif not hasPostalCode && hasUpdate
             then
                 match arguments.GetResult Update with

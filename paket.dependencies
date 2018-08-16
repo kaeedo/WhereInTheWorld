@@ -11,13 +11,5 @@ nuget Hedgehog
 nuget FSharp.Data
 nuget Foq
 
-nuget SQLProvider
-nuget SQLitePCLRaw.bundle_green
-nuget System.Data.SqlClient
-nuget System.Runtime
-nuget System.Runtime.Extensions
-nuget System.Reflection
-nuget System.Reflection.TypeExtensions
-nuget System.Runtime.Serialization.Formatters
-nuget Microsoft.Data.Sqlite.Core
-
+nuget System.Data.SQLite.Core
+nuget Dapper

@@ -6,7 +6,6 @@ open WhereInTheWorld.Utilities
 open WhereInTheWorld.Utilities.Models
 open WhereInTheWorld.Utilities.ResultUtilities
 open System
-open System.IO
 
 module UpdateProcess =
     let private defaultSubdivisionCode code countryCode =
@@ -21,10 +20,32 @@ module UpdateProcess =
 
     let updateCountry fileImports =
         job {
+            let da = new DataAccess()
             let countryCode = (fileImports |> Seq.head).CountryCode
             let countryName = DataDownload.supportedCountries.[countryCode]
 
-            let! countryId =
+            let a =
+                fileImports
+                |> List.map (fun i ->
+                    { Id = Unchecked.defaultof<int>
+                      CountryCode = countryCode
+                      CountryName = countryName
+                      PostalCode = i.PostalCode
+                      PlaceName = i.PlaceName
+                      SubdivisionCode = defaultSubdivisionCode i.SubdivisionCode countryCode
+                      SubdivisionName = defaultSubdivisionName i.SubdivisionName countryName
+                      CountyName = i.CountyName
+                      CountyCode = i.CountyCode
+                      CommunityName = i.CommunityName
+                      CommunityCode = i.CommunityCode
+                      Latitude = i.Latitude
+                      Longitude = i.Longitude
+                      Accuracy = Some 0 }
+                )
+
+            do! da.InsertPostalCodes a
+
+            (* let! countryId =
                 { Id = Unchecked.defaultof<int64>
                   Code = countryCode
                   Name = countryName }
@@ -73,7 +94,7 @@ module UpdateProcess =
                 )
                 |> List.ofSeq
 
-            let! _ = DataAccess.insertPostalCodes postalCodeList
+            let! _ = DataAccess.insertPostalCodes postalCodeList *)
 
             return Result.Ok countryCode
         }

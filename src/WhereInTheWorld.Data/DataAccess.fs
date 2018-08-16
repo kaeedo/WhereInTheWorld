@@ -1,155 +1,87 @@
 namespace WhereInTheWorld.Data
 
-open System.IO
-open WhereInTheWorld.Utilities.Models
-open FSharp.Data.Sql
-open Hopac
+open Dapper
 open System
-open Microsoft.Data.Sqlite
+open System.IO
+open Hopac
+open System.Data.SQLite
 open WhereInTheWorld.Utilities
+open WhereInTheWorld.Utilities.Models
 
-type private Sql = SqlDataProvider<
-                    Common.DatabaseProviderTypes.SQLITE,
-                    SQLiteLibrary = Common.SQLiteLibrary.MicrosoftDataSqlite,
-                    ResolutionPath = "temp",
-                    ConnectionString = "Filename=./../world.db",
-                    UseOptionTypes = true>
+type OptionHandler<'T>() =
+    inherit SqlMapper.TypeHandler<option<'T>>()
+    override __.SetValue(param, value) =
+        let valueOrNull =
+            match value with
+            | Some x -> box x
+            | None -> null
+        param.Value <- valueOrNull
+    override __.Parse value =
+        if isNull value || value = box DBNull.Value
+        then None
+        else Some (value :?> 'T)
 
-module Database =
-    let runtimeConnectionString = sprintf "Filename=%s" databaseFile
+module Query =
+    let a = 1
 
-    let clearDatabase () =
+type DataAccess() =
+    let connectionString = sprintf "Data Source=%s;Version=3" databaseFile
+
+    let safeSqlConnection (connectionString: string) =
+        SqlMapper.AddTypeHandler (OptionHandler<float>())
+        SqlMapper.AddTypeHandler (OptionHandler<int>())
+        SqlMapper.AddTypeHandler (OptionHandler<string>())
+        new SQLiteConnection(connectionString)
+
+    member __.ClearDatabase () =
         if File.Exists(databaseFile)
         then File.Delete(databaseFile)
 
-    let ensureDatabase () =
+    member __.EnsureDatabase () =
         if not (File.Exists(databaseFile))
         then
-            let connection = new SqliteConnection(runtimeConnectionString)
+            SQLiteConnection.CreateFile(databaseFile)
+            let connection = safeSqlConnection connectionString
             connection.Open()
             let sql = IoUtilities.getEmbeddedResource "WhereInTheWorld.Data.sqlScripts.createTables.sql"
-            let command = new SqliteCommand(sql, connection)
-            command.ExecuteNonQuery() |> ignore
+            connection.Execute(sql) |> ignore
             connection.Close()
-
-module Query =
-    let private ctx = Sql.GetDataContext(Database.runtimeConnectionString)
-
-    let getAvailableCountries () =
-            let results =
-                query {
-                    for country in ctx.Main.Country do
-                        select (country.Code, country.Name)
-                }
-
-            match results |> Seq.isEmpty with
-            | true -> None
-            | false -> Some (results |> Map.ofSeq)
-
-    let getPostalCodeInformation (postalCodeInput: string) =
-        let sanitizedInput = postalCodeInput.Replace(" ", String.Empty).ToUpper()
-
-        let query (input: string) =
-            query {
-                for postalCode in ctx.Main.PostalCode do
-                    for subdivision in postalCode.``main.Subdivision by Id`` do
-                        for country in subdivision.``main.Country by Id`` do
-                            where (postalCode.PostalCode.Replace(" ", "").ToUpper().StartsWith(input))
-                            select (postalCode, subdivision, country)
-            } |> Seq.toList
-
-        let rec queryUntilMatch (input: string) =
-            match input with
-            | _ when input.Length = 3 -> query input
-            | _ ->
-                let results = query input
-
-                if results |> List.isEmpty
-                then
-                    let newInput = input.Substring(0, int (Math.Ceiling(float input.Length / 2.0)))
-                    queryUntilMatch newInput
-                else results
-
-        let result =
-            queryUntilMatch sanitizedInput
-            |> Seq.map (fun (postalCode, subdivision, country) ->
-                let country =
-                    { Code = country.Code; Name = country.Name }
-
-                let subdivision =
-                    { Country = country; Code = subdivision.Code; Name = subdivision.Name }
-
-                let postalCode =
-                    { Subdivision = subdivision
-                      PostalCode = postalCode.PostalCode
-                      PlaceName = postalCode.PlaceName
-                      CountyName = postalCode.CountyName
-                      CountyCode = postalCode.CountyCode
-                      CommunityName = postalCode.CommunityName
-                      CommunityCode = postalCode.CommunityCode
-                      Latitude = postalCode.Latitude
-                      Longitude = postalCode.Longitude
-                      Accuracy = postalCode.Accuracy }
-
-                postalCode
-            )
-
-        result
-
-
-module DataAccess =
-    let private ctx = Sql.GetDataContext(Database.runtimeConnectionString)
-
-    let insertCountry (country: Country): Job<int64> =
+    member __.InsertPostalCodes (postalCodes: PostalCodeInformation list) =
         job {
-            let insertedCountry =
-                ctx.Main.Country.``Create(Code, Name)``
-                                    (country.Code,
-                                        country.Name)
+            let connection = safeSqlConnection connectionString
+            let transaction = connection.BeginTransaction()
 
-            do! ctx.SubmitUpdatesAsync()
-            return insertedCountry.Id
-        }
+            let sql = """
+            INSERT OR IGNORE INTO Country(Code, Name)
+    VALUES(@countryCode, @countryName);
 
-    let insertSubdivisions (subdivisions: Subdivision list) =
-        job {
-            let insertedSubdivisions =
-                subdivisions
-                |> List.map (fun s ->
-                    let insertedSubdvision =
-                        ctx.Main.Subdivision.``Create(Code, CountryId, Name)``
-                                                (s.Code,
-                                                    s.CountryId,
-                                                    s.Name)
+    INSERT OR IGNORE INTO Subdivision(CountryId, Name, Code)
+    VALUES ((SELECT Id FROM Country WHERE Code = @countryCode), @subdivisionName, @subdivisionCode);
 
-                    insertedSubdvision
-                )
+    INSERT OR IGNORE INTO PostalCode(
+        PostalCode,
+        PlaceName,
+        SubdivisionId,
+        CountyName,
+        CountyCode,
+        CommunityName,
+        CommunityCode,
+        Latitude,
+        Longitude,
+        Accuracy)
+    VALUES (
+        @postalCode,
+        @placeName,
+        (SELECT Id FROM Subdivision WHERE Code = @subdivisionCode),
+        @countyName,
+        @countyCode,
+        @communityName,
+        @communityCode,
+        @latitude,
+        @longitude,
+    @accuracy)
+            """
+            connection.ExecuteAsync(sql, postalCodes, transaction) |> ignore
 
-            do! ctx.SubmitUpdatesAsync()
-            return insertedSubdivisions
-        }
-
-    let insertPostalCodes (postalCodes: PostalCode list) =
-        job {
-            let insertedPostalCodes =
-                postalCodes
-                |> List.map (fun pc ->
-                    let insertedPostalCode =
-                        ctx.Main.PostalCode.``Create(PlaceName, PostalCode, SubdivisionId)``
-                                                (pc.PlaceName,
-                                                    pc.PostalCode,
-                                                    pc.SubdivisionId)
-                    insertedPostalCode.CountyName <- pc.CountyName
-                    insertedPostalCode.CountyCode <- pc.CountyCode
-                    insertedPostalCode.CommunityName <- pc.CommunityName
-                    insertedPostalCode.CommunityCode <- pc.CommunityCode
-                    insertedPostalCode.Latitude <- pc.Latitude
-                    insertedPostalCode.Longitude <- pc.Longitude
-                    insertedPostalCode.Accuracy <- pc.Accuracy
-
-                    insertedPostalCode
-                )
-
-            do! ctx.SubmitUpdatesAsync()
-            return insertedPostalCodes
+            transaction.Commit()
         }

@@ -19,8 +19,8 @@ module Models =
             | PlatformID.Unix -> Environment.GetEnvironmentVariable("HOME") @@ ".WhereInTheWorld"
             | PlatformID.MacOSX -> Environment.GetEnvironmentVariable("HOME") @@ ".WhereInTheWorld"
             | _ -> Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) @@ ".WhereInTheWorld"
-        if isTest 
-        then homeDirectory @@ "test" 
+        if isTest
+        then homeDirectory @@ "test"
         else homeDirectory
 
     let databaseFile = baseDirectory @@ if isTest then "test" else String.Empty @@ "world.db"
@@ -69,6 +69,22 @@ module Models =
           Latitude: float option
           Longitude: float option
           Accuracy: int64 option }
+
+    type PostalCodeInformation =
+        { Id: int
+          CountryCode: string
+          CountryName: string
+          PostalCode: string
+          PlaceName: string
+          SubdivisionCode: string
+          SubdivisionName: string
+          CountyName: string option
+          CountyCode: string option
+          CommunityName: string option
+          CommunityCode: string option
+          Latitude: float option
+          Longitude: float option
+          Accuracy: int option }
 
     type FileImport =
         { CountryCode: string
