@@ -11,5 +11,5 @@ nuget Hedgehog
 nuget FSharp.Data
 nuget Foq
 
-nuget System.Data.SQLite.Core
+nuget System.Data.SQLite.Core 1.0.108
 nuget Dapper

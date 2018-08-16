@@ -46,9 +46,11 @@ type DataAccess() =
             let sql = IoUtilities.getEmbeddedResource "WhereInTheWorld.Data.sqlScripts.createTables.sql"
             connection.Execute(sql) |> ignore
             connection.Close()
+
     member __.InsertPostalCodes (postalCodes: PostalCodeInformation list) =
         job {
             let connection = safeSqlConnection connectionString
+            connection.Open()
             let transaction = connection.BeginTransaction()
 
             let sql = """
@@ -84,4 +86,5 @@ type DataAccess() =
             connection.ExecuteAsync(sql, postalCodes, transaction) |> ignore
 
             transaction.Commit()
+            connection.Close()
         }
