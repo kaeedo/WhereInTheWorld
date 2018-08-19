@@ -46,7 +46,7 @@ module Database =
 
 module Query =
     let getAvailableCountries () =
-        let sql = """SELECT Code, Name FROM Country"""
+        let sql = IoUtilities.getEmbeddedResource "WhereInTheWorld.Data.sqlScripts.queryCountry.sql"
 
         let connection = Database.safeSqlConnection Database.connectionString
         connection.Open()
@@ -68,9 +68,23 @@ module Query =
             connection.Open()
             let results = connection.Query<PostalCodeInformation>(sql, dict ["Input", box input])
             connection.Close()
-            results
 
-        query sanitizedInput
+            results
+            |> List.ofSeq
+
+        let rec queryUntilMatch (input: string) =
+            match input with
+            | _ when input.Length = 3 -> query input
+            | _ ->
+                let results = query input
+
+                if results |> List.isEmpty
+                then
+                    let newInput = input.Substring(0, int (Math.Ceiling(float input.Length / 2.0)))
+                    queryUntilMatch newInput
+                else results
+
+        queryUntilMatch sanitizedInput
 
 
 module DataAccess =

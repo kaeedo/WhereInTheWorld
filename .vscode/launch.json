@@ -10,7 +10,7 @@
             "request": "launch",
             "preLaunchTask": "build",
             "program": "${workspaceFolder}/src/WhereInTheWorld/bin/Debug/netcoreapp2.1/WhereInTheWorld.dll",
-            "args": "01983",
+            "args": "01983-4568",
             "cwd": "${workspaceFolder}",
             "console": "integratedTerminal",
             "stopAtEntry": false

@@ -16,6 +16,7 @@
     <None Include=".\world.db" />
     <EmbeddedResource Include="sqlScripts\createTables.sql" />
     <EmbeddedResource Include="sqlScripts\insertPostalCodes.sql" />
+    <EmbeddedResource Include="sqlScripts\queryCountry.sql" />
     <EmbeddedResource Include="sqlScripts\queryPostalCode.sql" />
     <EmbeddedResource Include="supportedCountries.txt" />
     <None Include="paket.references" />
