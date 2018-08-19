@@ -21,10 +21,7 @@ type OptionHandler<'T>() =
         then None
         else Some (value :?> 'T)
 
-module Query =
-    let a = 1
-
-type DataAccess() =
+module Database =
     let connectionString = sprintf "Data Source=%s;Version=3" databaseFile
 
     let safeSqlConnection (connectionString: string) =
@@ -33,56 +30,68 @@ type DataAccess() =
         SqlMapper.AddTypeHandler (OptionHandler<string>())
         new SQLiteConnection(connectionString)
 
-    member __.ClearDatabase () =
+module Query =
+    type foo = {Input: string}
+    let getAvailableCountries () =
+        ["DE", "Germany"]
+        |> Map.ofSeq
+        |> Some
+
+    let getPostalCodeInformation (postalCodeInput: string) =
+        let sanitizedInput = postalCodeInput.Replace(" ", String.Empty).ToUpper()
+
+        let query (input: string) =
+            let sql = """
+                SELECT
+                    c.Code AS 'CountryCode',
+                    c.Name AS 'CountryName',
+                    pc.PostalCode AS 'PostalCode',
+                    pc.PlaceName AS 'PlaceName',
+                    s.Code AS 'SubdivisionCode',
+                    s.Name AS 'SubdivisionName',
+                    pc.CountyName AS 'CountyName',
+                    pc.CountyCode AS 'CountyCode',
+                    pc.CommunityName AS 'CommunityName',
+                    pc.CommunityCode AS 'CommunityCode',
+                    pc.Latitude AS 'Latitude',
+                    pc.Longitude AS 'Longitude',
+                    pc.Accuracy AS 'Accuracy'
+                FROM PostalCode pc
+                JOIN Subdivision s on pc.SubdivisionId = s.Id
+                JOIN Country c on s.CountryId = c.Id
+                WHERE UPPER(REPLACE(pc.PostalCode, ' ', '')) like @input || '%';
+                """
+
+            let connection = Database.safeSqlConnection Database.connectionString
+            connection.Open()
+            connection.Query<PostalCodeInformation>(sql, { Input = input})
+
+        query sanitizedInput
+
+
+
+module DataAccess =
+    let clearDatabase () =
         if File.Exists(databaseFile)
         then File.Delete(databaseFile)
 
-    member __.EnsureDatabase () =
+    let ensureDatabase () =
         if not (File.Exists(databaseFile))
         then
             SQLiteConnection.CreateFile(databaseFile)
-            let connection = safeSqlConnection connectionString
+            let connection = Database.safeSqlConnection Database.connectionString
             connection.Open()
             let sql = IoUtilities.getEmbeddedResource "WhereInTheWorld.Data.sqlScripts.createTables.sql"
             connection.Execute(sql) |> ignore
             connection.Close()
 
-    member __.InsertPostalCodes (postalCodes: PostalCodeInformation list) =
+    let insertPostalCodes (postalCodes: PostalCodeInformation list) =
         job {
-            let connection = safeSqlConnection connectionString
+            let connection = Database.safeSqlConnection Database.connectionString
             connection.Open()
             let transaction = connection.BeginTransaction()
 
-            let sql = """
-            INSERT OR IGNORE INTO Country(Code, Name)
-    VALUES(@countryCode, @countryName);
-
-    INSERT OR IGNORE INTO Subdivision(CountryId, Name, Code)
-    VALUES ((SELECT Id FROM Country WHERE Code = @countryCode), @subdivisionName, @subdivisionCode);
-
-    INSERT OR IGNORE INTO PostalCode(
-        PostalCode,
-        PlaceName,
-        SubdivisionId,
-        CountyName,
-        CountyCode,
-        CommunityName,
-        CommunityCode,
-        Latitude,
-        Longitude,
-        Accuracy)
-    VALUES (
-        @postalCode,
-        @placeName,
-        (SELECT Id FROM Subdivision WHERE Code = @subdivisionCode),
-        @countyName,
-        @countyCode,
-        @communityName,
-        @communityCode,
-        @latitude,
-        @longitude,
-    @accuracy)
-            """
+            let sql = IoUtilities.getEmbeddedResource "WhereInTheWorld.Data.sqlScripts.insertPostalCodes.sql"
             connection.ExecuteAsync(sql, postalCodes, transaction) |> ignore
 
             transaction.Commit()

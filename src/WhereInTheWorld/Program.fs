@@ -13,9 +13,8 @@ let ensureCleanDirectory () =
     |> Seq.filter (fun f -> f.EndsWith("zip") || f.EndsWith("txt"))
     |> Seq.iter File.Delete
 let getPostalCodeInformation postalCode =
-    let da = new DataAccess()
-    da.EnsureDatabase()
-    let postalCodeInformation = []//Query.getPostalCodeInformation postalCode
+    DataAccess.ensureDatabase()
+    let postalCodeInformation = Query.getPostalCodeInformation postalCode
     let numberOfResults = Seq.length postalCodeInformation
 
     if numberOfResults = 0
@@ -25,8 +24,7 @@ let getPostalCodeInformation postalCode =
         ConsolePrinter.printQueryResults postalCode postalCodeInformation numberOfResults
 
 let updateCountry (countryCode: string) =
-    let da = new DataAccess()
-    da.EnsureDatabase()
+    DataAccess.ensureDatabase()
     let uppercaseCountryCode = countryCode.ToUpperInvariant()
 
     let isValidCountryCode =
@@ -83,13 +81,11 @@ let main argv =
                     match list with
                     | Supported -> ConsolePrinter.printCountries DataDownload.supportedCountries
                     | Available ->
-                        printfn "available"
-                        // Query.getAvailableCountries()
-                        // |> Option.iter ConsolePrinter.printCountries
+                        Query.getAvailableCountries ()
+                        |> Option.iter ConsolePrinter.printCountries
             elif hasClearDatabase
             then
-                let da = new DataAccess()
-                da.ClearDatabase()
+                DataAccess.clearDatabase()
             elif not hasPostalCode && hasUpdate
             then
                 match arguments.GetResult Update with

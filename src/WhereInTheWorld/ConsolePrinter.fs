@@ -46,7 +46,7 @@ module ConsolePrinter =
         )
         printfn "%s" <| String.replicate (longestCountryLength + 9) "-"
 
-    let printQueryResults postalCode (postalCodeInformation: PostalCodeDao seq) numberOfResults =
+    let printQueryResults postalCode (postalCodeInformation: PostalCodeInformation seq) numberOfResults =
         printfn "Information about \"%s\" (found %i %s):" postalCode numberOfResults (if numberOfResults = 1 then "result" else "results")
         printfn "%s" <| String.replicate 50 "-"
         postalCodeInformation
@@ -68,7 +68,7 @@ module ConsolePrinter =
                 then printf " (%s)" pci.CountyCode.Value
                 printfn ""
 
-            printfn "%4sWithin Subdivision: %s (%s)" String.Empty pci.Subdivision.Name pci.Subdivision.Code
-            printfn "%4sIn Country: %s (%s)" String.Empty pci.Subdivision.Country.Name pci.Subdivision.Country.Code
+            printfn "%4sWithin Subdivision: %s (%s)" String.Empty pci.SubdivisionName pci.SubdivisionCode
+            printfn "%4sIn Country: %s (%s)" String.Empty pci.CountryName pci.CountryCode
             printfn "%s" <| String.replicate 25 "-"
         )

@@ -15,6 +15,7 @@
   <ItemGroup>
     <None Include=".\world.db" />
     <EmbeddedResource Include="sqlScripts\createTables.sql" />
+    <EmbeddedResource Include="sqlScripts\insertPostalCodes.sql" />
     <EmbeddedResource Include="supportedCountries.txt" />
     <None Include="paket.references" />
     <Compile Include="DataImport.fs" />

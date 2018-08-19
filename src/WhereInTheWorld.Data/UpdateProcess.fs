@@ -20,81 +20,19 @@ module UpdateProcess =
 
     let updateCountry fileImports =
         job {
-            let da = new DataAccess()
             let countryCode = (fileImports |> Seq.head).CountryCode
             let countryName = DataDownload.supportedCountries.[countryCode]
 
-            let a =
-                fileImports
-                |> List.map (fun i ->
-                    { Id = Unchecked.defaultof<int>
-                      CountryCode = countryCode
-                      CountryName = countryName
-                      PostalCode = i.PostalCode
-                      PlaceName = i.PlaceName
-                      SubdivisionCode = defaultSubdivisionCode i.SubdivisionCode countryCode
-                      SubdivisionName = defaultSubdivisionName i.SubdivisionName countryName
-                      CountyName = i.CountyName
-                      CountyCode = i.CountyCode
-                      CommunityName = i.CommunityName
-                      CommunityCode = i.CommunityCode
-                      Latitude = i.Latitude
-                      Longitude = i.Longitude
-                      Accuracy = Some 0 }
-                )
-
-            do! da.InsertPostalCodes a
-
-            (* let! countryId =
-                { Id = Unchecked.defaultof<int64>
-                  Code = countryCode
-                  Name = countryName }
-                |> DataAccess.insertCountry
-
-            let! subdivisions =
-                fileImports
-                |> Seq.distinctBy (fun i ->
-                    i.SubdivisionCode
-                )
-                |> Seq.map (fun fi ->
-                    { Id = Unchecked.defaultof<int64>
-                      CountryId = countryId
-                      Code =  defaultSubdivisionCode fi.SubdivisionCode countryCode
-                      Name = defaultSubdivisionName fi.SubdivisionName countryName }
-                )
-                |> List.ofSeq
-                |> DataAccess.insertSubdivisions
-
-            let subdivisionsDictionary =
-                subdivisions
-                |> List.map (fun s ->
-                    s.Code, s.Id
-                )
-                |> dict
-
-            let postalCodeList =
-               fileImports
-               |> Seq.map (fun i ->
-                    let subdivisionCode =
-                        if String.IsNullOrWhiteSpace(i.SubdivisionCode)
-                        then countryCode
-                        else i.SubdivisionCode
-
-                    { Id = Unchecked.defaultof<int64>
-                      SubdivisionId = subdivisionsDictionary.[subdivisionCode]
-                      PostalCode = i.PostalCode
-                      PlaceName = i.PlaceName
-                      CountyName = i.CountyName
-                      CountyCode = i.CountyCode
-                      CommunityName = i.CommunityName
-                      CommunityCode = i.CommunityCode
-                      Latitude = i.Latitude
-                      Longitude = i.Longitude
-                      Accuracy = i.Accuracy }
-                )
-                |> List.ofSeq
-
-            let! _ = DataAccess.insertPostalCodes postalCodeList *)
+            fileImports
+            |> List.map (fun fi ->
+                { fi with
+                    PostalCodeInformation.CountryName = countryName
+                    CountryCode = countryCode
+                    SubdivisionCode = defaultSubdivisionCode fi.SubdivisionCode countryCode
+                    SubdivisionName = defaultSubdivisionName fi.SubdivisionName countryName }
+            )
+            |> DataAccess.insertPostalCodes
+            |> run
 
             return Result.Ok countryCode
         }

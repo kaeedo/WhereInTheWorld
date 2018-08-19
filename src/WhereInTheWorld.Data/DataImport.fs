@@ -38,6 +38,7 @@ module DataImport =
         lines
         |> Seq.map (fun line ->
             { CountryCode = line.[0]
+              CountryName = String.Empty
               PostalCode = line.[1]
               PlaceName = line.[2]
               SubdivisionName = line.[3]
