@@ -46,10 +46,7 @@ module DataImport =
               CountyName = parse string line.[5]
               CountyCode = parse string line.[6]
               CommunityName = parse string line.[7]
-              CommunityCode = parse string line.[8]
-              Latitude = parse float line.[9]
-              Longitude = parse float line.[10]
-              Accuracy = parse int64 line.[11] }
+              CommunityCode = parse string line.[8] }
         )
         |> Seq.distinctBy (fun fi -> (fi.PostalCode, fi.PlaceName))
         |> Seq.toList

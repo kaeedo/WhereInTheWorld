@@ -25,6 +25,11 @@ module Models =
     let databaseFile = baseDirectory @@ if isTest then "test" else String.Empty @@ "world.db"
 
     [<CLIMutable>]
+    type Country =
+        { Code: string
+          Name: string }
+
+    [<CLIMutable>]
     type PostalCodeInformation =
         { CountryCode: string
           CountryName: string
@@ -35,10 +40,7 @@ module Models =
           CountyName: string option
           CountyCode: string option
           CommunityName: string option
-          CommunityCode: string option
-          Latitude: float option
-          Longitude: float option
-          Accuracy: int64 option }
+          CommunityCode: string option }
 
     type DownloadStatus =
     | Started of countryCode: string

@@ -23,16 +23,16 @@ module UpdateProcess =
             let countryCode = (fileImports |> Seq.head).CountryCode
             let countryName = DataDownload.supportedCountries.[countryCode]
 
-            fileImports
-            |> List.map (fun fi ->
-                { fi with
-                    PostalCodeInformation.CountryName = countryName
-                    CountryCode = countryCode
-                    SubdivisionCode = defaultSubdivisionCode fi.SubdivisionCode countryCode
-                    SubdivisionName = defaultSubdivisionName fi.SubdivisionName countryName }
-            )
-            |> DataAccess.insertPostalCodes
-            |> run
+            let! _ =
+                fileImports
+                |> List.map (fun fi ->
+                    { fi with
+                        PostalCodeInformation.CountryName = countryName
+                        CountryCode = countryCode
+                        SubdivisionCode = defaultSubdivisionCode fi.SubdivisionCode countryCode
+                        SubdivisionName = defaultSubdivisionName fi.SubdivisionName countryName }
+                )
+                |> DataAccess.insertPostalCodes
 
             return Result.Ok countryCode
         }

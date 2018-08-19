@@ -11,10 +11,7 @@ INSERT OR IGNORE INTO PostalCode(
     CountyName,
     CountyCode,
     CommunityName,
-    CommunityCode,
-    Latitude,
-    Longitude,
-    Accuracy)
+    CommunityCode)
 VALUES (
     @postalCode,
     @placeName,
@@ -22,7 +19,4 @@ VALUES (
     @countyName,
     @countyCode,
     @communityName,
-    @communityCode,
-    @latitude,
-    @longitude,
-    @accuracy)
+    @communityCode)

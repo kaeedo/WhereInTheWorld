@@ -1,5 +1,6 @@
 ﻿open Argu
 open System.IO
+open System.Data.SQLite
 open WhereInTheWorld
 open WhereInTheWorld.ArgumentParser
 open WhereInTheWorld.Data
@@ -13,7 +14,7 @@ let ensureCleanDirectory () =
     |> Seq.filter (fun f -> f.EndsWith("zip") || f.EndsWith("txt"))
     |> Seq.iter File.Delete
 let getPostalCodeInformation postalCode =
-    DataAccess.ensureDatabase()
+    Database.ensureDatabase()
     let postalCodeInformation = Query.getPostalCodeInformation postalCode
     let numberOfResults = Seq.length postalCodeInformation
 
@@ -24,7 +25,7 @@ let getPostalCodeInformation postalCode =
         ConsolePrinter.printQueryResults postalCode postalCodeInformation numberOfResults
 
 let updateCountry (countryCode: string) =
-    DataAccess.ensureDatabase()
+    Database.ensureDatabase()
     let uppercaseCountryCode = countryCode.ToUpperInvariant()
 
     let isValidCountryCode =
@@ -42,8 +43,8 @@ let updateCountry (countryCode: string) =
             let innermost = e.GetBaseException()
             do ErrorLog.writeException innermost
             match innermost with
-            (* | :? SQLiteException ->
-                printfn "Problem with the database. Please try again. If the problem persists, try running \"witw --cleardatabase\" to start fresh." *)
+            | :? SQLiteException ->
+                printfn "Problem with the database. Please try again. If the problem persists, try running \"witw --cleardatabase\" to start fresh."
             | _ ->
                 printfn "Following error occured: %s Please try again. If the problem persists, please report the error along with the latest error log from %s" e.Message Models.baseDirectory
 
@@ -85,7 +86,7 @@ let main argv =
                         |> Option.iter ConsolePrinter.printCountries
             elif hasClearDatabase
             then
-                DataAccess.clearDatabase()
+                Database.clearDatabase()
             elif not hasPostalCode && hasUpdate
             then
                 match arguments.GetResult Update with

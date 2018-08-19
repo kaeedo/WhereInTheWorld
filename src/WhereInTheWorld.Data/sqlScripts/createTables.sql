@@ -22,8 +22,5 @@ CREATE TABLE IF NOT EXISTS PostalCode (
     CountyCode TEXT,
     CommunityName TEXT,
     CommunityCode TEXT,
-    Latitude REAL,
-    Longitude REAL,
-    Accuracy INTEGER,
     UNIQUE(PostalCode, PlaceName) ON CONFLICT REPLACE,
     FOREIGN KEY(SubdivisionId) REFERENCES Subdivision(Id));

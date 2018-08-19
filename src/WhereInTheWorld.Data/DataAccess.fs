@@ -30,47 +30,6 @@ module Database =
         SqlMapper.AddTypeHandler (OptionHandler<string>())
         new SQLiteConnection(connectionString)
 
-module Query =
-    type foo = {Input: string}
-    let getAvailableCountries () =
-        ["DE", "Germany"]
-        |> Map.ofSeq
-        |> Some
-
-    let getPostalCodeInformation (postalCodeInput: string) =
-        let sanitizedInput = postalCodeInput.Replace(" ", String.Empty).ToUpper()
-
-        let query (input: string) =
-            let sql = """
-                SELECT
-                    c.Code AS 'CountryCode',
-                    c.Name AS 'CountryName',
-                    pc.PostalCode AS 'PostalCode',
-                    pc.PlaceName AS 'PlaceName',
-                    s.Code AS 'SubdivisionCode',
-                    s.Name AS 'SubdivisionName',
-                    pc.CountyName AS 'CountyName',
-                    pc.CountyCode AS 'CountyCode',
-                    pc.CommunityName AS 'CommunityName',
-                    pc.CommunityCode AS 'CommunityCode',
-                    pc.Latitude AS 'Latitude',
-                    pc.Longitude AS 'Longitude',
-                    pc.Accuracy AS 'Accuracy'
-                FROM PostalCode pc
-                JOIN Subdivision s on pc.SubdivisionId = s.Id
-                JOIN Country c on s.CountryId = c.Id
-                WHERE UPPER(REPLACE(pc.PostalCode, ' ', '')) like @input || '%';
-                """
-
-            let connection = Database.safeSqlConnection Database.connectionString
-            connection.Open()
-            connection.Query<PostalCodeInformation>(sql, { Input = input})
-
-        query sanitizedInput
-
-
-
-module DataAccess =
     let clearDatabase () =
         if File.Exists(databaseFile)
         then File.Delete(databaseFile)
@@ -79,12 +38,42 @@ module DataAccess =
         if not (File.Exists(databaseFile))
         then
             SQLiteConnection.CreateFile(databaseFile)
-            let connection = Database.safeSqlConnection Database.connectionString
+            let connection = safeSqlConnection connectionString
             connection.Open()
             let sql = IoUtilities.getEmbeddedResource "WhereInTheWorld.Data.sqlScripts.createTables.sql"
             connection.Execute(sql) |> ignore
             connection.Close()
 
+module Query =
+    let getAvailableCountries () =
+        let sql = """SELECT Code, Name FROM Country"""
+
+        let connection = Database.safeSqlConnection Database.connectionString
+        connection.Open()
+        let results =
+            connection.Query<Country>(sql)
+            |> Seq.map (fun c -> c.Code, c.Name)
+            |> Map.ofSeq
+            |> Some
+        connection.Close()
+        results
+
+    let getPostalCodeInformation (postalCodeInput: string) =
+        let sanitizedInput = postalCodeInput.Replace(" ", String.Empty).ToUpper()
+
+        let query (input: string) =
+            let sql = IoUtilities.getEmbeddedResource "WhereInTheWorld.Data.sqlScripts.queryPostalCode.sql"
+
+            let connection = Database.safeSqlConnection Database.connectionString
+            connection.Open()
+            let results = connection.Query<PostalCodeInformation>(sql, dict ["Input", box input])
+            connection.Close()
+            results
+
+        query sanitizedInput
+
+
+module DataAccess =
     let insertPostalCodes (postalCodes: PostalCodeInformation list) =
         job {
             let connection = Database.safeSqlConnection Database.connectionString
@@ -92,8 +81,10 @@ module DataAccess =
             let transaction = connection.BeginTransaction()
 
             let sql = IoUtilities.getEmbeddedResource "WhereInTheWorld.Data.sqlScripts.insertPostalCodes.sql"
-            connection.ExecuteAsync(sql, postalCodes, transaction) |> ignore
+            let! resultSet = connection.ExecuteAsync(sql, postalCodes, transaction)
 
             transaction.Commit()
             connection.Close()
+
+            return resultSet
         }
