@@ -15,14 +15,17 @@ let ensureCleanDirectory () =
     |> Seq.iter File.Delete
 let getPostalCodeInformation postalCode =
     Database.ensureDatabase()
-    let postalCodeInformation = Query.getPostalCodeInformation postalCode
-    let numberOfResults = Seq.length postalCodeInformation
+    match Query.getPostalCodeInformation postalCode with
+    | Error e -> ConsolePrinter.printErrorMessage e ErrorLog.writeException
+    | Ok pci ->
+        let numberOfResults = Seq.length pci
 
-    if numberOfResults = 0
-    then
-        printfn "No information found for postal code: \"%s\"" postalCode
-    else
-        ConsolePrinter.printQueryResults postalCode postalCodeInformation numberOfResults
+        if numberOfResults = 0
+        then
+            printfn "No information found for postal code: \"%s\"" postalCode
+        else
+            ConsolePrinter.printQueryResults postalCode pci numberOfResults
+
 
 let updateCountry (countryCode: string) =
     Database.ensureDatabase()
@@ -40,13 +43,7 @@ let updateCountry (countryCode: string) =
         match updateJob with
         | Ok _ -> printfn "Successfully updated country: %s" uppercaseCountryCode
         | Error e ->
-            let innermost = e.GetBaseException()
-            do ErrorLog.writeException innermost
-            match innermost with
-            | :? SQLiteException ->
-                printfn "Problem with the database. Please try again. If the problem persists, try running \"witw --cleardatabase\" to start fresh."
-            | _ ->
-                printfn "Following error occured: %s Please try again. If the problem persists, please report the error along with the latest error log from %s" e.Message Models.baseDirectory
+            ConsolePrinter.printErrorMessage e ErrorLog.writeException
 
 let parser = ArgumentParser.Create<Arguments>(programName = "witw")
 
@@ -84,8 +81,12 @@ let main argv =
                     | Available ->
                         Database.ensureDatabase()
                         match Query.getAvailableCountries () with
-                        | None -> printfn "No countries have been updated yet"
-                        | Some c -> ConsolePrinter.printCountries c
+                        | Ok countries ->
+                            match countries with
+                            | None -> printfn "No countries have been updated yet"
+                            | Some c -> ConsolePrinter.printCountries c
+                        | Error e ->
+                            ConsolePrinter.printErrorMessage e ErrorLog.writeException
             elif hasClearDatabase
             then
                 Database.clearDatabase()

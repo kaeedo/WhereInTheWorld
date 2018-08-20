@@ -1,8 +1,11 @@
 namespace WhereInTheWorld
 
 open System
-open WhereInTheWorld.Utilities.Models
+open System.Data.SQLite
+
 open Hopac
+
+open WhereInTheWorld.Utilities.Models
 
 module ConsolePrinter =
     let downloadStatusPrinter channel =
@@ -72,3 +75,12 @@ module ConsolePrinter =
             printfn "%4sIn Country: %s (%s)" String.Empty pci.CountryName pci.CountryCode
             printfn "%s" <| String.replicate 25 "-"
         )
+
+    let printErrorMessage (e: exn) errorWriter =
+        let innermost = e.GetBaseException()
+        do errorWriter innermost
+        match innermost with
+        | :? SQLiteException ->
+            printfn "Problem with the database. Please try again. If the problem persists, try running \"witw --cleardatabase\" to start fresh."
+        | _ ->
+            printfn "Following error occured: %s Please try again. If the problem persists, please report the error along with the latest error log from %s" e.Message baseDirectory

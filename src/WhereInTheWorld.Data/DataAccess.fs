@@ -1,10 +1,12 @@
 namespace WhereInTheWorld.Data
 
-open Dapper
 open System
 open System.IO
-open Hopac
 open System.Data.SQLite
+
+open Dapper
+open Hopac
+
 open WhereInTheWorld.Utilities
 open WhereInTheWorld.Utilities.Models
 
@@ -35,7 +37,7 @@ module Database =
         then File.Delete(databaseFile)
 
     let ensureDatabase () =
-        if not (File.Exists(databaseFile)) // or tables don't exist
+        if not (File.Exists(databaseFile))
         then
             SQLiteConnection.CreateFile(databaseFile)
             let connection = safeSqlConnection connectionString
@@ -49,14 +51,18 @@ module Query =
         let sql = IoUtilities.getEmbeddedResource "WhereInTheWorld.Data.sqlScripts.queryCountry.sql"
 
         let connection = Database.safeSqlConnection Database.connectionString
-        connection.Open()
-        let results =
-            connection.Query<Country>(sql)
-            |> Seq.map (fun c -> c.Code, c.Name)
-            |> Map.ofSeq
-            |> fun m -> if m |> Map.isEmpty then None else Some m
-        connection.Close()
-        results
+
+        try
+            connection.Open()
+            let results =
+                connection.Query<Country>(sql)
+                |> Seq.map (fun c -> c.Code, c.Name)
+                |> Map.ofSeq
+                |> fun m -> if m |> Map.isEmpty then None else Some m
+            connection.Close()
+            Result.Ok results
+        with
+        | _ as e -> Result.Error e
 
     let getPostalCodeInformation (postalCodeInput: string) =
         let sanitizedInput = postalCodeInput.Replace(" ", String.Empty).ToUpper()
@@ -84,7 +90,10 @@ module Query =
                     queryUntilMatch newInput
                 else results
 
-        queryUntilMatch sanitizedInput
+        try
+            Result.Ok (queryUntilMatch sanitizedInput)
+        with
+        | _ as e -> Result.Error e
 
 
 module DataAccess =

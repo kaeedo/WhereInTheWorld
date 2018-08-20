@@ -1,12 +1,12 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <!-- <PackAsTool>true</PackAsTool> -->
+    <PackAsTool>true</PackAsTool>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp2.1</TargetFramework>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
-    <!-- <ToolCommandName>witw</ToolCommandName>
-    <Version>1.0.2-dev07</Version> -->
+    <ToolCommandName>witw</ToolCommandName>
+    <Version>1.0.2-dev07</Version>
   </PropertyGroup>
   <PropertyGroup>
     <ServerGarbageCollection>true</ServerGarbageCollection>
