@@ -82,8 +82,10 @@ let main argv =
                     match list with
                     | Supported -> ConsolePrinter.printCountries DataDownload.supportedCountries
                     | Available ->
-                        Query.getAvailableCountries ()
-                        |> Option.iter ConsolePrinter.printCountries
+                        Database.ensureDatabase()
+                        match Query.getAvailableCountries () with
+                        | None -> printfn "No countries have been updated yet"
+                        | Some c -> ConsolePrinter.printCountries c
             elif hasClearDatabase
             then
                 Database.clearDatabase()

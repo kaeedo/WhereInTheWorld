@@ -35,7 +35,7 @@ module Database =
         then File.Delete(databaseFile)
 
     let ensureDatabase () =
-        if not (File.Exists(databaseFile))
+        if not (File.Exists(databaseFile)) // or tables don't exist
         then
             SQLiteConnection.CreateFile(databaseFile)
             let connection = safeSqlConnection connectionString
@@ -54,7 +54,7 @@ module Query =
             connection.Query<Country>(sql)
             |> Seq.map (fun c -> c.Code, c.Name)
             |> Map.ofSeq
-            |> Some
+            |> fun m -> if m |> Map.isEmpty then None else Some m
         connection.Close()
         results
 
