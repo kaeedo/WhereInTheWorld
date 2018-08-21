@@ -23,3 +23,21 @@ module ArgumentParser =
                 | List _ -> "List available or all supported countries"
                 | ClearDatabase -> "Clear the local database to start anew"
                 | Info -> "Show information about WhereInTheWorld"
+
+    let (|ShowInformation|HasPostalCode|UpdateCountry|ListAvailable|ListSupported|HasClearDatabase|HelpRequested|) (input: ParseResults<Arguments>) =
+        if input.Contains Info then ShowInformation
+        elif input.Contains PostalCode then HasPostalCode
+        elif input.Contains Update then UpdateCountry
+        elif input.Contains List
+        then
+            let listRequest = input.GetResult List
+            let isAvailableRequest = listRequest |> Option.exists (fun l -> l = Available)
+            let isSupportedRequest = listRequest |> Option.exists (fun l -> l = Supported)
+
+            if not isAvailableRequest && not isSupportedRequest
+            then HelpRequested
+            elif isAvailableRequest
+            then ListAvailable
+            else ListSupported
+        elif input.Contains ClearDatabase then HasClearDatabase
+        else HelpRequested

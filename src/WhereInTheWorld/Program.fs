@@ -59,42 +59,25 @@ let main argv =
         if argv |> Seq.isEmpty || arguments.IsUsageRequested
         then printfn "%s" <| parser.PrintUsage()
         else
-            let hasInfo = arguments.Contains Info
-            let hasPostalCode = arguments.Contains PostalCode
-            let hasUpdate = arguments.Contains Update
-            let hasList = arguments.Contains List
-            let hasClearDatabase = arguments.Contains ClearDatabase
-
-            if hasInfo
-            then printfn "info"
-            elif hasPostalCode && hasUpdate
-            then printfn "%s" <| parser.PrintUsage()
-            elif hasPostalCode && not hasUpdate
-            then getPostalCodeInformation <| arguments.GetResult PostalCode
-            elif hasList
-            then
-                match arguments.GetResult List with
-                | None -> printfn "%s" <| parser.PrintUsage()
-                | Some list ->
-                    match list with
-                    | Supported -> ConsolePrinter.printCountries DataDownload.supportedCountries
-                    | Available ->
-                        Database.ensureDatabase()
-                        match Query.getAvailableCountries () with
-                        | Ok countries ->
-                            match countries with
-                            | None -> printfn "No countries have been updated yet"
-                            | Some c -> ConsolePrinter.printCountries c
-                        | Error e ->
-                            ConsolePrinter.printErrorMessage e ErrorLog.writeException
-            elif hasClearDatabase
-            then
-                Database.clearDatabase()
-            elif not hasPostalCode && hasUpdate
-            then
+            match arguments with
+            | ShowInformation -> printfn "info"
+            | HasPostalCode -> getPostalCodeInformation <| arguments.GetResult PostalCode
+            | UpdateCountry ->
                 match arguments.GetResult Update with
                 | None -> printfn "%s" <| parser.PrintUsage()
                 | Some countryCode ->
                     updateCountry countryCode
+            | ListAvailable ->
+                Database.ensureDatabase()
+                match Query.getAvailableCountries () with
+                | Ok countries ->
+                    match countries with
+                    | None -> printfn "No countries have been updated yet"
+                    | Some c -> ConsolePrinter.printCountries c
+                | Error e ->
+                    ConsolePrinter.printErrorMessage e ErrorLog.writeException
+            | ListSupported -> ConsolePrinter.printCountries DataDownload.supportedCountries
+            | HasClearDatabase -> Database.clearDatabase()
+            | _ -> printfn "%s" <| parser.PrintUsage()
 
     0
