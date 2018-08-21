@@ -1,6 +1,5 @@
 ﻿open Argu
 open System.IO
-open System.Data.SQLite
 open WhereInTheWorld
 open WhereInTheWorld.ArgumentParser
 open WhereInTheWorld.Data
@@ -13,6 +12,7 @@ let ensureCleanDirectory () =
     Directory.EnumerateFiles(Models.baseDirectory)
     |> Seq.filter (fun f -> f.EndsWith("zip") || f.EndsWith("txt"))
     |> Seq.iter File.Delete
+
 let getPostalCodeInformation postalCode =
     Database.ensureDatabase()
     match Query.getPostalCodeInformation postalCode with
@@ -25,7 +25,6 @@ let getPostalCodeInformation postalCode =
             printfn "No information found for postal code: \"%s\"" postalCode
         else
             ConsolePrinter.printQueryResults postalCode pci numberOfResults
-
 
 let updateCountry (countryCode: string) =
     Database.ensureDatabase()
