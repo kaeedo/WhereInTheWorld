@@ -24,9 +24,9 @@ module ArgumentParser =
                 | ClearDatabase -> "Clear the local database to start anew"
                 | Info -> "Show information about WhereInTheWorld"
 
-    let (|ShowInformation|HasPostalCode|UpdateCountry|ListAvailable|ListSupported|HasClearDatabase|HelpRequested|) (input: ParseResults<Arguments>) =
+    let (|ShowInformation|HasQuery|UpdateCountry|ListAvailable|ListSupported|HasClearDatabase|HelpRequested|) (input: ParseResults<Arguments>) =
         if input.Contains Info then ShowInformation
-        elif input.Contains PostalCode then HasPostalCode
+        elif input.Contains PostalCode then HasQuery
         elif input.Contains Update then UpdateCountry
         elif input.Contains List
         then

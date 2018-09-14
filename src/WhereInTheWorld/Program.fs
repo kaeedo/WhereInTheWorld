@@ -22,13 +22,11 @@ let getCityInformation (cityName: string) =
     match Query.getCityNameInformation city with
     | Error e -> ConsolePrinter.printErrorMessage e ErrorLog.writeException
     | Ok ci ->
-        let numberOfResults = Seq.length ci
-
-        if numberOfResults = 0
+        if Seq.isEmpty ci
         then
             printfn "No information found for city: \"%s\"" cityName
         else
-            ConsolePrinter.printQueryResults cityName ci numberOfResults
+            ConsolePrinter.printQueryResults cityName ci
     ()
 
 let getPostalCodeInformation postalCode =
@@ -36,13 +34,11 @@ let getPostalCodeInformation postalCode =
     match Query.getPostalCodeInformation postalCode with
     | Error e -> ConsolePrinter.printErrorMessage e ErrorLog.writeException
     | Ok pci ->
-        let numberOfResults = Seq.length pci
-
-        if numberOfResults = 0
+        if Seq.isEmpty pci
         then
             printfn "No information found for postal code: \"%s\"" postalCode
         else
-            ConsolePrinter.printQueryResults postalCode pci numberOfResults
+            ConsolePrinter.printQueryResults postalCode pci
 
 let queryDatabase input =
     let isPostalCode =
@@ -87,7 +83,7 @@ let main argv =
         else
             match arguments with
             | ShowInformation -> printfn "Current version: %s Latest version: %s" "" ""
-            | HasPostalCode -> queryDatabase <| arguments.GetResult PostalCode
+            | HasQuery -> queryDatabase <| arguments.GetResult PostalCode
             | UpdateCountry ->
                 match arguments.GetResult Update with
                 | None -> printfn "%s" <| parser.PrintUsage()

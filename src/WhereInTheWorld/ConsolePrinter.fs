@@ -6,6 +6,7 @@ open System.Data.SQLite
 open Hopac
 
 open WhereInTheWorld.Utilities.Models
+open System.Text
 
 module ConsolePrinter =
     let downloadStatusPrinter channel =
@@ -49,29 +50,51 @@ module ConsolePrinter =
         )
         printfn "%s" <| String.replicate (longestCountryLength + 9) "-"
 
-    let printQueryResults postalCode (postalCodeInformation: PostalCodeInformation seq) numberOfResults =
+    let printQueryResults postalCode (postalCodeInformation: PostalCodeInformation seq) =
+        let places =
+            postalCodeInformation
+            |> Seq.groupBy (fun information ->
+                (information.PlaceName, information.SubdivisionCode, information.CountryCode)
+            )
+
+        let numberOfResults = places |> Seq.length
         printfn "Information about \"%s\" (found %i %s):" postalCode numberOfResults (if numberOfResults = 1 then "result" else "results")
         printfn "%s" <| String.replicate 50 "-"
-        postalCodeInformation
-        |> Seq.iter (fun pci ->
-            printfn "Place name: %s with postal code: %s" pci.PlaceName pci.PostalCode
 
-            if pci.CommunityName.IsSome
+        places
+        |> Seq.iter (fun placeInformation ->
+            let (placeName, _, _) = fst placeInformation
+            let placeInformation = snd placeInformation |> List.ofSeq
+
+            if placeInformation |> Seq.length = 1
             then
-                printf "%4sIn Community: %s" "" pci.CommunityName.Value
-                if pci.CommunityCode.IsSome
-                then printf " (%s)" pci.CommunityCode.Value
+                printfn "Place name: %s with postal code: %s" placeName placeInformation.[0].PostalCode
+            else
+                printfn "Place name: %s has following postal codes:" placeName
+                placeInformation
+                |> Seq.map (fun pc ->
+                    pc.PostalCode
+                )
+                |> String.concat  (", ")
+                |> printfn "%s"
+
+            let allInformation = placeInformation.[0]
+            if allInformation.CommunityName.IsSome
+            then
+                printf "%4sIn Community: %s" "" allInformation.CommunityName.Value
+                if allInformation.CommunityCode.IsSome
+                then printf " (%s)" allInformation.CommunityCode.Value
                 printfn ""
 
-            if pci.CountyName.IsSome
+            if allInformation.CountyName.IsSome
             then
-                printf "%4sIn County: %s" "" pci.CountyName.Value
-                if pci.CountyCode.IsSome
-                then printf " (%s)" pci.CountyCode.Value
+                printf "%4sIn County: %s" "" allInformation.CountyName.Value
+                if allInformation.CountyCode.IsSome
+                then printf " (%s)" allInformation.CountyCode.Value
                 printfn ""
 
-            printfn "%4sWithin Subdivision: %s (%s)" String.Empty pci.SubdivisionName pci.SubdivisionCode
-            printfn "%4sIn Country: %s (%s)" String.Empty pci.CountryName pci.CountryCode
+            printfn "%4sWithin Subdivision: %s (%s)" String.Empty allInformation.SubdivisionName allInformation.SubdivisionCode
+            printfn "%4sIn Country: %s (%s)" String.Empty allInformation.CountryName allInformation.CountryCode
             printfn "%s" <| String.replicate 25 "-"
         )
 

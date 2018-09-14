@@ -7,7 +7,6 @@ There exists a secondary support repository for mirroring zip files from geoname
 
 
 ### TODO
-* Adapt formatter to list just postal codes for duplicate cities
 * Implement version check
 * More unit and integration tests
 * Test on Linux (Someone else needs to test on Mac)
