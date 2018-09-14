@@ -132,6 +132,17 @@ module DataDownload =
           "ZA", "South Africa" ]
         |> Map.ofSeq
 
+    let postalCodeFormats =
+        IoUtilities.getEmbeddedResource "WhereInTheWorld.Data.countryInformationPostalCodes.txt"
+        |> fun t -> t.Split([|Environment.NewLine|], StringSplitOptions.None)
+        |> Seq.filter (fun pc -> not (String.IsNullOrWhiteSpace(pc)))
+        |> Seq.map (fun pc ->
+            let line = pc.Split('\t')
+            line.[0], line.[2]
+        )
+        |> Map.ofSeq
+
+
     let downloadPostalCodesForCountry statusChannel countryCode =
         let workflow = downloadZip >=> Job.lift (saveZip countryCode) >=> Job.lift saveCountryFile
         let workflowResult =

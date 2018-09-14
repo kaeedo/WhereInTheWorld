@@ -54,8 +54,7 @@ module ConsolePrinter =
         printfn "%s" <| String.replicate 50 "-"
         postalCodeInformation
         |> Seq.iter (fun pci ->
-            let foundPostalCode = if pci.PostalCode = postalCode then String.Empty else sprintf " with postal code: %s" pci.PostalCode
-            printfn "Place name: %s%s" pci.PlaceName foundPostalCode
+            printfn "Place name: %s with postal code: %s" pci.PlaceName pci.PostalCode
 
             if pci.CommunityName.IsSome
             then

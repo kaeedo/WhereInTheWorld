@@ -4,6 +4,7 @@ open WhereInTheWorld
 open WhereInTheWorld.ArgumentParser
 open WhereInTheWorld.Data
 open WhereInTheWorld.Utilities
+open System.Text.RegularExpressions
 
 let ensureCleanDirectory () =
     if not (Directory.Exists(Models.baseDirectory))
@@ -12,6 +13,23 @@ let ensureCleanDirectory () =
     Directory.EnumerateFiles(Models.baseDirectory)
     |> Seq.filter (fun f -> f.EndsWith("zip") || f.EndsWith("txt"))
     |> Seq.iter File.Delete
+
+let getCityInformation (cityName: string) =
+    Database.ensureDatabase()
+
+    let city = cityName.Trim('\"')
+
+    match Query.getCityNameInformation city with
+    | Error e -> ConsolePrinter.printErrorMessage e ErrorLog.writeException
+    | Ok ci ->
+        let numberOfResults = Seq.length ci
+
+        if numberOfResults = 0
+        then
+            printfn "No information found for city: \"%s\"" cityName
+        else
+            ConsolePrinter.printQueryResults cityName ci numberOfResults
+    ()
 
 let getPostalCodeInformation postalCode =
     Database.ensureDatabase()
@@ -25,6 +43,15 @@ let getPostalCodeInformation postalCode =
             printfn "No information found for postal code: \"%s\"" postalCode
         else
             ConsolePrinter.printQueryResults postalCode pci numberOfResults
+
+let queryDatabase input =
+    let isPostalCode =
+        DataDownload.postalCodeFormats
+        |> Seq.exists (fun pcf -> Regex.IsMatch(input, pcf.Value))
+
+    if isPostalCode
+    then getPostalCodeInformation input
+    else getCityInformation input
 
 let updateCountry (countryCode: string) =
     Database.ensureDatabase()
@@ -59,8 +86,8 @@ let main argv =
         then printfn "%s" <| parser.PrintUsage()
         else
             match arguments with
-            | ShowInformation -> printfn "info"
-            | HasPostalCode -> getPostalCodeInformation <| arguments.GetResult PostalCode
+            | ShowInformation -> printfn "Current version: %s Latest version: %s" "" ""
+            | HasPostalCode -> queryDatabase <| arguments.GetResult PostalCode
             | UpdateCountry ->
                 match arguments.GetResult Update with
                 | None -> printfn "%s" <| parser.PrintUsage()

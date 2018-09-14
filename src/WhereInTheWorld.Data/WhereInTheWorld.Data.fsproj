@@ -11,7 +11,8 @@
     <EmbeddedResource Include="sqlScripts\insertPostalCodes.sql" />
     <EmbeddedResource Include="sqlScripts\queryCountry.sql" />
     <EmbeddedResource Include="sqlScripts\queryPostalCode.sql" />
-    <EmbeddedResource Include="supportedCountries.txt" />
+    <EmbeddedResource Include="sqlScripts\queryCityName.sql" />
+    <EmbeddedResource Include="countryInformationPostalCodes.txt" />
     <None Include="paket.references" />
     <Compile Include="DataImport.fs" />
     <Compile Include="DataDownload.fs" />

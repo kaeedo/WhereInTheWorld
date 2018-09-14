@@ -64,6 +64,25 @@ module Query =
         with
         | _ as e -> Result.Error e
 
+    let getCityNameInformation (cityName: string) =
+        let sanitizedInput = cityName.Replace(" ", String.Empty).ToUpper()
+
+        let query (input: string) =
+            let sql = IoUtilities.getEmbeddedResource "WhereInTheWorld.Data.sqlScripts.queryCityName.sql"
+
+            let connection = Database.safeSqlConnection Database.connectionString
+            connection.Open()
+            let results = connection.Query<PostalCodeInformation>(sql, dict ["Input", box input])
+            connection.Close()
+
+            results
+            |> List.ofSeq
+
+        try
+            Result.Ok (query sanitizedInput)
+        with
+        | _ as e -> Result.Error e
+
     let getPostalCodeInformation (postalCodeInput: string) =
         let sanitizedInput = postalCodeInput.Replace(" ", String.Empty).ToUpper()
 
