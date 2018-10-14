@@ -8,8 +8,8 @@ open Xunit
 open Swensen.Unquote
 
 open WhereInTheWorld.Data
-open WhereInTheWorld.Utilities.ResultUtilities
 open WhereInTheWorld.Utilities.Models
+open WhereInTheWorld.Utilities.ResultUtilities
 
 [<Collection("IntegrationTest")>]
 type DatabaseTests() =
@@ -46,7 +46,7 @@ type DatabaseTests() =
         """
 
         let expected = 
-            [ { Code = "DE"; Name = "Germany" }
+            [ { Country.Code = "DE"; Name = "Germany" }
               { Code = "US"; Name = "United States of America" } ]
 
         executeScript insertCountriesSql expected
@@ -76,3 +76,54 @@ type DatabaseTests() =
         let countries = Query.getAvailableCountries()
 
         test <@ countries.IsError @>
+
+    [<Fact>]
+    member __.``When querying for city names when exist should return city`` () =
+        Database.ensureDatabase()
+
+        let sql = """
+        INSERT OR IGNORE INTO Country(Code, Name)
+        VALUES(@countryCode, @countryName);
+
+        INSERT OR IGNORE INTO Subdivision(CountryId, Name, Code)
+        VALUES ((SELECT Id FROM Country WHERE Code = @countryCode), @subdivisionName, @subdivisionCode);
+
+        INSERT OR IGNORE INTO PostalCode(
+            PostalCode,
+            PlaceName,
+            SubdivisionId,
+            CountyName,
+            CountyCode,
+            CommunityName,
+            CommunityCode)
+        VALUES (
+            @postalCode,
+            @placeName,
+            (SELECT Id FROM Subdivision WHERE Code = @subdivisionCode),
+            @countyName,
+            @countyCode,
+            @communityName,
+            @communityCode)
+        """
+        let expected =
+            [ { PostalCodeInformation.CountryCode = "DE"
+                CountryName = "Deutschland"
+                PostalCode = "10243"
+                PlaceName = "Berlin"
+                SubdivisionCode = ""
+                SubdivisionName = ""
+                CountyName = None
+                CountyCode = None
+                CommunityName = None
+                CommunityCode = None } ]
+
+        executeScript sql expected
+
+        let result = Query.getCityNameInformation "berlin"
+
+        test <@ result.IsOk @>
+        test <@ result.OkValue.Length = 1 @>
+        
+        let actual = result.OkValue.Head
+
+        test <@ actual.PlaceName = "Berlin" @>
