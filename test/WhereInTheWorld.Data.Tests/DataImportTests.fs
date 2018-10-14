@@ -10,6 +10,7 @@ open WhereInTheWorld.Utilities.IoUtilities
 open WhereInTheWorld.Utilities.Models
 open WhereInTheWorld.Utilities.ResultUtilities
 
+[<Collection("IntegrationTest")>]
 type DataImportTests() =
     let createTestImportFile fileName =
         Directory.CreateDirectory(baseDirectory) |> ignore
@@ -17,7 +18,8 @@ type DataImportTests() =
         File.Move(baseDirectory @@ fileName, baseDirectory @@ "AD.txt")
 
     interface IDisposable with
-        member __.Dispose() = File.Delete(baseDirectory @@ "AD.txt")
+        member __.Dispose() =
+            File.Delete(baseDirectory @@ "AD.txt")
 
     [<Fact>]
     member __.``Reading from valid file should give Ok result`` () =

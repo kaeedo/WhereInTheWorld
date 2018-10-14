@@ -11,6 +11,7 @@ open WhereInTheWorld.Data
 open WhereInTheWorld.Utilities.ResultUtilities
 open WhereInTheWorld.Utilities.Models
 
+[<Collection("IntegrationTest")>]
 type DatabaseTests() =
     do if File.Exists(databaseFile) then File.Delete(databaseFile)
 

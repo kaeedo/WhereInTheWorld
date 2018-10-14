@@ -9,11 +9,11 @@ open WhereInTheWorld.Utilities.Models
 open WhereInTheWorld.Utilities.ResultUtilities
 open System
 open Foq
-open Xunit.Abstractions
 
 type IWork =
     abstract member DoWork: 'a -> unit
 
+[<Collection("IntegrationTest")>]
 type DataDownloadTests() =
     let verifier (printer: IWork) message =
         job {
