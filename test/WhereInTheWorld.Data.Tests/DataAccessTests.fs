@@ -81,30 +81,8 @@ type DatabaseTests() =
     member __.``When querying for city names when exist should return city`` () =
         Database.ensureDatabase()
 
-        let sql = """
-        INSERT OR IGNORE INTO Country(Code, Name)
-        VALUES(@countryCode, @countryName);
+        let sql = WhereInTheWorld.Utilities.IoUtilities.getEmbeddedResource "WhereInTheWorld.Data.Tests.sqlScripts.insertPostalCodes.sql"
 
-        INSERT OR IGNORE INTO Subdivision(CountryId, Name, Code)
-        VALUES ((SELECT Id FROM Country WHERE Code = @countryCode), @subdivisionName, @subdivisionCode);
-
-        INSERT OR IGNORE INTO PostalCode(
-            PostalCode,
-            PlaceName,
-            SubdivisionId,
-            CountyName,
-            CountyCode,
-            CommunityName,
-            CommunityCode)
-        VALUES (
-            @postalCode,
-            @placeName,
-            (SELECT Id FROM Subdivision WHERE Code = @subdivisionCode),
-            @countyName,
-            @countyCode,
-            @communityName,
-            @communityCode)
-        """
         let expected =
             [ { PostalCodeInformation.CountryCode = "DE"
                 CountryName = "Deutschland"

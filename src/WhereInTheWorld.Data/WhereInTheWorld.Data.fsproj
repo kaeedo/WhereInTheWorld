@@ -19,8 +19,5 @@
     <Compile Include="DataAccess.fs" />
     <Compile Include="UpdateProcess.fs" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include=".\" />
-  </ItemGroup>
   <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>
