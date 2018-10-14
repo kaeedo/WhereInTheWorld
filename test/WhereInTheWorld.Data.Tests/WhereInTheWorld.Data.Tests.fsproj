@@ -1,26 +1,26 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
-    <PropertyGroup>
-        <OutputType>Exe</OutputType>
-        <TargetFramework>netcoreapp2.1</TargetFramework>
-    </PropertyGroup>
-    <ItemGroup>
-        <Content Include="ADbad.txt">
-            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-        </Content>
-        <Content Include="AD.txt">
-            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-        </Content>
-        <Content Include="applicationConfig.json">
-            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-        </Content>
-        <None Include="paket.references" />
-        <Compile Include="DataImportTests.fs" />
-        <Compile Include="DataDownloadTests.fs" />
-    </ItemGroup>
-    <ItemGroup>
-        <ProjectReference Include="..\..\src\WhereInTheWorld.Data\WhereInTheWorld.Data.fsproj" />
-        <ProjectReference Include="..\..\src\WhereInTheWorld.Utilities\WhereInTheWorld.Utilities.fsproj" />
-    </ItemGroup>
-    <Import Project="..\..\.paket\Paket.Restore.targets" />
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\WhereInTheWorld.Data\WhereInTheWorld.Data.fsproj" />
+    <ProjectReference Include="..\..\src\WhereInTheWorld.Utilities\WhereInTheWorld.Utilities.fsproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="ADbad.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="AD.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="applicationConfig.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <None Include="paket.references" />
+    <Compile Include="DataImportTests.fs" />
+    <Compile Include="DataDownloadTests.fs" />
+    <Compile Include="DataAccessTests.fs" />
+  </ItemGroup>
+  <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>

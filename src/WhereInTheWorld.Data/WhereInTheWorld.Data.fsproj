@@ -6,7 +6,6 @@
     <ProjectReference Include="..\WhereInTheWorld.Utilities\WhereInTheWorld.Utilities.fsproj" />
   </ItemGroup>
   <ItemGroup>
-    <None Include=".\world.db" />
     <EmbeddedResource Include="sqlScripts\createTables.sql" />
     <EmbeddedResource Include="sqlScripts\insertPostalCodes.sql" />
     <EmbeddedResource Include="sqlScripts\queryCountry.sql" />
@@ -19,6 +18,9 @@
     <Compile Include="DataDownload.fs" />
     <Compile Include="DataAccess.fs" />
     <Compile Include="UpdateProcess.fs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include=".\" />
   </ItemGroup>
   <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>

@@ -12,6 +12,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{B6B6D7DE-695D-4D4A-8DB3-BDC47C04C6C2}"
 	ProjectSection(SolutionItems) = preProject
 		build.fsx = build.fsx
+		global.json = global.json
 		LICENSE.md = LICENSE.md
 		paket.dependencies = paket.dependencies
 		README.md = README.md

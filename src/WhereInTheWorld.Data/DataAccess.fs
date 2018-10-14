@@ -39,6 +39,8 @@ module Database =
     let ensureDatabase () =
         if not (File.Exists(databaseFile))
         then
+            let file = new FileInfo(databaseFile)
+            file.Directory.Create()
             SQLiteConnection.CreateFile(databaseFile)
             let connection = safeSqlConnection connectionString
             connection.Open()

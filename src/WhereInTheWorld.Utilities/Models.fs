@@ -22,7 +22,7 @@ module Models =
         then homeDirectory @@ "test"
         else homeDirectory
 
-    let databaseFile = baseDirectory @@ if isTest then "test" else String.Empty @@ "world.db"
+    let databaseFile = baseDirectory @@ "world.db"
 
     [<CLIMutable>]
     type Country =
