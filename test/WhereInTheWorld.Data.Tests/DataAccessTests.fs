@@ -10,6 +10,7 @@ open Swensen.Unquote
 open WhereInTheWorld.Data
 open WhereInTheWorld.Utilities.Models
 open WhereInTheWorld.Utilities.ResultUtilities
+open Hopac
 
 [<Collection("IntegrationTest")>]
 type DatabaseTests() =
@@ -103,5 +104,61 @@ type DatabaseTests() =
         test <@ result.OkValue.Length = 1 @>
         
         let actual = result.OkValue.Head
+
+        test <@ actual.PlaceName = "Berlin" @>
+
+    [<Fact>]
+    member __.``When querying for partial postal codes when exist should return city`` () =
+        Database.ensureDatabase()
+
+        let sql = WhereInTheWorld.Utilities.IoUtilities.getEmbeddedResource "WhereInTheWorld.Data.Tests.sqlScripts.insertPostalCodes.sql"
+
+        let expected =
+            [ { PostalCodeInformation.CountryCode = "DE"
+                CountryName = "Deutschland"
+                PostalCode = "10243"
+                PlaceName = "Berlin"
+                SubdivisionCode = ""
+                SubdivisionName = ""
+                CountyName = None
+                CountyCode = None
+                CommunityName = None
+                CommunityCode = None } ]
+
+        executeScript sql expected
+
+        let result = Query.getPostalCodeInformation "102"
+
+        test <@ result.IsOk @>
+        test <@ result.OkValue.Length = 1 @>
+        
+        let actual = result.OkValue.Head
+
+        test <@ actual.PlaceName = "Berlin" @>
+
+    [<Fact>]
+    member __.``When inserting postal codes should insert`` () =
+        Database.ensureDatabase()
+
+        let expected =
+            [ { PostalCodeInformation.CountryCode = "DE"
+                CountryName = "Deutschland"
+                PostalCode = "10243"
+                PlaceName = "Berlin"
+                SubdivisionCode = ""
+                SubdivisionName = ""
+                CountyName = None
+                CountyCode = None
+                CommunityName = None
+                CommunityCode = None } ]
+
+        DataAccess.insertPostalCodes expected |> run |> ignore
+
+        let inserted = Query.getPostalCodeInformation "10243"
+
+        test <@ inserted.IsOk @>
+        test <@ inserted.OkValue.Length = 1 @>
+        
+        let actual = inserted.OkValue.Head
 
         test <@ actual.PlaceName = "Berlin" @>
