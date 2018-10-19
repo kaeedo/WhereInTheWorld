@@ -1,8 +1,8 @@
 INSERT OR IGNORE INTO Country(Code, Name)
-VALUES(@countryCode, @countryName);
+VALUES(@CountryCode, @CountryName);
 
 INSERT OR IGNORE INTO Subdivision(CountryId, Name, Code)
-VALUES ((SELECT Id FROM Country WHERE Code = @countryCode), @subdivisionName, @subdivisionCode);
+VALUES ((SELECT Id FROM Country WHERE Code = @CountryCode), @SubdivisionName, @SubdivisionCode);
 
 INSERT OR IGNORE INTO PostalCode(
     PostalCode,
@@ -13,10 +13,10 @@ INSERT OR IGNORE INTO PostalCode(
     CommunityName,
     CommunityCode)
 VALUES (
-    @postalCode,
-    @placeName,
-    (SELECT Id FROM Subdivision WHERE Code = @subdivisionCode),
-    @countyName,
-    @countyCode,
-    @communityName,
-    @communityCode)
+    @PostalCode,
+    @PlaceName,
+    (SELECT Id FROM Subdivision WHERE Code = @SubdivisionCode),
+    @CountyName,
+    @CountyCode,
+    @CommunityName,
+    @CommunityCode)

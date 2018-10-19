@@ -27,7 +27,7 @@ type DatabaseTests() =
         connection.Close()
 
     interface IDisposable with
-        member __.Dispose() = 
+        member __.Dispose() =
             if Directory.Exists(baseDirectory)
             then Directory.Delete(baseDirectory, true)
 
@@ -43,10 +43,10 @@ type DatabaseTests() =
 
         let insertCountriesSql = """
         INSERT OR IGNORE INTO Country(Code, Name)
-        VALUES(@code, @name);
+        VALUES(@Code, @Name);
         """
 
-        let expected = 
+        let expected =
             [ { Country.Code = "DE"; Name = "Germany" }
               { Code = "US"; Name = "United States of America" } ]
 
@@ -102,7 +102,7 @@ type DatabaseTests() =
 
         test <@ result.IsOk @>
         test <@ result.OkValue.Length = 1 @>
-        
+
         let actual = result.OkValue.Head
 
         test <@ actual.PlaceName = "Berlin" @>
@@ -131,7 +131,7 @@ type DatabaseTests() =
 
         test <@ result.IsOk @>
         test <@ result.OkValue.Length = 1 @>
-        
+
         let actual = result.OkValue.Head
 
         test <@ actual.PlaceName = "Berlin" @>
@@ -158,7 +158,7 @@ type DatabaseTests() =
 
         test <@ inserted.IsOk @>
         test <@ inserted.OkValue.Length = 1 @>
-        
+
         let actual = inserted.OkValue.Head
 
         test <@ actual.PlaceName = "Berlin" @>
