@@ -1,12 +1,11 @@
 namespace WhereInTheWorld
 
 open System
-open System.Data.SQLite
 open Microsoft.FSharp.Core.Printf
+open Microsoft.Data.Sqlite
 open Hopac
 
 open WhereInTheWorld.Utilities.Models
-open System.IO
 
 module ConsolePrinter =
     let downloadStatusPrinter channel =
@@ -102,7 +101,7 @@ module ConsolePrinter =
         let innermost = e.GetBaseException()
         do errorLog innermost
         match innermost with
-        | :? SQLiteException ->
+        | :? SqliteException ->
             printfn "Problem with the database. Please try again. If the problem persists, try running \"witw --cleardatabase\" to start fresh."
         | _ ->
             printfn "Following error occured: %s Please try again. If the problem persists, please report the error along with the latest error log from %s" e.Message baseDirectory

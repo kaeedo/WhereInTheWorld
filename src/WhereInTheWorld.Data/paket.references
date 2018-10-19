@@ -1,5 +1,5 @@
 ﻿FSharp.Core
 Hopac
 
-System.Data.SQLite.Core
+Microsoft.Data.Sqlite
 Dapper

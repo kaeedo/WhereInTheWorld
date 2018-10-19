@@ -9,8 +9,7 @@ nuget Fake.DotNet.AssemblyInfoFile
 nuget Fake.DotNet.MSBuild
 nuget Fake.Core.Target
 nuget Fake.Core.ReleaseNotes
-nuget Fake.Core.Xml
-"
+nuget Fake.Core.Xml //"
 #load "./.fake/build.fsx/intellisense.fsx"
 
 open System.IO

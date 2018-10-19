@@ -5,5 +5,5 @@ xunit.runner.visualstudio
 Microsoft.NET.Test.Sdk
 Hopac
 Foq
-System.Data.SQLite.Core
+Microsoft.Data.Sqlite
 Dapper

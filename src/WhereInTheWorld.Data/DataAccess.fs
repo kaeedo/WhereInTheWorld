@@ -2,7 +2,7 @@ namespace WhereInTheWorld.Data
 
 open System
 open System.IO
-open System.Data.SQLite
+open Microsoft.Data.Sqlite
 
 open Dapper
 open Hopac
@@ -24,13 +24,13 @@ type OptionHandler<'T>() =
         else Some (value :?> 'T)
 
 module Database =
-    let connectionString = sprintf "Data Source=%s;Version=3" databaseFile
+    let connectionString = sprintf "Data Source=%s" databaseFile
 
     let safeSqlConnection (connectionString: string) =
         SqlMapper.AddTypeHandler (OptionHandler<float>())
         SqlMapper.AddTypeHandler (OptionHandler<int>())
         SqlMapper.AddTypeHandler (OptionHandler<string>())
-        new SQLiteConnection(connectionString)
+        new SqliteConnection(connectionString)
 
     let clearDatabase () =
         if File.Exists(databaseFile)
@@ -41,7 +41,7 @@ module Database =
         then
             let file = new FileInfo(databaseFile)
             file.Directory.Create()
-            SQLiteConnection.CreateFile(databaseFile)
+            // SqliteConnection.Create(databaseFile)
             let connection = safeSqlConnection connectionString
             connection.Open()
             let sql = IoUtilities.getEmbeddedResource "WhereInTheWorld.Data.sqlScripts.createTables.sql"

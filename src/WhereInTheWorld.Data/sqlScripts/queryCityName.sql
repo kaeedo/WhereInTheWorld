@@ -12,4 +12,4 @@ SELECT
 FROM PostalCode pc
 JOIN Subdivision s on pc.SubdivisionId = s.Id
 JOIN Country c on s.CountryId = c.Id
-WHERE UPPER(REPLACE(pc.PlaceName, ' ', '')) like @input || '%'
+WHERE UPPER(REPLACE(pc.PlaceName, ' ', '')) like @Input || '%'
