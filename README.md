@@ -9,4 +9,3 @@ There exists a secondary support repository for mirroring zip files from geoname
 ### TODO
 * Implement version check
 * More unit and integration tests
-* Test on Linux (Someone else needs to test on Mac)

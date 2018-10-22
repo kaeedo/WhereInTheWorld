@@ -15,25 +15,17 @@
     <CollectSQLiteInteropFiles>false</CollectSQLiteInteropFiles>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\src\WhereInTheWorld.Data\WhereInTheWorld.Data.fsproj" />
-    <ProjectReference Include="..\..\src\WhereInTheWorld.Utilities\WhereInTheWorld.Utilities.fsproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="xunit.runner.json" />
-    <EmbeddedResource Include="sqlScripts\insertPostalCodes.sql" />
-    <Content Include="ADbad.txt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="AD.txt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
     <Content Include="applicationConfig.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="xunit.runner.json" />
     <None Include="paket.references" />
-    <Compile Include="DataImportTests.fs" />
-    <Compile Include="DataDownloadTests.fs" />
-    <Compile Include="DataAccessTests.fs" />
+    <Compile Include="EndToEndTests.fs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\WhereInTheWorld.Data\WhereInTheWorld.Data.fsproj" />
+    <ProjectReference Include="..\..\src\WhereInTheWorld.Utilities\WhereInTheWorld.Utilities.fsproj" />
+    <ProjectReference Include="..\..\src\WhereInTheWorld\WhereInTheWorld.fsproj" />
   </ItemGroup>
   <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>

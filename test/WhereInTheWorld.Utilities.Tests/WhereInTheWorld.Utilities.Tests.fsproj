@@ -9,6 +9,7 @@
     <WarningsAsErrors>FS0025</WarningsAsErrors>
   </PropertyGroup>
   <ItemGroup>
+    <Content Include="xunit.runner.json" />
     <Content Include="applicationConfig.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
