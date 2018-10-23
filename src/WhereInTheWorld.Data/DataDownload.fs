@@ -49,12 +49,6 @@ module DataDownload =
         |> IoUtilities.parseTsv
         |> Map.ofSeq
 
-    let postalCodeFormats =
-        IoUtilities.getEmbeddedResource "WhereInTheWorld.Data.countryInformationPostalCodes.tsv"
-        |> IoUtilities.parseTsv
-        |> Map.ofSeq
-
-
     let downloadPostalCodesForCountry statusChannel countryCode =
         let workflow = downloadZip >=> Job.lift (saveZip countryCode) >=> Job.lift saveCountryFile
         let workflowResult =

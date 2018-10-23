@@ -43,3 +43,44 @@ type EndToEndTests() =
         let countries = Query.getAvailableCountries()
 
         test <@ countries.IsError @>
+
+    [<Fact>]
+    member __.``When country with full postal codes exists, should query correctly`` () =
+        Main.updateCountry "us"
+
+        let postalCodeResult = Main.queryDatabase "16629"
+        let cityNameResult = Main.queryDatabase "\"Embarrass\""
+
+        test <@ postalCodeResult.IsOk @>
+        test <@ postalCodeResult.OkValue.[0].PlaceName = "Coupon" @>
+
+        test <@ cityNameResult.IsOk @>
+        test <@ cityNameResult.OkValue.[0].PostalCode = "55732" @>
+
+    [<Fact>]
+    member __.``When country with partial postal codes exists, should query postal codes correctly`` () =
+        Main.updateCountry "ca"
+
+        let result = Main.queryDatabase "H0H0H0"
+
+        test <@ result.IsOk @>
+        test <@ result.OkValue.[0].PlaceName = "Reserved (Santa Claus)" @>
+
+    [<Fact>]
+    member __.``When country with partial postal codes exists, should query partial postal codes correctly`` () =
+        Main.updateCountry "ca"
+
+        let result = Main.queryDatabase "H0H"
+
+        test <@ result.IsOk @>
+        test <@ result.OkValue.[0].PlaceName = "Reserved (Santa Claus)" @>
+
+    [<Fact>]
+    member __.``When country with partial postal codes exists, should city name correctly`` () =
+        Main.updateCountry "ca"
+
+        let result = Main.queryDatabase "\"Toronto\""
+
+        test <@ result.IsOk @>
+        test <@ result.OkValue.[0].CountyName.Value = "Toronto" @>
+

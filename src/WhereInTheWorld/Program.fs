@@ -17,40 +17,16 @@ module Main =
         |> Seq.filter (fun f -> f.EndsWith("zip") || f.EndsWith("txt"))
         |> Seq.iter File.Delete
 
-    let getCityInformation (cityName: string) =
+    let queryDatabase (input: string) =
         Database.ensureDatabase()
-
-        let city = cityName.Trim('\"')
-
-        match Query.getCityNameInformation city with
-        | Error e -> ConsolePrinter.printErrorMessage e ErrorLog.writeException
-        | Ok ci ->
-            if Seq.isEmpty ci
-            then
-                printfn "No information found for city: \"%s\"" cityName
-            else
-                ConsolePrinter.printQueryResults cityName ci
-        ()
-
-    let getPostalCodeInformation postalCode =
-        Database.ensureDatabase()
-        match Query.getPostalCodeInformation postalCode with
-        | Error e -> ConsolePrinter.printErrorMessage e ErrorLog.writeException
-        | Ok pci ->
-            if Seq.isEmpty pci
-            then
-                printfn "No information found for postal code: \"%s\"" postalCode
-            else
-                ConsolePrinter.printQueryResults postalCode pci
-
-    let queryDatabase input =
-        let isPostalCode =
-            DataDownload.postalCodeFormats
-            |> Seq.exists (fun pcf -> Regex.IsMatch(input, pcf.Value))
+        
+        let isPostalCode = not (input.Contains('"'))
 
         if isPostalCode
-        then getPostalCodeInformation input
-        else getCityInformation input
+        then Query.getPostalCodeInformation input
+        else
+            let city = input.Trim('\"')
+            Query.getCityNameInformation city
 
     let updateCountry (countryCode: string) =
         Database.ensureDatabase()
@@ -70,7 +46,6 @@ module Main =
             | Error e ->
                 ConsolePrinter.printErrorMessage e ErrorLog.writeException
 
-
     [<EntryPoint>]
     let main argv =
         let parser = ArgumentParser.Create<Arguments>(programName = "witw")
@@ -86,7 +61,17 @@ module Main =
             else
                 match arguments with
                 | ShowInformation -> printfn "Current version: %s Latest version: %s" "" ""
-                | HasQuery -> queryDatabase <| arguments.GetResult PostalCode
+                | HasQuery -> 
+                    let input = arguments.GetResult PostalCode
+                    let results = queryDatabase input
+                    match results with
+                    | Error e -> ConsolePrinter.printErrorMessage e ErrorLog.writeException
+                    | Ok information ->
+                        if Seq.isEmpty information
+                        then
+                            printfn "No information found for: \"%s\"" input
+                        else
+                            ConsolePrinter.printQueryResults input information
                 | UpdateCountry ->
                     match arguments.GetResult Update with
                     | None -> printfn "%s" <| parser.PrintUsage()

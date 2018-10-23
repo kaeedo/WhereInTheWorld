@@ -41,7 +41,6 @@ module Database =
         then
             let file = new FileInfo(databaseFile)
             file.Directory.Create()
-            // SqliteConnection.Create(databaseFile)
             let connection = safeSqlConnection connectionString
             connection.Open()
             let sql = IoUtilities.getEmbeddedResource "WhereInTheWorld.Data.sqlScripts.createTables.sql"
