@@ -60,9 +60,8 @@ module Main =
             then printfn "%s" <| parser.PrintUsage()
             else
                 match arguments with
-                | ShowInformation -> printfn "Current version: %s Latest version: %s" "" ""
                 | HasQuery -> 
-                    let input = arguments.GetResult PostalCode
+                    let input = arguments.GetResult SearchQuery
                     let results = queryDatabase input
                     match results with
                     | Error e -> ConsolePrinter.printErrorMessage e ErrorLog.writeException

@@ -8,25 +8,22 @@ type ListOptions =
 
 module ArgumentParser =
     type Arguments =
-    | [<MainCommand>] PostalCode of postalCode: string
+    | [<MainCommand>] SearchQuery of postalCode: string
     | Update of countryCode: string option
     | List of ListOptions option
     | ClearDatabase
-    | Info
 
     with
         interface IArgParserTemplate with
             member s.Usage =
                 match s with
-                | PostalCode _ -> "Postal Code to look up. If the update option is specified, this will be ignored"
+                | SearchQuery _ -> "Postal code. Wrap in quotes to search by city name"
                 | Update _ -> "Update the local database"
                 | List _ -> "List available or all supported countries"
                 | ClearDatabase -> "Clear the local database to start anew"
-                | Info -> "Show information about WhereInTheWorld"
 
-    let (|ShowInformation|HasQuery|UpdateCountry|ListAvailable|ListSupported|HasClearDatabase|HelpRequested|) (input: ParseResults<Arguments>) =
-        if input.Contains Info then ShowInformation
-        elif input.Contains PostalCode then HasQuery
+    let (|HasQuery|UpdateCountry|ListAvailable|ListSupported|HasClearDatabase|HelpRequested|) (input: ParseResults<Arguments>) =
+        if input.Contains SearchQuery then HasQuery
         elif input.Contains Update then UpdateCountry
         elif input.Contains List
         then

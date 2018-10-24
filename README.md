@@ -1,11 +1,49 @@
 # Where in the World
-.net Core Global tool to get information about place from Postal Codes.
+.net Core Global tool to get information about a place either from Postal Codes or city name.
 
 All data acquired from: www.geonames.org licensed under Creative Commons 3
 
 There exists a secondary support repository for mirroring zip files from geonames, as well as creating lists of supported countries and additional information: https://github.com/kaeedo/WhereInTheWorldSupport/
 
+## TODO
+* Fix postal code / city name handling
+* Handle incomplete commands
 
-### TODO
-* Implement version check
-* More unit and integration tests
+# How to use
+
+### Install
+* `dotnet tool install -g WhereInTheWorld`
+
+### Usage
+
+	USAGE: witw [--help] [--update [<countryCode>]] [--list [<supported|available>]]
+				[--cleardatabase] [--info] [<postalCode>]
+
+	SEARCHQUERY:
+
+		<postalCode>          Postal code. Wrap in quotes to search by city name
+
+	OPTIONS:
+
+		--update [<countryCode>]
+							  Update the local database
+		--list [<supported|available>]
+							  List available or all supported countries
+		--cleardatabase       Clear the local database to start anew
+		--help                display this list of options.
+
+
+
+### Examples
+
+    witw --update us
+	witw 10001
+		Information about "10001" (found 1 result):
+		--------------------------------------------------
+		Place name: New York with postal code: 10001
+			In County: New York (061)
+			Within Subdivision: New York (NY)
+			In Country: United States of America (US)
+		-------------------------
+
+	witw "Springfield"
