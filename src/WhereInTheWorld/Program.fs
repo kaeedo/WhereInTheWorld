@@ -6,11 +6,10 @@ open WhereInTheWorld
 open WhereInTheWorld.ArgumentParser
 open WhereInTheWorld.Data
 open WhereInTheWorld.Utilities
-open System.Text.RegularExpressions
 
 module Main =
     let ensureCleanDirectory () =
-        if not (Directory.Exists(Models.baseDirectory))
+        if not (Directory.Exists(Models.baseDirectory)) 
         then Directory.CreateDirectory(Models.baseDirectory) |> ignore
 
         Directory.EnumerateFiles(Models.baseDirectory)
@@ -19,14 +18,8 @@ module Main =
 
     let queryDatabase (input: string) =
         Database.ensureDatabase()
-        
-        let isPostalCode = not (input.Contains('"'))
 
-        if isPostalCode
-        then Query.getPostalCodeInformation input
-        else
-            let city = input.Trim('\"')
-            Query.getCityNameInformation city
+        Query.getSearchResult input
 
     let updateCountry (countryCode: string) =
         Database.ensureDatabase()

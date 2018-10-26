@@ -6,9 +6,11 @@ open Microsoft.Data.Sqlite
 
 open Dapper
 open Hopac
+open Hopac.Infixes
 
 open WhereInTheWorld.Utilities
 open WhereInTheWorld.Utilities.Models
+open WhereInTheWorld.Utilities.ResultUtilities
 
 type OptionHandler<'T>() =
     inherit SqlMapper.TypeHandler<option<'T>>()
@@ -65,6 +67,8 @@ module Query =
         with
         | _ as e -> Result.Error e
 
+    
+
     let getCityNameInformation (cityName: string) =
         let sanitizedInput = cityName.Replace(" ", String.Empty).ToUpper()
 
@@ -114,6 +118,16 @@ module Query =
             Result.Ok (queryUntilMatch sanitizedInput)
         with
         | _ as e -> Result.Error e
+
+    let getSearchResult input =
+        let postalCodeJob = Job.lift getPostalCodeInformation input
+        let cityNameJob = Job.lift getCityNameInformation input
+
+        let postalResult, cityResult = (postalCodeJob <*> cityNameJob) |> run
+        if cityResult.IsOk && cityResult.OkValue.Length > 0 then
+            cityResult
+        else 
+            postalResult
 
 
 module DataAccess =

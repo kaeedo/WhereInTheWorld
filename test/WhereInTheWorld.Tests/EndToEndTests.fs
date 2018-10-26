@@ -49,7 +49,7 @@ type EndToEndTests() =
         Main.updateCountry "us"
 
         let postalCodeResult = Main.queryDatabase "16629"
-        let cityNameResult = Main.queryDatabase "\"Embarrass\""
+        let cityNameResult = Main.queryDatabase "Embarrass"
 
         test <@ postalCodeResult.IsOk @>
         test <@ postalCodeResult.OkValue.[0].PlaceName = "Coupon" @>
@@ -79,8 +79,8 @@ type EndToEndTests() =
     member __.``When country with partial postal codes exists, should city name correctly`` () =
         Main.updateCountry "ca"
 
-        let result = Main.queryDatabase "\"Toronto\""
+        let result = Main.queryDatabase "Asbestos"
 
         test <@ result.IsOk @>
-        test <@ result.OkValue.[0].CountyName.Value = "Toronto" @>
+        test <@ result.OkValue.[0].PlaceName = "Asbestos" @>
 

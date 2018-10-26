@@ -6,7 +6,6 @@ All data acquired from: www.geonames.org licensed under Creative Commons 3
 There exists a secondary support repository for mirroring zip files from geonames, as well as creating lists of supported countries and additional information: https://github.com/kaeedo/WhereInTheWorldSupport/
 
 ## TODO
-* Fix postal code / city name handling
 * Handle incomplete commands
 
 # How to use
