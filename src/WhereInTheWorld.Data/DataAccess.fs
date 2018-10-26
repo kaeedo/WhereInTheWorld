@@ -104,7 +104,7 @@ module Query =
 
         let rec queryUntilMatch (input: string) =
             match input with
-            | _ when input.Length = 3 -> query input
+            | _ when input.Length <= 3 -> query input
             | _ ->
                 let results = query input
 

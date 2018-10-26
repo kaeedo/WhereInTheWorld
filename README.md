@@ -36,6 +36,7 @@ There exists a secondary support repository for mirroring zip files from geoname
 ### Examples
 
     witw --update us
+
 	witw 10001
 		Information about "10001" (found 1 result):
 		--------------------------------------------------
@@ -45,4 +46,12 @@ There exists a secondary support repository for mirroring zip files from geoname
 			In Country: United States of America (US)
 		-------------------------
 
-	witw "Springfield"
+	witw "Casper"
+        Information about "Casper" (found 1 result):
+        --------------------------------------------------
+        Place name: Casper has following postal codes:
+        82601, 82602, 82604, 82605, 82609
+            In County: Natrona (025)
+            Within Subdivision: Wyoming (WY)
+            In Country: United States of America (US)
+        -------------------------
