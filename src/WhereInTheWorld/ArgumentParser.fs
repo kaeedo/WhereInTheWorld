@@ -8,7 +8,7 @@ type ListOptions =
 
 module ArgumentParser =
     type Arguments =
-    | [<MainCommand>] SearchQuery of postalCode: string
+    | [<MainCommand>] SearchQuery of searchQuery: string
     | Update of countryCode: string option
     | List of ListOptions option
     | ClearDatabase
@@ -17,7 +17,7 @@ module ArgumentParser =
         interface IArgParserTemplate with
             member s.Usage =
                 match s with
-                | SearchQuery _ -> "Postal code. Wrap in quotes to search by city name"
+                | SearchQuery _ -> "Search Query. Can be postal code or city name"
                 | Update _ -> "Update the local database"
                 | List _ -> "List available or all supported countries"
                 | ClearDatabase -> "Clear the local database to start anew"
