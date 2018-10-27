@@ -18,11 +18,11 @@ Requires dotnet core >= 2.1
 ### Usage
 
 	USAGE: witw [--help] [--update [<countryCode>]] [--list [<supported|available>]]
-				[--cleardatabase] [--info] [<postalCode>]
+				[--cleardatabase] [<searchQuery>]
 
 	SEARCHQUERY:
 
-		<postalCode>          Postal code. Wrap in quotes to search by city name
+		<searchQuery>          Search Query. Can be postal code or city name
 
 	OPTIONS:
 
