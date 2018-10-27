@@ -1,7 +1,7 @@
 open Fake.DotNet
 
 #r "paket:
-nuget FSharp.Core
+nuget FSharp.Core 4.5.2
 nuget Fake.IO.FileSystem
 nuget Fake.DotNet.Cli
 nuget Fake.DotNet.Paket

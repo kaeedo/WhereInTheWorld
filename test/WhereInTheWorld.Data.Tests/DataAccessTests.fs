@@ -98,7 +98,7 @@ type DatabaseTests() =
 
         executeScript sql expected
 
-        let result = Query.getCityNameInformation "berlin"
+        let result = Query.getCityNameInformation "berlin" |> run
 
         test <@ result.IsOk @>
         test <@ result.OkValue.Length = 1 @>
@@ -127,7 +127,7 @@ type DatabaseTests() =
 
         executeScript sql expected
 
-        let result = Query.getPostalCodeInformation "102"
+        let result = Query.getPostalCodeInformation "102" |> run
 
         test <@ result.IsOk @>
         test <@ result.OkValue.Length = 1 @>
@@ -154,7 +154,7 @@ type DatabaseTests() =
 
         DataAccess.insertPostalCodes expected |> run |> ignore
 
-        let inserted = Query.getPostalCodeInformation "10243"
+        let inserted = Query.getPostalCodeInformation "10243" |> run
 
         test <@ inserted.IsOk @>
         test <@ inserted.OkValue.Length = 1 @>

@@ -52,10 +52,27 @@ type EndToEndTests() =
         let cityNameResult = Main.queryDatabase "Embarrass"
 
         test <@ postalCodeResult.IsOk @>
+        test <@ postalCodeResult.OkValue |> Seq.isEmpty |> not @>
         test <@ postalCodeResult.OkValue.[0].PlaceName = "Coupon" @>
 
         test <@ cityNameResult.IsOk @>
+        test <@ cityNameResult.OkValue |> Seq.isEmpty |> not @>
         test <@ cityNameResult.OkValue.[0].PostalCode = "55732" @>
+
+    [<Fact>]
+    member __.``When querying for city with special characters, should work`` () =
+        Main.updateCountry "se"
+
+        let vasterasResult = Main.queryDatabase "Västerås"
+        let secondVasterasResult = Main.queryDatabase "vÄsterås"
+
+        test <@ vasterasResult.IsOk @>
+        test <@ vasterasResult.OkValue |> Seq.isEmpty |> not @>
+        test <@ vasterasResult.OkValue.[0].PlaceName = "Västerås" @>
+
+        test <@ secondVasterasResult.IsOk @>
+        test <@ secondVasterasResult.OkValue |> Seq.isEmpty |> not @>
+        test <@ secondVasterasResult.OkValue.[0].PlaceName = "Västerås" @>
 
     [<Fact>]
     member __.``When country with partial postal codes exists, should query postal codes correctly`` () =
@@ -64,6 +81,7 @@ type EndToEndTests() =
         let result = Main.queryDatabase "H0H0H0"
 
         test <@ result.IsOk @>
+        test <@ result.OkValue |> Seq.isEmpty |> not @>
         test <@ result.OkValue.[0].PlaceName = "Reserved (Santa Claus)" @>
 
     [<Fact>]
@@ -73,6 +91,7 @@ type EndToEndTests() =
         let result = Main.queryDatabase "H0H"
 
         test <@ result.IsOk @>
+        test <@ result.OkValue |> Seq.isEmpty |> not @>
         test <@ result.OkValue.[0].PlaceName = "Reserved (Santa Claus)" @>
 
     [<Fact>]
@@ -82,5 +101,6 @@ type EndToEndTests() =
         let result = Main.queryDatabase "Asbestos"
 
         test <@ result.IsOk @>
+        test <@ result.OkValue |> Seq.isEmpty |> not @>
         test <@ result.OkValue.[0].PlaceName = "Asbestos" @>
 

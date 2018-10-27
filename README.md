@@ -8,6 +8,7 @@ There exists a secondary support repository for mirroring zip files from geoname
 ### TODO
 * Alternative output formats e.g. json
 * Limit search by country
+* Add fuzzy search
 
 # How to use
 

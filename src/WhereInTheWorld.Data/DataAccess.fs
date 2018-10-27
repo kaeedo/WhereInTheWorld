@@ -2,6 +2,7 @@ namespace WhereInTheWorld.Data
 
 open System
 open System.IO
+open System.Globalization
 open Microsoft.Data.Sqlite
 
 open Dapper
@@ -25,7 +26,9 @@ type OptionHandler<'T>() =
         then None
         else Some (value :?> 'T)
 
+
 module Database =
+
     let connectionString = sprintf "Data Source=%s" databaseFile
 
     let safeSqlConnection (connectionString: string) =
@@ -33,6 +36,10 @@ module Database =
         SqlMapper.AddTypeHandler (OptionHandler<int>())
         SqlMapper.AddTypeHandler (OptionHandler<string>())
         new SqliteConnection(connectionString)
+
+    let upper: Func<string, string> =
+         Func<string, string>(fun (args: string) ->
+                        args.ToUpper(CultureInfo.InvariantCulture))
 
     let clearDatabase () =
         if File.Exists(databaseFile)
@@ -43,6 +50,7 @@ module Database =
         then
             let file = new FileInfo(databaseFile)
             file.Directory.Create()
+            
             let connection = safeSqlConnection connectionString
             connection.Open()
             let sql = IoUtilities.getEmbeddedResource "WhereInTheWorld.Data.sqlScripts.createTables.sql"
@@ -67,61 +75,76 @@ module Query =
         with
         | _ as e -> Result.Error e
 
-    
-
     let getCityNameInformation (cityName: string) =
-        let sanitizedInput = cityName.Replace(" ", String.Empty).ToUpper()
+        job {
+            let sanitizedInput = cityName.Replace(" ", String.Empty).ToUpper()
 
-        let query (input: string) =
-            let sql = IoUtilities.getEmbeddedResource "WhereInTheWorld.Data.sqlScripts.queryCityName.sql"
+            let query (input: string) =
+                let sql = IoUtilities.getEmbeddedResource "WhereInTheWorld.Data.sqlScripts.queryCityName.sql"
 
-            let connection = Database.safeSqlConnection Database.connectionString
-            connection.Open()
-            let results = connection.Query<PostalCodeInformation>(sql, dict ["Input", box input])
-            connection.Close()
+                let connection = Database.safeSqlConnection Database.connectionString
+                connection.Open()
+            
+                connection.CreateFunction<string, string>("UPPER", Database.upper)
 
-            results
-            |> List.ofSeq
+                job {
+                    let! results = 
+                        connection.QueryAsync<PostalCodeInformation>(sql, dict ["Input", box input])
+                        |> Job.awaitTask
+                    connection.Close()
 
-        try
-            Result.Ok (query sanitizedInput)
-        with
-        | _ as e -> Result.Error e
+                    return results |> List.ofSeq
+                } |> run
+
+            try
+                return Result.Ok (query sanitizedInput)
+            with
+            | _ as e -> return Result.Error e
+        }
 
     let getPostalCodeInformation (postalCodeInput: string) =
-        let sanitizedInput = postalCodeInput.Replace(" ", String.Empty).ToUpper()
+        job {
+            let sanitizedInput = postalCodeInput.Replace(" ", String.Empty).ToUpper()
 
-        let query (input: string) =
-            let sql = IoUtilities.getEmbeddedResource "WhereInTheWorld.Data.sqlScripts.queryPostalCode.sql"
+            let query (input: string) =
+                let sql = IoUtilities.getEmbeddedResource "WhereInTheWorld.Data.sqlScripts.queryPostalCode.sql"
 
-            let connection = Database.safeSqlConnection Database.connectionString
-            connection.Open()
-            let results = connection.Query<PostalCodeInformation>(sql, dict ["Input", box input])
-            connection.Close()
+                let connection = Database.safeSqlConnection Database.connectionString
+                connection.Open()
+                job {
+                    let! results = 
+                        connection.QueryAsync<PostalCodeInformation>(sql, dict ["Input", box input])
+                        |> Job.awaitTask
+                    connection.Close()
 
-            results
-            |> List.ofSeq
+                    return results |> List.ofSeq
+                }
 
-        let rec queryUntilMatch (input: string) =
-            match input with
-            | _ when input.Length <= 3 -> query input
-            | _ ->
-                let results = query input
+            let rec queryUntilMatch (input: string) =
+                match input with
+                | _ when input.Length <= 3 -> query input
+                | _ ->
+                    let results =
+                        job {
+                            return! query input
+                        } |> run
 
-                if results |> List.isEmpty
-                then
-                    let newInput = input.Substring(0, int (Math.Ceiling(float input.Length / 2.0)))
-                    queryUntilMatch newInput
-                else results
+                    if results |> List.isEmpty
+                    then
+                        let newInput = input.Substring(0, int (Math.Ceiling(float input.Length / 2.0)))
+                        queryUntilMatch newInput
+                    else job { return results }
 
-        try
-            Result.Ok (queryUntilMatch sanitizedInput)
-        with
-        | _ as e -> Result.Error e
+            try
+                let! result = (queryUntilMatch sanitizedInput)
+                return Result.Ok result
+            with
+            | _ as e -> return Result.Error e
+        }
 
     let getSearchResult input =
-        let postalCodeJob = Job.lift getPostalCodeInformation input
-        let cityNameJob = Job.lift getCityNameInformation input
+        let postalCodeJob = getPostalCodeInformation input
+        let cityNameJob = getCityNameInformation input
 
         let postalResult, cityResult = (postalCodeJob <*> cityNameJob) |> run
         if cityResult.IsOk && cityResult.OkValue.Length > 0 then
