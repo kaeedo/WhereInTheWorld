@@ -7,6 +7,13 @@
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <ToolCommandName>witw</ToolCommandName>
     <Version>1.1.0</Version>
+    <Title>Where In The World</Title>
+    <Authors>kaeedo</Authors>
+    <Description>Offline CLI tool to search for postal codes or city names in the world to get information about that place. Requires internet to download information about a country, but after that, querying is offline</Description>
+    <PackageLicenseUrl>https://raw.githubusercontent.com/kaeedo/WhereInTheWorld/master/LICENSE.md</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/kaeedo/WhereInTheWorld/</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/kaeedo/WhereInTheWorld/</RepositoryUrl>
+    <PackageReleaseNotes>https://github.com/kaeedo/WhereInTheWorld/blob/master/RELEASE_NOTES.md</PackageReleaseNotes>
   </PropertyGroup>
   <PropertyGroup>
     <ServerGarbageCollection>true</ServerGarbageCollection>

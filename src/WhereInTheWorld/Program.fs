@@ -30,7 +30,7 @@ module Main =
             |> Map.exists (fun key _ -> key = uppercaseCountryCode)
 
         if not isValidCountryCode
-        then printfn "%s is not a valid country code. \"witw --supported\" to see a list of supported countries" countryCode
+        then printfn "%s is not a valid country code. \"witw --list supported\" to see a list of supported countries" countryCode
         else
             let updateJob: Result<_, exn> =
                 UpdateProcess.updateCountryProcess uppercaseCountryCode ConsolePrinter.downloadStatusPrinter ConsolePrinter.insertStatusPrinter

@@ -5,9 +5,14 @@ All data acquired from: www.geonames.org licensed under Creative Commons 3
 
 There exists a secondary support repository for mirroring zip files from geonames, as well as creating lists of supported countries and additional information: https://github.com/kaeedo/WhereInTheWorldSupport/
 
+### TODO
+* Alternative output formats e.g. json
+* Limit search by country
+
 # How to use
 
 ### Install
+Requires dotnet core >= 2.1
 * `dotnet tool install -g WhereInTheWorld`
 
 ### Usage
@@ -52,3 +57,10 @@ There exists a secondary support repository for mirroring zip files from geoname
             Within Subdivision: Wyoming (WY)
             In Country: United States of America (US)
         -------------------------
+
+
+### Development
+Requires dotnet core >= 2.1
+Globally install fake-cli
+fake run build.fsx
+	
