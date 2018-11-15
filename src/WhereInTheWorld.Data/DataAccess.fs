@@ -50,7 +50,7 @@ module Database =
         then
             let file = new FileInfo(databaseFile)
             file.Directory.Create()
-            
+
             let connection = safeSqlConnection connectionString
             connection.Open()
             let sql = IoUtilities.getEmbeddedResource "WhereInTheWorld.Data.sqlScripts.createTables.sql"
@@ -84,11 +84,11 @@ module Query =
 
                 let connection = Database.safeSqlConnection Database.connectionString
                 connection.Open()
-            
+
                 connection.CreateFunction<string, string>("UPPER", Database.upper)
 
                 job {
-                    let! results = 
+                    let! results =
                         connection.QueryAsync<PostalCodeInformation>(sql, dict ["Input", box input])
                         |> Job.awaitTask
                     connection.Close()
@@ -112,7 +112,7 @@ module Query =
                 let connection = Database.safeSqlConnection Database.connectionString
                 connection.Open()
                 job {
-                    let! results = 
+                    let! results =
                         connection.QueryAsync<PostalCodeInformation>(sql, dict ["Input", box input])
                         |> Job.awaitTask
                     connection.Close()
@@ -124,10 +124,7 @@ module Query =
                 match input with
                 | _ when input.Length <= 3 -> query input
                 | _ ->
-                    let results =
-                        job {
-                            return! query input
-                        } |> run
+                    let results = (query input) |> run
 
                     if results |> List.isEmpty
                     then
@@ -149,7 +146,7 @@ module Query =
         let postalResult, cityResult = (postalCodeJob <*> cityNameJob) |> run
         if cityResult.IsOk && cityResult.OkValue.Length > 0 then
             cityResult
-        else 
+        else
             postalResult
 
 

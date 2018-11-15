@@ -332,3 +332,4 @@ ASALocalRun/
 .mfractor/
 seed.db
 /test/WhereInTheWorld.Data.Tests/world.db
+.ionide/symbolCache.db
